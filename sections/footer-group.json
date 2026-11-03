@@ -13,6 +13,7 @@
   "sections": {
     "footer": {
       "type": "sp-footer",
+      "disabled": false,
       "blocks": {
         "m1": {
           "type": "_sp-footer-menu",
