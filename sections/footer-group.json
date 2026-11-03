@@ -13,7 +13,22 @@
   "sections": {
     "footer": {
       "type": "sp-footer",
-      "settings": {}
+      "settings": {
+        "blurb": "Gently cooked food and sensible treats for dogs, cats and the small ones.",
+        "sign_off": "Made for good dogs (and cats)",
+        "show_newsletter": true,
+        "news_heading": "Treats in your inbox",
+        "news_text": "New recipes, feeding tips and far too many dog photos.",
+        "news_placeholder": "you@example.com",
+        "news_button": "Sign up",
+        "news_success": "You're in \u2014 watch your inbox.",
+        "scallop": true,
+        "show_pets": true,
+        "show_paws": true,
+        "background": "#e7f0e2",
+        "card_background": "#fbf7ef",
+        "text_color": "#27372b"
+      }
     },
     "utilities": {
       "type": "footer-utilities",
