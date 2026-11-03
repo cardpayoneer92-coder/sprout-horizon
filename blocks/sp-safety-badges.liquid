@@ -1,0 +1,52 @@
+{% doc %}
+  A row of short reassurance pills for the product page — the answer to
+  "is this safe for my pet?". Each pill is one line of the setting.
+
+  @example
+  Vet approved · Non-toxic · No fillers · Compostable pack
+{% enddoc %}
+
+{%- liquid
+  assign b = block.settings
+  assign lines = b.badges | newline_to_br | split: '<br />'
+-%}
+
+{%- if b.badges != blank -%}
+  <ul class="sp-safety" role="list" {{ block.shopify_attributes }}>
+    {%- for line in lines -%}
+      {%- assign label = line | strip -%}
+      {%- if label != blank -%}
+        <li class="sp-safety__pill">
+          {% render 'sp-icon', name: b.icon, size: 16 %}
+          <span>{{ label | escape }}</span>
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+{%- endif -%}
+
+{% stylesheet %}
+  .sp-safety { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .sp-safety__pill { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 999px; background: var(--sp-mint, #e7f0e2); font-size: 13px; font-weight: 700; }
+  .sp-safety__pill svg { color: var(--sp-moss, #3f6b4a); }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Safety badges",
+  "tag": null,
+  "settings": [
+    { "type": "textarea", "id": "badges", "label": "Badges (one per line)", "default": "Vet approved\nNon-toxic\nNo fillers\nCompostable pack" },
+    {
+      "type": "select", "id": "icon", "label": "Icon", "default": "check",
+      "options": [
+        { "value": "check", "label": "Tick" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "paw", "label": "Paw" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Safety badges", "category": "t:categories.custom" }]
+}
+{% endschema %}

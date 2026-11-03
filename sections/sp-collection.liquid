@@ -1,0 +1,232 @@
+{% comment %}
+  Section contract.
+  Collection page: a sticky bar showing the saved pet profile, a filter
+  sidebar built from the collection's own filters, a sort control and the
+  product grid with pagination.
+  @example
+  <!-- Shopping for Dog · Medium — 24 products -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+  assign items_per_page = s.items_per_page
+-%}
+
+<section class="sp-coll-sec" style="--sp-sec-bg: {{ s.background }}; --sp-h1-size: {{ s.heading_size }}px; --sp-coll-cols: {{ s.columns }}; padding-bottom: {{ s.padding_bottom }}px;">
+
+  {%- if s.show_bar -%}
+    <sp-pet-bar class="sp-coll__bar">
+      <div class="sp-wrap sp-coll__bar-inner">
+        <span class="sp-coll__for">
+          {% render 'sp-icon', name: 'paw', size: 20 %}
+          <span>{{ s.bar_label | escape }} <strong data-pet-out>your pet</strong><span data-size-wrap hidden> · <strong data-size-out></strong></span></span>
+        </span>
+        <a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ s.bar_link | default: '/' }}">{{ s.bar_button | escape }}</a>
+      </div>
+    </sp-pet-bar>
+  {%- endif -%}
+
+  <div class="sp-wrap">
+    <header class="sp-coll__head">
+      <nav class="sp-coll__crumbs" aria-label="Breadcrumb">
+        <a href="{{ routes.root_url }}">Home</a><span>/</span><span>{{ collection.title | default: 'Products' }}</span>
+      </nav>
+      <h1 class="sp-h1">{{ collection.title | default: 'Everything' }}</h1>
+      {%- if collection.description != blank -%}
+        <div class="sp-lede sp-coll__desc">{{ collection.description }}</div>
+      {%- endif -%}
+    </header>
+
+    {% paginate collection.products by items_per_page %}
+      <div class="sp-coll__layout">
+
+        {%- if s.show_filters -%}
+          <aside class="sp-coll__filters">
+            <h2 class="sp-coll__filters-title">Refine</h2>
+            <form id="sp-filters-{{ section.id }}">
+              {%- for filter in collection.filters -%}
+                <fieldset class="sp-coll__filter">
+                  <legend>{{ filter.label }}</legend>
+                  {%- case filter.type -%}
+                    {%- when 'list' -%}
+                      <div class="sp-coll__values">
+                        {%- for value in filter.values -%}
+                          <label class="sp-coll__value">
+                            <input type="checkbox" name="{{ value.param_name }}" value="{{ value.value }}"{% if value.active %} checked{% endif %}{% if value.count == 0 and value.active == false %} disabled{% endif %}>
+                            <span>{{ value.label }}</span>
+                            <span class="sp-coll__count">{{ value.count }}</span>
+                          </label>
+                        {%- endfor -%}
+                      </div>
+                    {%- when 'price_range' -%}
+                      <div class="sp-coll__price">
+                        <label>
+                          <span class="sp-visually-hidden">Lowest price</span>
+                          <input type="number" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value }}" placeholder="0" min="0" max="{{ filter.range_max | money_without_currency | replace: ',', '' }}">
+                        </label>
+                        <span aria-hidden="true">–</span>
+                        <label>
+                          <span class="sp-visually-hidden">Highest price</span>
+                          <input type="number" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value }}" placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}" min="0" max="{{ filter.range_max | money_without_currency | replace: ',', '' }}">
+                        </label>
+                      </div>
+                  {%- endcase -%}
+                </fieldset>
+              {%- else -%}
+                <p class="sp-coll__nofilters">Add filters to this collection in Shopify search &amp; discovery.</p>
+              {%- endfor -%}
+              {%- if collection.filters.size > 0 -%}
+                <button type="submit" class="sp-btn sp-btn--primary sp-btn--sm">Apply</button>
+                <a class="sp-coll__clear" href="{{ collection.url }}">Clear all</a>
+              {%- endif -%}
+            </form>
+
+            {%- if s.finder_text != blank -%}
+              <div class="sp-coll__help">
+                <h3 class="sp-coll__help-title">{{ s.finder_title | escape }}</h3>
+                <p>{{ s.finder_text | escape }}</p>
+                <a class="sp-btn sp-btn--primary sp-btn--sm" href="{{ s.finder_link | default: '/' }}">{{ s.finder_button | escape }}</a>
+              </div>
+            {%- endif -%}
+          </aside>
+        {%- endif -%}
+
+        <div class="sp-coll__main">
+          <div class="sp-coll__toolbar">
+            <p class="sp-coll__count-line">{{ collection.products_count }} {% if collection.products_count == 1 %}product{% else %}products{% endif %}</p>
+            {%- if collection.sort_options.size > 0 -%}
+              <label class="sp-coll__sort">
+                <span>Sort</span>
+                <select name="sort_by" form="sp-filters-{{ section.id }}">
+                  {%- for option in collection.sort_options -%}
+                    <option value="{{ option.value }}"{% if option.value == collection.sort_by %} selected{% endif %}>{{ option.name }}</option>
+                  {%- endfor -%}
+                </select>
+              </label>
+            {%- endif -%}
+          </div>
+
+          <sp-pet-aware class="sp-grid sp-coll__grid" data-heading-template="" data-sub-template="">
+            {%- for product in collection.products -%}
+              {% render 'sp-product-card', product: product, index: forloop.index0, show_quick_add: s.quick_add %}
+            {%- else -%}
+              <p class="sp-coll__empty">Nothing here yet. Add products to this collection.</p>
+            {%- endfor -%}
+          </sp-pet-aware>
+
+          {%- if paginate.pages > 1 -%}
+            <nav class="sp-coll__pages" aria-label="Pagination">
+              {%- if paginate.previous -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.previous.url }}">Back</a>{%- endif -%}
+              <span class="sp-coll__page-of">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
+              {%- if paginate.next -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.next.url }}">More</a>{%- endif -%}
+            </nav>
+          {%- endif -%}
+        </div>
+      </div>
+    {% endpaginate %}
+  </div>
+</section>
+
+<script type="module">
+  if (!customElements.get('sp-pet-bar')) {
+    customElements.define('sp-pet-bar', class extends HTMLElement {
+      connectedCallback() {
+        this.apply(this.read());
+        this.onPet = (e) => this.apply(e.detail);
+        document.addEventListener('sprout:pet-change', this.onPet);
+      }
+      disconnectedCallback() { document.removeEventListener('sprout:pet-change', this.onPet); }
+      read() {
+        try { return JSON.parse(localStorage.getItem('sprout:pet')) || null; } catch (e) { return null; }
+      }
+      apply(p) {
+        if (!p || !p.pet) return;
+        const petOut = this.querySelector('[data-pet-out]');
+        const sizeOut = this.querySelector('[data-size-out]');
+        const wrap = this.querySelector('[data-size-wrap]');
+        if (petOut) petOut.textContent = p.pet;
+        if (sizeOut && p.weight) {
+          sizeOut.textContent = p.weight < 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large');
+          if (wrap) wrap.hidden = false;
+        }
+      }
+    });
+  }
+</script>
+
+{% stylesheet %}
+  .sp-coll-sec { background: var(--sp-sec-bg, #fbf7ef); }
+  .sp-coll__bar { position: sticky; top: 0; z-index: 10; display: block; background: var(--sp-mint, #e7f0e2); border-bottom: 1px solid #d3e0cd; }
+  .sp-coll__bar-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; padding-block: 12px; }
+  .sp-coll__for { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
+  .sp-coll__for svg { color: var(--sp-moss, #3f6b4a); }
+
+  .sp-coll__head { padding-block: 36px 16px; }
+  .sp-coll__crumbs { font-size: 14px; color: var(--sp-muted, #5e6e60); margin-bottom: 12px; }
+  .sp-coll__crumbs a { color: inherit; text-decoration: none; }
+  .sp-coll__crumbs span { padding: 0 8px; }
+  .sp-coll__crumbs span:last-child { padding: 0; }
+  .sp-coll__desc { margin-top: 10px; max-width: 60ch; }
+
+  .sp-coll__layout { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; padding-top: 8px; }
+  .sp-coll__filters { flex: 0 1 240px; min-width: 200px; }
+  .sp-coll__filters-title { margin: 0 0 16px; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sp-muted, #5e6e60); }
+  .sp-coll__filter { margin: 0 0 22px; padding: 0; border: 0; }
+  .sp-coll__filter legend { padding: 0 0 10px; font-weight: 700; font-size: 15px; }
+  .sp-coll__values { display: grid; gap: 9px; font-size: 15px; }
+  .sp-coll__value { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .sp-coll__value input { width: 18px; height: 18px; accent-color: var(--sp-moss, #3f6b4a); }
+  .sp-coll__count { margin-left: auto; font-size: 13px; color: var(--sp-muted, #5e6e60); }
+  .sp-coll__price { display: flex; align-items: center; gap: 8px; }
+  .sp-coll__price input { width: 100%; min-height: 44px; padding: 0 14px; border: 2px solid #ddd5c6; border-radius: 999px; background: var(--sp-cream, #fbf7ef); font-family: inherit; font-size: 15px; }
+  .sp-coll__clear { display: inline-block; margin-left: 14px; font-size: 14px; font-weight: 700; }
+  .sp-coll__nofilters { margin: 0 0 18px; font-size: 14px; color: var(--sp-muted, #5e6e60); }
+  .sp-coll__help { margin-top: 10px; padding: 20px; border-radius: var(--sp-r-tile, 22px); background: var(--sp-mint, #e7f0e2); }
+  .sp-coll__help-title { margin: 0 0 6px; font-size: 16px; font-weight: 700; }
+  .sp-coll__help p { margin: 0 0 14px; font-size: 14px; color: var(--sp-muted, #566358); }
+
+  .sp-coll__main { flex: 999 1 560px; min-width: 0; }
+  .sp-coll__toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+  .sp-coll__count-line { margin: 0; font-size: 15px; color: var(--sp-muted, #5e6e60); }
+  .sp-coll__sort { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+  .sp-coll__sort > span { font-weight: 700; }
+  .sp-coll__sort select { min-height: 44px; padding: 0 16px; border: 2px solid #ddd5c6; border-radius: 999px; background: var(--sp-cream, #fbf7ef); font-family: inherit; font-size: 15px; color: inherit; }
+  .sp-coll__grid { grid-template-columns: repeat(var(--sp-coll-cols, 3), minmax(0, 1fr)); }
+  .sp-coll__empty { grid-column: 1 / -1; margin: 0; color: var(--sp-muted, #566358); }
+  .sp-coll__pages { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 36px; }
+  .sp-coll__page-of { font-size: 14px; color: var(--sp-muted, #5e6e60); }
+
+  @media (max-width: 989px) { .sp-coll__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sp-coll__filters { flex: 1 1 100%; } }
+  @media (max-width: 749px) { .sp-coll__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Collection",
+  "tag": "section",
+  "class": "sp-collection-section",
+  "enabled_on": { "templates": ["collection"] },
+  "settings": [
+    { "type": "header", "content": "Pet bar" },
+    { "type": "checkbox", "id": "show_bar", "label": "Show the pet bar", "default": true },
+    { "type": "text", "id": "bar_label", "label": "Bar label", "default": "Shopping for" },
+    { "type": "text", "id": "bar_button", "label": "Bar button", "default": "Change pet" },
+    { "type": "url", "id": "bar_link", "label": "Bar link" },
+    { "type": "header", "content": "Grid" },
+    { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 4, "step": 1, "default": 3 },
+    { "type": "range", "id": "items_per_page", "label": "Products per page", "min": 8, "max": 48, "step": 4, "default": 24 },
+    { "type": "checkbox", "id": "quick_add", "label": "Quick add on hover", "default": true },
+    { "type": "checkbox", "id": "show_filters", "label": "Show filters", "default": true },
+    { "type": "header", "content": "Size finder card" },
+    { "type": "text", "id": "finder_title", "label": "Title", "default": "Not sure on size?" },
+    { "type": "text", "id": "finder_text", "label": "Text", "default": "Pop in a weight and we will point at the right one." },
+    { "type": "text", "id": "finder_button", "label": "Button", "default": "Size finder" },
+    { "type": "url", "id": "finder_link", "label": "Link" },
+    { "type": "header", "content": "Style" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fbf7ef" },
+    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 28, "max": 80, "step": 2, "unit": "px", "default": 52 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 56 }
+  ],
+  "presets": [{ "name": "Collection", "category": "t:categories.custom" }]
+}
+{% endschema %}
