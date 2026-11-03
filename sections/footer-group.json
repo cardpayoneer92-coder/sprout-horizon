@@ -13,7 +13,6 @@
   "sections": {
     "footer": {
       "type": "sp-footer",
-      "disabled": false,
       "blocks": {
         "m1": {
           "type": "_sp-footer-menu",
@@ -44,7 +43,7 @@
         "sign_off": "Made for good dogs (and cats)",
         "show_newsletter": true,
         "news_heading": "Treats in your inbox",
-        "news_text": "New recipes, feeding tips and far too many dog photos.",
+        "news_text": "New recipes, feeding tips and far too many dog photos. ",
         "news_placeholder": "you@example.com",
         "news_button": "Sign up",
         "news_success": "You're in \u2014 watch your inbox.",
