@@ -28,7 +28,32 @@
         "background": "#e7f0e2",
         "card_background": "#fbf7ef",
         "text_color": "#27372b"
-      }
+      },
+      "blocks": {
+        "m1": {
+          "type": "_sp-footer-menu",
+          "settings": {
+            "heading": "Shop"
+          }
+        },
+        "m2": {
+          "type": "_sp-footer-menu",
+          "settings": {
+            "heading": "Help"
+          }
+        },
+        "m3": {
+          "type": "_sp-footer-menu",
+          "settings": {
+            "heading": "About"
+          }
+        }
+      },
+      "block_order": [
+        "m1",
+        "m2",
+        "m3"
+      ]
     },
     "utilities": {
       "type": "footer-utilities",
