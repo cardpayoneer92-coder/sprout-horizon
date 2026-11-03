@@ -1,0 +1,246 @@
+{% comment %}
+  Section contract.
+  Pet profile: the shopper picks a pet and drags a weight, and the section
+  works out the pack size, the daily portion, how long a pack lasts and a
+  delivery cadence. The choice is kept in localStorage under "sprout:pet",
+  so the collection bar and the size finder can read it back.
+  @example
+  <!-- Dog · 14 kg → Medium pack, 310g a day, lasts 8 days -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<section class="sp-sec sp-profile-sec" style="--sp-sec-bg: {{ s.background }}; --sp-h2-size: {{ s.heading_size }}px; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <sp-pet-profile
+      class="sp-profile"
+      data-small-max="{{ s.small_max }}"
+      data-medium-max="{{ s.medium_max }}"
+      data-grams-per-kg="{{ s.grams_per_kg }}"
+      data-pack-small="{{ s.pack_small }}"
+      data-pack-medium="{{ s.pack_medium }}"
+      data-pack-large="{{ s.pack_large }}"
+      style="--sp-profile-card: {{ s.card_background }};"
+    >
+      <div class="sp-profile__head">
+        <div>
+          {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+          {%- if s.heading != blank -%}<h2 class="sp-h2">{{ s.heading }}</h2>{%- endif -%}
+        </div>
+        {%- if s.note != blank -%}<p class="sp-profile__note">{{ s.note | escape }}</p>{%- endif -%}
+      </div>
+
+      <div class="sp-profile__steps">
+
+        <fieldset class="sp-profile__step">
+          <legend class="sp-profile__legend">{{ s.step1_label | escape }}</legend>
+          <div class="sp-profile__pets">
+            {%- assign pets = s.pets | split: ',' -%}
+            {%- for pet in pets -%}
+              {%- assign name = pet | strip -%}
+              {%- if name != blank -%}
+                <button type="button" class="sp-profile__pet" data-pet="{{ name | escape }}">
+                  {% render 'sp-icon', name: 'paw', size: 26 %}
+                  <span>{{ name }}</span>
+                </button>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        </fieldset>
+
+        <div class="sp-profile__step">
+          <p class="sp-profile__legend">{{ s.step2_label | escape }}</p>
+          <label class="sp-profile__sublabel" for="sp-weight-{{ section.id }}">{{ s.weight_label | escape }}</label>
+          <input
+            class="sp-profile__range"
+            id="sp-weight-{{ section.id }}"
+            type="range"
+            min="{{ s.weight_min }}"
+            max="{{ s.weight_max }}"
+            step="1"
+            value="{{ s.weight_default }}"
+            data-weight
+          >
+          <p class="sp-profile__weight"><span data-weight-out>{{ s.weight_default }}</span> {{ s.weight_unit | escape }}</p>
+          <p class="sp-profile__hint">{{ s.weight_hint | escape }}</p>
+        </div>
+
+        <div class="sp-profile__step">
+          <p class="sp-profile__legend">{{ s.step3_label | escape }}</p>
+          <div class="sp-profile__result" aria-live="polite">
+            <p class="sp-profile__size"><span data-size-out>{{ s.pack_label | escape }}</span></p>
+            <ul class="sp-profile__facts" role="list">
+              <li>{% render 'sp-icon', name: 'check', size: 18 %}<span>{{ s.fact_portion | escape }} <strong data-portion-out></strong></span></li>
+              <li>{% render 'sp-icon', name: 'check', size: 18 %}<span>{{ s.fact_lasts | escape }} <strong data-lasts-out></strong></span></li>
+              <li>{% render 'sp-icon', name: 'check', size: 18 %}<span>{{ s.fact_cadence | escape }} <strong data-cadence-out></strong></span></li>
+            </ul>
+            {%- if s.button_text != blank -%}
+              <a class="sp-btn sp-btn--primary sp-btn--sm" href="{{ s.button_link | default: '/collections/all' }}">{{ s.button_text | escape }}</a>
+            {%- endif -%}
+          </div>
+        </div>
+
+      </div>
+    </sp-pet-profile>
+  </div>
+</section>
+
+<script type="module">
+  if (!customElements.get('sp-pet-profile')) {
+    customElements.define('sp-pet-profile', class extends HTMLElement {
+      static KEY = 'sprout:pet';
+
+      connectedCallback() {
+        this.range = this.querySelector('[data-weight]');
+        this.petButtons = [...this.querySelectorAll('[data-pet]')];
+        this.state = Object.assign(
+          { pet: this.petButtons[0]?.dataset.pet || 'Dog', weight: Number(this.range?.value || 14) },
+          this.read()
+        );
+        if (this.range) {
+          this.range.value = this.state.weight;
+          this.range.addEventListener('input', () => {
+            this.state.weight = Number(this.range.value);
+            this.paint();
+            this.save();
+          });
+        }
+        this.petButtons.forEach((b) => b.addEventListener('click', () => {
+          this.state.pet = b.dataset.pet;
+          this.paint();
+          this.save();
+        }));
+        this.paint();
+      }
+
+      read() {
+        try {
+          return JSON.parse(localStorage.getItem(this.constructor.KEY)) || {};
+        } catch (e) {
+          return {};
+        }
+      }
+
+      save() {
+        try {
+          localStorage.setItem(this.constructor.KEY, JSON.stringify(this.state));
+        } catch (e) { /* private window — the page still works */ }
+        document.dispatchEvent(new CustomEvent('sprout:pet-change', { detail: Object.assign({}, this.state) }));
+      }
+
+      num(attr, fallback) {
+        const v = Number(this.dataset[attr]);
+        return Number.isFinite(v) && v > 0 ? v : fallback;
+      }
+
+      sizeFor(kg) {
+        if (kg < this.num('smallMax', 10)) return 'Small';
+        if (kg <= this.num('mediumMax', 25)) return 'Medium';
+        return 'Large';
+      }
+
+      paint() {
+        const kg = this.state.weight;
+        const size = this.sizeFor(kg);
+        const grams = Math.max(10, Math.round((kg * this.num('gramsPerKg', 22)) / 10) * 10);
+        const packs = {
+          Small: this.num('packSmall', 1200),
+          Medium: this.num('packMedium', 2400),
+          Large: this.num('packLarge', 4000)
+        };
+        const days = Math.max(1, Math.round(packs[size] / grams));
+        const cadence = days >= 12 ? '2 weeks' : (days >= 6 ? '10 days' : 'week');
+
+        this.petButtons.forEach((b) => {
+          const on = b.dataset.pet === this.state.pet;
+          b.classList.toggle('is-on', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        const set = (sel, val) => { const n = this.querySelector(sel); if (n) n.textContent = val; };
+        set('[data-weight-out]', kg);
+        set('[data-size-out]', size + ' pack');
+        set('[data-portion-out]', grams + 'g');
+        set('[data-lasts-out]', days + (days === 1 ? ' day' : ' days'));
+        set('[data-cadence-out]', cadence);
+      }
+    });
+  }
+</script>
+
+{% stylesheet %}
+  .sp-profile { display: block; border-radius: var(--sp-r-band, 36px); background: var(--sp-profile-card, #e7f0e2); padding: clamp(26px, 3vw, 40px) clamp(20px, 2.6vw, 36px); }
+  .sp-profile__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 10px 20px; margin-bottom: 24px; }
+  .sp-profile__note { margin: 0; font-size: 15px; color: #4c5b50; }
+  .sp-profile__steps { display: flex; flex-wrap: wrap; gap: 26px; }
+  .sp-profile__step { flex: 1 1 280px; min-width: 0; margin: 0; padding: 0; border: 0; }
+  .sp-profile__legend { margin: 0 0 10px; padding: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sp-muted, #566358); }
+  .sp-profile__sublabel { display: block; margin-bottom: 8px; font-size: 14px; color: #4c5b50; }
+
+  .sp-profile__pets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .sp-profile__pet { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 16px; border: 2px solid var(--sp-line-mint, #d6e2d0); border-radius: var(--sp-r-tile, 22px); background: var(--sp-cream, #fbf7ef); color: var(--sp-ink, #27372b); font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; transition: transform 0.22s var(--sp-ease-back), background-color 0.2s ease, border-color 0.2s ease; }
+  .sp-profile__pet:hover { transform: translateY(-2px); }
+  .sp-profile__pet.is-on { background: var(--sp-moss, #3f6b4a); border-color: var(--sp-moss, #3f6b4a); color: var(--sp-cream, #fbf7ef); }
+
+  .sp-profile__range { width: 100%; accent-color: var(--sp-moss, #3f6b4a); }
+  .sp-profile__weight { margin: 6px 0 0; font-family: var(--sp-font-head); font-size: 30px; font-weight: 500; }
+  .sp-profile__hint { margin: 2px 0 0; font-size: 13px; color: var(--sp-muted, #5e6e60); }
+
+  .sp-profile__result { border-radius: var(--sp-r-card, 28px); background: var(--sp-cream, #fbf7ef); padding: 20px 22px; }
+  .sp-profile__size { margin: 0 0 10px; font-family: var(--sp-font-head); font-size: 24px; font-weight: 500; }
+  .sp-profile__facts { display: grid; gap: 8px; margin: 0 0 14px; padding: 0; list-style: none; font-size: 15px; color: #44544a; }
+  .sp-profile__facts li { display: flex; gap: 9px; }
+  .sp-profile__facts svg { flex: 0 0 auto; margin-top: 3px; color: var(--sp-moss, #3f6b4a); }
+
+  @media (prefers-reduced-motion: reduce) { .sp-profile__pet { transition: none; } }
+  @media (max-width: 749px) { .sp-profile__pets { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Pet profile",
+  "tag": "section",
+  "class": "sp-pet-profile-section",
+  "settings": [
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Takes 10 seconds" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Who are we feeding?" },
+    { "type": "text", "id": "note", "label": "Note", "default": "We remember it on this device." },
+    { "type": "text", "id": "step1_label", "label": "Step 1 label", "default": "1 · Pet" },
+    { "type": "text", "id": "step2_label", "label": "Step 2 label", "default": "2 · Weight" },
+    { "type": "text", "id": "step3_label", "label": "Step 3 label", "default": "3 · What that means" },
+    { "type": "header", "content": "Pets" },
+    { "type": "text", "id": "pets", "label": "Pet options", "default": "Dog, Puppy, Cat, Small pet", "info": "Separate with commas." },
+    { "type": "header", "content": "Weight" },
+    { "type": "text", "id": "weight_label", "label": "Slider label", "default": "Roughly how heavy are they?" },
+    { "type": "text", "id": "weight_hint", "label": "Hint", "default": "Drag it — no need to be exact." },
+    { "type": "text", "id": "weight_unit", "label": "Unit", "default": "kg" },
+    { "type": "range", "id": "weight_min", "label": "Lightest", "min": 1, "max": 10, "step": 1, "default": 1 },
+    { "type": "range", "id": "weight_max", "label": "Heaviest", "min": 20, "max": 90, "step": 5, "default": 45 },
+    { "type": "range", "id": "weight_default", "label": "Starting weight", "min": 1, "max": 60, "step": 1, "default": 14 },
+    { "type": "header", "content": "Sizing rules" },
+    { "type": "paragraph", "content": "Where one pack size stops and the next begins, and how much food a pet eats per kilo." },
+    { "type": "range", "id": "small_max", "label": "Small is under", "min": 4, "max": 20, "step": 1, "unit": "kg", "default": 10 },
+    { "type": "range", "id": "medium_max", "label": "Medium is up to", "min": 12, "max": 45, "step": 1, "unit": "kg", "default": 25 },
+    { "type": "range", "id": "grams_per_kg", "label": "Food per kilo", "min": 10, "max": 40, "step": 1, "unit": "g", "default": 22 },
+    { "type": "range", "id": "pack_small", "label": "Small pack", "min": 400, "max": 3000, "step": 100, "unit": "g", "default": 1200 },
+    { "type": "range", "id": "pack_medium", "label": "Medium pack", "min": 800, "max": 5000, "step": 100, "unit": "g", "default": 2400 },
+    { "type": "range", "id": "pack_large", "label": "Large pack", "min": 1500, "max": 8000, "step": 100, "unit": "g", "default": 4000 },
+    { "type": "header", "content": "Result wording" },
+    { "type": "text", "id": "pack_label", "label": "Placeholder", "default": "Medium pack" },
+    { "type": "text", "id": "fact_portion", "label": "Portion line", "default": "About" },
+    { "type": "text", "id": "fact_lasts", "label": "Lasts line", "default": "One pack lasts" },
+    { "type": "text", "id": "fact_cadence", "label": "Delivery line", "default": "Delivery every" },
+    { "type": "text", "id": "button_text", "label": "Button", "default": "Show me what fits" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "header", "content": "Style" },
+    { "type": "color", "id": "background", "label": "Section background", "default": "#fbf7ef" },
+    { "type": "color", "id": "card_background", "label": "Card", "default": "#e7f0e2" },
+    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 24, "max": 64, "step": 2, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 24 }
+  ],
+  "presets": [{ "name": "Pet profile", "category": "t:categories.custom" }]
+}
+{% endschema %}

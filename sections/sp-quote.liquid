@@ -1,0 +1,72 @@
+{% comment %}
+  Section contract.
+  Social proof in one line: a customer quote on the left, a few tagged
+  photos on the right. Photos are child blocks.
+  @example
+  <!-- "She finally finished a bowl." — Mia, Biscuit's human -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<section class="sp-sec sp-quote-sec" style="--sp-sec-bg: {{ s.background }}; --sp-quote-size: {{ s.quote_size }}px; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <div class="sp-quote">
+      <div class="sp-quote__main">
+        {%- if s.quote != blank -%}
+          <blockquote class="sp-quote__text">{{ s.quote }}</blockquote>
+        {%- endif -%}
+        {%- if s.attribution != blank -%}
+          <p class="sp-quote__by">{{ s.attribution | escape }}</p>
+        {%- endif -%}
+        {%- if s.link_text != blank -%}
+          <a class="sp-quote__link" href="{{ s.link_url | default: '#' }}">{{ s.link_text | escape }}</a>
+        {%- endif -%}
+      </div>
+      {%- if section.blocks.size > 0 -%}
+        <div class="sp-quote__tiles">{% content_for 'blocks' %}</div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-quote { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
+  .sp-quote__main { flex: 1 1 380px; min-width: 0; }
+  .sp-quote__text { margin: 0; font-family: var(--sp-font-head); font-size: var(--sp-quote-size, 30px); line-height: 1.25; font-weight: 400; letter-spacing: -0.012em; }
+  .sp-quote__by { margin: 14px 0 0; font-size: 15px; color: var(--sp-muted, #566358); }
+  .sp-quote__link { display: inline-block; margin-top: 12px; font-weight: 700; text-decoration: none; border-bottom: 2px solid var(--sp-leaf, #6fa368); padding-bottom: 2px; }
+  .sp-quote__tiles { flex: 1 1 300px; min-width: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 749px) { .sp-quote__tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Customer quote",
+  "tag": "section",
+  "class": "sp-quote-section",
+  "blocks": [{ "type": "_sp-ugc-tile" }],
+  "settings": [
+    { "type": "richtext", "id": "quote", "label": "Quote", "default": "<p>“Put a real customer line here — the one about the fussy eater who finally finished a bowl.”</p>" },
+    { "type": "text", "id": "attribution", "label": "Attribution", "default": "[ NAME ] · [ PET NAME ], [ BREED ]" },
+    { "type": "text", "id": "link_text", "label": "Link text" },
+    { "type": "url", "id": "link_url", "label": "Link" },
+    { "type": "range", "id": "quote_size", "label": "Quote size", "min": 20, "max": 48, "step": 2, "unit": "px", "default": 30 },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fbf7ef" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 36 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 48 }
+  ],
+  "presets": [
+    {
+      "name": "Customer quote",
+      "category": "t:categories.custom",
+      "blocks": [
+        { "type": "_sp-ugc-tile" },
+        { "type": "_sp-ugc-tile" },
+        { "type": "_sp-ugc-tile" }
+      ]
+    }
+  ]
+}
+{% endschema %}

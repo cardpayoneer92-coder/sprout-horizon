@@ -1,0 +1,50 @@
+{% doc %}
+  One line in the trust row: an icon, a short title and a sentence.
+
+  @example
+  Vet-formulated — written with a veterinary nutritionist
+{% enddoc %}
+
+{%- liquid
+  assign b = block.settings
+-%}
+
+<div class="sp-trustrow__item" {{ block.shopify_attributes }}>
+  {% render 'sp-icon', name: b.icon, size: 22 %}
+  <div>
+    {%- if b.title != blank -%}<h3 class="sp-trustrow__title">{{ b.title | escape }}</h3>{%- endif -%}
+    {%- if b.text != blank -%}<p class="sp-trustrow__text">{{ b.text | escape }}</p>{%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .sp-trustrow__item { display: flex; gap: 12px; align-items: flex-start; }
+  .sp-trustrow__item > svg { flex: 0 0 auto; margin-top: 2px; color: var(--sp-moss, #3f6b4a); }
+  .sp-trustrow__title { margin: 0 0 2px; font-size: 15px; font-weight: 700; }
+  .sp-trustrow__text { margin: 0; font-size: 14px; color: var(--sp-muted, #566358); }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Trust point",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "title", "label": "Title", "default": "Vet-formulated" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Written with a veterinary nutritionist" },
+    {
+      "type": "select", "id": "icon", "label": "Icon", "default": "shield",
+      "options": [
+        { "value": "shield", "label": "Shield" },
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "check", "label": "Tick" },
+        { "value": "bowl", "label": "Bowl" },
+        { "value": "truck", "label": "Delivery" },
+        { "value": "refresh", "label": "Refresh" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "paw", "label": "Paw" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Trust point", "category": "t:categories.custom" }]
+}
+{% endschema %}

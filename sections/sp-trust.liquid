@@ -1,0 +1,62 @@
+{% comment %}
+  Section contract.
+  A calm row of trust points between hairlines — the reassurance a pet
+  owner wants before buying food, without the sticker noise. Points are
+  child blocks.
+  @example
+  <!-- Vet-formulated · Six ingredients · Compostable packs · Fussy-eater promise -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<section class="sp-sec sp-trustrow-sec" style="--sp-sec-bg: {{ s.background }}; --sp-trust-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    {%- if s.heading != blank -%}
+      <h2 class="sp-h3 sp-trustrow__heading">{{ s.heading }}</h2>
+    {%- endif -%}
+    <div class="sp-trustrow sp-trustrow--{{ s.style }}">{% content_for 'blocks' %}</div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-trustrow__heading { margin-bottom: 18px; }
+  .sp-trustrow { display: grid; grid-template-columns: repeat(var(--sp-trust-cols, 4), minmax(0, 1fr)); gap: 26px; }
+  .sp-trustrow--lines { padding-block: 30px; border-top: 1px solid var(--sp-line, #e3dccd); border-bottom: 1px solid var(--sp-line, #e3dccd); }
+  .sp-trustrow--band { padding: 34px 30px; border-radius: var(--sp-r-band, 36px); background: var(--sp-mint, #e7f0e2); }
+  @media (max-width: 989px) { .sp-trustrow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 749px) { .sp-trustrow { grid-template-columns: minmax(0, 1fr); gap: 18px; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Trust row",
+  "tag": "section",
+  "class": "sp-trust-section",
+  "blocks": [{ "type": "_sp-trust-line" }],
+  "settings": [
+    { "type": "textarea", "id": "heading", "label": "Heading" },
+    { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 4, "step": 1, "default": 4 },
+    {
+      "type": "select", "id": "style", "label": "Style", "default": "lines",
+      "options": [{ "value": "lines", "label": "Hairlines" }, { "value": "band", "label": "Mint band" }]
+    },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fbf7ef" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 24 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 24 }
+  ],
+  "presets": [
+    {
+      "name": "Trust row",
+      "category": "t:categories.custom",
+      "blocks": [
+        { "type": "_sp-trust-line", "settings": { "title": "Vet-formulated", "text": "Written with a veterinary nutritionist", "icon": "shield" } },
+        { "type": "_sp-trust-line", "settings": { "title": "Six ingredients", "text": "Everything fits on the front of the pack", "icon": "leaf" } },
+        { "type": "_sp-trust-line", "settings": { "title": "Compostable packs", "text": "Plant film and paper outers, no plastic", "icon": "bowl" } },
+        { "type": "_sp-trust-line", "settings": { "title": "Fussy-eater promise", "text": "They turn their nose up, we refund it", "icon": "refresh" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

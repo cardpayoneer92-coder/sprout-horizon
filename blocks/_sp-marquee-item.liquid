@@ -1,0 +1,25 @@
+{% doc %}
+  One phrase in the scrolling strip.
+
+  @example
+  Free shipping over $40
+{% enddoc %}
+
+{%- if block.settings.text != blank -%}
+  <span class="sp-marquee__word" {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</span>
+{%- endif -%}
+
+{% stylesheet %}
+  .sp-marquee__word { white-space: nowrap; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Marquee phrase",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "text", "label": "Text", "default": "Free shipping over [AMOUNT]" }
+  ],
+  "presets": [{ "name": "Marquee phrase", "category": "t:categories.custom" }]
+}
+{% endschema %}

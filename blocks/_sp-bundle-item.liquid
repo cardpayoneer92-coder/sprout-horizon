@@ -1,0 +1,60 @@
+{% doc %}
+  One piece in the bundle builder. Tap it to add or drop it from the set.
+
+  @example
+  Cloud bed · [PRICE]
+{% enddoc %}
+
+{%- liquid
+  assign b = block.settings
+  assign p = b.product
+-%}
+
+<button
+  type="button"
+  class="sp-bundle__item{% if b.selected %} is-on{% endif %}"
+  data-bundle-item
+  aria-pressed="{% if b.selected %}true{% else %}false{% endif %}"
+  {{ block.shopify_attributes }}
+>
+  <span class="sp-bundle__tick" aria-hidden="true">{% render 'sp-icon', name: 'check', size: 15 %}</span>
+  <span class="sp-bundle__media">
+    {%- if p != blank and p.featured_media -%}
+      <img src="{{ p.featured_media | image_url: width: 400 }}" alt="" width="{{ p.featured_media.width }}" height="{{ p.featured_media.height }}" loading="lazy">
+    {%- elsif b.image != blank -%}
+      <img src="{{ b.image | image_url: width: 400 }}" alt="" width="{{ b.image.width }}" height="{{ b.image.height }}" loading="lazy">
+    {%- else -%}
+      <span class="sp-bundle__ph">[ photo ]</span>
+    {%- endif -%}
+  </span>
+  <span class="sp-bundle__name">{% if b.title != blank %}{{ b.title | escape }}{% elsif p != blank %}{{ p.title }}{% else %}Add a product{% endif %}</span>
+  <span class="sp-bundle__price">{% if p != blank %}{{ p.price | money }}{% else %}[PRICE]{% endif %}</span>
+</button>
+
+{% stylesheet %}
+  .sp-bundle__item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 14px; border: 2px solid var(--sp-line, #e3dccd); border-radius: var(--sp-r-card, 28px); background: var(--sp-cream, #fbf7ef); color: inherit; font-family: inherit; cursor: pointer; transition: transform 0.3s var(--sp-ease), border-color 0.2s ease, box-shadow 0.2s ease; }
+  .sp-bundle__item:hover { transform: translateY(-4px); }
+  .sp-bundle__item.is-on { border-color: var(--sp-moss, #3f6b4a); box-shadow: 0 0 0 4px var(--sp-mint, #e7f0e2); }
+  .sp-bundle__tick { position: absolute; top: 10px; right: 10px; z-index: 2; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; background: #ece6d9; color: #ece6d9; transition: background-color 0.2s ease, color 0.2s ease; }
+  .sp-bundle__item.is-on .sp-bundle__tick { background: var(--sp-moss, #3f6b4a); color: var(--sp-cream, #fbf7ef); }
+  .sp-bundle__media { width: 100%; aspect-ratio: 1 / 1; border-radius: var(--sp-r-tile, 22px); overflow: hidden; background: var(--sp-mint, #e7f0e2); display: grid; place-items: center; }
+  .sp-bundle__media img { width: 100%; height: 100%; object-fit: cover; }
+  .sp-bundle__ph { font-size: 11px; font-weight: 700; color: #4c5b50; }
+  .sp-bundle__name { font-weight: 700; font-size: 15px; text-align: center; }
+  .sp-bundle__price { font-size: 13px; color: var(--sp-muted, #5e6e60); }
+  @media (prefers-reduced-motion: reduce) { .sp-bundle__item { transition: none; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Bundle item",
+  "tag": null,
+  "settings": [
+    { "type": "product", "id": "product", "label": "Product" },
+    { "type": "text", "id": "title", "label": "Title override" },
+    { "type": "image_picker", "id": "image", "label": "Image override" },
+    { "type": "checkbox", "id": "selected", "label": "Selected to start", "default": false }
+  ],
+  "presets": [{ "name": "Bundle item", "category": "t:categories.custom" }]
+}
+{% endschema %}

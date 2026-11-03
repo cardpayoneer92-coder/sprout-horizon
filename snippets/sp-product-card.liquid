@@ -1,0 +1,83 @@
+{% comment %}
+  Product card: 4:5 photo, a size hint read from the pet profile, a heart,
+  a quick-add that posts to the cart, the title and the price.
+
+  @example
+  {% render 'sp-product-card', product: product, show_quick_add: true %}
+{% endcomment %}
+
+{%- liquid
+  assign p = product
+  assign quick = show_quick_add | default: true, allow_false: true
+  assign tint = index | default: 0 | modulo: 2
+-%}
+
+{%- if p == blank or p == empty -%}
+  <article class="sp-card sp-card--empty">
+    <div class="sp-card__media sp-card__media--{{ tint }}">
+      <p class="sp-card__ph">[ product photo ]</p>
+    </div>
+    <h3 class="sp-card__title">Example product</h3>
+    <span class="sp-card__price">[PRICE]</span>
+  </article>
+{%- else -%}
+  <article class="sp-card">
+    <div class="sp-card__media sp-card__media--{{ tint }}">
+      <a class="sp-card__link" href="{{ p.url }}" aria-label="{{ p.title | escape }}">
+        {%- if p.featured_media -%}
+          <img
+            class="sp-card__img sp-card__img--main"
+            src="{{ p.featured_media | image_url: width: 800 }}"
+            srcset="{{ p.featured_media | image_url: width: 400 }} 400w, {{ p.featured_media | image_url: width: 800 }} 800w"
+            sizes="(min-width: 990px) 280px, 46vw"
+            alt="{{ p.featured_media.alt | escape }}"
+            width="{{ p.featured_media.width }}"
+            height="{{ p.featured_media.height }}"
+            loading="lazy"
+          >
+          {%- if p.media[1] -%}
+            <img
+              class="sp-card__img sp-card__img--alt"
+              src="{{ p.media[1] | image_url: width: 800 }}"
+              alt=""
+              width="{{ p.media[1].width }}"
+              height="{{ p.media[1].height }}"
+              loading="lazy"
+              aria-hidden="true"
+            >
+          {%- endif -%}
+        {%- else -%}
+          <p class="sp-card__ph">[ add a photo to {{ p.title | escape }} ]</p>
+        {%- endif -%}
+      </a>
+
+      {%- if p.available == false -%}
+        <span class="sp-card__flag">Sold out</span>
+      {%- elsif p.tags contains 'new' -%}
+        <span class="sp-card__flag">New</span>
+      {%- else -%}
+        <span class="sp-card__flag sp-card__flag--fit" data-fit hidden></span>
+      {%- endif -%}
+
+      <button type="button" class="sp-card__heart sp-heart" aria-label="Save {{ p.title | escape }}">
+        {% render 'sp-icon', name: 'heart', size: 18 %}
+      </button>
+
+      {%- if quick and p.available -%}
+        {%- form 'product', p, class: 'sp-card__quick', id: null -%}
+          <input type="hidden" name="id" value="{{ p.selected_or_first_available_variant.id }}">
+          <button type="submit" class="sp-btn sp-btn--dark sp-btn--sm sp-card__quick-btn">Quick add</button>
+        {%- endform -%}
+      {%- endif -%}
+    </div>
+
+    <h3 class="sp-card__title"><a href="{{ p.url }}">{{ p.title }}</a></h3>
+    {%- if p.type != blank -%}<p class="sp-card__meta">{{ p.type }}</p>{%- endif -%}
+    <span class="sp-card__price">
+      {%- if p.compare_at_price > p.price -%}
+        <s>{{ p.compare_at_price | money }}</s>
+      {%- endif -%}
+      {{ p.price | money }}
+    </span>
+  </article>
+{%- endif -%}

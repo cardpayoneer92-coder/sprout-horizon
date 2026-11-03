@@ -1,0 +1,133 @@
+{% comment %}
+  Section contract.
+  Bundle builder: tap the pieces you want and the count and discount note
+  update. The line underneath follows the saved pet profile, so the set is
+  described as sized for that pet. Items are child blocks.
+  @example
+  <!-- Complete their corner · 2 picked · add 1 more for 15% off -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<section class="sp-sec sp-bundle-sec" style="--sp-sec-bg: {{ s.background }}; --sp-h2-size: {{ s.heading_size }}px; --sp-bundle-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <sp-bundle class="sp-bundle" data-threshold="{{ s.threshold }}" data-discount="{{ s.discount }}" data-sub-template="{{ s.subheading | escape }}">
+      <div class="sp-bundle__head">
+        <div>
+          {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+          {%- if s.heading != blank -%}<h2 class="sp-h2">{{ s.heading }}</h2>{%- endif -%}
+        </div>
+        <p class="sp-pill sp-pill--accent sp-bundle__count"><span data-count>0</span> {{ s.picked_label | escape }}</p>
+      </div>
+      {%- if s.subheading != blank -%}
+        <p class="sp-bundle__sub" data-sub>{{ s.subheading | replace: '[pet]', 'your pet' }}</p>
+      {%- endif -%}
+
+      <div class="sp-grid sp-bundle__grid">{% content_for 'blocks' %}</div>
+
+      <div class="sp-bundle__bar">
+        <p class="sp-bundle__note"><strong><span data-count>0</span> {{ s.in_set_label | escape }}</strong> <span data-note></span></p>
+        <button type="button" class="sp-btn sp-btn--primary">{{ s.button_text | escape }}</button>
+      </div>
+    </sp-bundle>
+  </div>
+</section>
+
+<script type="module">
+  if (!customElements.get('sp-bundle')) {
+    customElements.define('sp-bundle', class extends HTMLElement {
+      connectedCallback() {
+        this.items = [...this.querySelectorAll('[data-bundle-item]')];
+        this.items.forEach((el) => el.addEventListener('click', () => {
+          const on = el.classList.toggle('is-on');
+          el.setAttribute('aria-pressed', on ? 'true' : 'false');
+          this.paint();
+        }));
+        this.applyPet(this.readPet());
+        this.onPet = (e) => this.applyPet(e.detail);
+        document.addEventListener('sprout:pet-change', this.onPet);
+        this.paint();
+      }
+      disconnectedCallback() { document.removeEventListener('sprout:pet-change', this.onPet); }
+      readPet() {
+        try { return JSON.parse(localStorage.getItem('sprout:pet')) || null; } catch (e) { return null; }
+      }
+      applyPet(p) {
+        const sub = this.querySelector('[data-sub]');
+        if (!sub || !this.dataset.subTemplate) return;
+        const subject = p && p.pet
+          ? (p.pet.toLowerCase() === 'small pet' ? 'your small pet' : 'your ' + p.pet.toLowerCase())
+          : 'your pet';
+        sub.textContent = this.dataset.subTemplate
+          .replace('[pet]', subject)
+          .replace('[weight]', p && p.weight ? p.weight + ' kg' : '');
+      }
+      paint() {
+        const n = this.items.filter((el) => el.classList.contains('is-on')).length;
+        const need = Math.max(0, Number(this.dataset.threshold || 3) - n);
+        const pct = this.dataset.discount || '15';
+        this.querySelectorAll('[data-count]').forEach((el) => { el.textContent = n; });
+        const note = this.querySelector('[data-note]');
+        if (note) {
+          note.textContent = need === 0
+            ? '· ' + pct + '% off applied at checkout'
+            : '· add ' + need + ' more for ' + pct + '% off';
+        }
+      }
+    });
+  }
+</script>
+
+{% stylesheet %}
+  .sp-bundle { display: block; }
+  .sp-bundle__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; }
+  .sp-bundle__count { white-space: nowrap; }
+  .sp-bundle__sub { margin: 10px 0 24px; font-size: 16px; color: var(--sp-muted, #566358); }
+  .sp-bundle__grid { grid-template-columns: repeat(var(--sp-bundle-cols, 4), minmax(0, 1fr)); margin-bottom: 20px; }
+  .sp-bundle__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 20px 26px; border-radius: var(--sp-r-card, 28px); background: var(--sp-mint, #e7f0e2); }
+  .sp-bundle__note { margin: 0; font-size: 16px; }
+  @media (max-width: 989px) { .sp-bundle__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 749px) { .sp-bundle__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Bundle builder",
+  "tag": "section",
+  "class": "sp-bundle-section",
+  "blocks": [{ "type": "_sp-bundle-item" }],
+  "settings": [
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Bought together" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Complete their corner" },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "All sized for [pet].", "info": "[pet] and [weight] follow the saved pet profile." },
+    { "type": "text", "id": "picked_label", "label": "Count label", "default": "picked" },
+    { "type": "text", "id": "in_set_label", "label": "Set label", "default": "in the set" },
+    { "type": "text", "id": "button_text", "label": "Button", "default": "Add the set" },
+    { "type": "header", "content": "Discount" },
+    { "type": "paragraph", "content": "This shows the offer. Create the matching automatic discount in Shopify so it actually applies." },
+    { "type": "range", "id": "threshold", "label": "Items needed", "min": 2, "max": 6, "step": 1, "default": 3 },
+    { "type": "range", "id": "discount", "label": "Discount", "min": 5, "max": 40, "step": 5, "unit": "%", "default": 15 },
+    { "type": "header", "content": "Style" },
+    { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 5, "step": 1, "default": 4 },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fbf7ef" },
+    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 24, "max": 64, "step": 2, "unit": "px", "default": 42 },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 40 }
+  ],
+  "presets": [
+    {
+      "name": "Bundle builder",
+      "category": "t:categories.custom",
+      "blocks": [
+        { "type": "_sp-bundle-item", "settings": { "title": "Cloud bed", "selected": true } },
+        { "type": "_sp-bundle-item", "settings": { "title": "Waffle blanket" } },
+        { "type": "_sp-bundle-item", "settings": { "title": "Rope bone", "selected": true } },
+        { "type": "_sp-bundle-item", "settings": { "title": "Slow bowl" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,65 @@
+{% comment %}
+  Section contract.
+  A slow scrolling strip of short phrases, separated by a small mark.
+  Phrases are child blocks. It pauses for reduced-motion.
+  @example
+  <!-- Free shipping ✦ Vet approved ✦ Happy pets -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<div class="sp-marquee" style="--sp-marq-bg: {{ s.background }}; --sp-marq-fg: {{ s.text_color }}; --sp-marq-size: {{ s.text_size }}px; --sp-marq-speed: {{ s.speed }}s;">
+  <div class="sp-marquee__track" aria-hidden="true">
+    <div class="sp-marquee__belt">{% content_for 'blocks' %}</div>
+    <div class="sp-marquee__belt sp-marquee__belt--clone" data-clone></div>
+  </div>
+</div>
+
+<script type="module">
+  {
+    const strips = document.querySelectorAll('.sp-marquee');
+    strips.forEach((strip) => {
+      const belt = strip.querySelector('.sp-marquee__belt');
+      const clone = strip.querySelector('[data-clone]');
+      if (belt && clone && !clone.childElementCount) clone.innerHTML = belt.innerHTML;
+    });
+  }
+</script>
+
+{% stylesheet %}
+  .sp-marquee { overflow: hidden; background: var(--sp-marq-bg, #3f6b4a); color: var(--sp-marq-fg, #fbf7ef); padding: 15px 0; }
+  .sp-marquee__track { display: flex; width: max-content; animation: sp-marquee var(--sp-marq-speed, 26s) linear infinite; }
+  .sp-marquee__belt { display: flex; align-items: center; gap: 40px; padding-right: 40px; font-family: var(--sp-font-head); font-size: var(--sp-marq-size, 19px); font-weight: 500; }
+  .sp-marquee__belt > * + *::before { content: "✦"; margin-right: 40px; opacity: 0.55; }
+  @media (prefers-reduced-motion: reduce) { .sp-marquee__track { animation: none; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Marquee strip",
+  "tag": "section",
+  "class": "sp-marquee-section",
+  "blocks": [{ "type": "_sp-marquee-item" }],
+  "settings": [
+    { "type": "range", "id": "speed", "label": "Loop time", "min": 10, "max": 60, "step": 2, "unit": "sec", "default": 26 },
+    { "type": "range", "id": "text_size", "label": "Text size", "min": 13, "max": 32, "step": 1, "unit": "px", "default": 19 },
+    { "type": "color", "id": "background", "label": "Background", "default": "#3f6b4a" },
+    { "type": "color", "id": "text_color", "label": "Text", "default": "#fbf7ef" }
+  ],
+  "presets": [
+    {
+      "name": "Marquee strip",
+      "category": "t:categories.custom",
+      "blocks": [
+        { "type": "_sp-marquee-item", "settings": { "text": "Free shipping over [AMOUNT]" } },
+        { "type": "_sp-marquee-item", "settings": { "text": "Vet approved recipes" } },
+        { "type": "_sp-marquee-item", "settings": { "text": "Happy pets, happy humans" } },
+        { "type": "_sp-marquee-item", "settings": { "text": "Compostable packaging" } },
+        { "type": "_sp-marquee-item", "settings": { "text": "Skip or cancel any time" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

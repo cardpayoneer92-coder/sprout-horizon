@@ -1,0 +1,139 @@
+{% comment %}
+  Section contract.
+  A grid of products with a heading that follows the saved pet profile —
+  "Picked for your dog". Cards show a second photo on hover, a heart and a
+  quick add. Pick a collection, or leave it empty for the demo placeholders.
+  @example
+  <!-- Picked for your dog · Sized for 14 kg -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+  assign coll = collections[s.collection]
+  assign items = coll.products
+  assign shown = items | slice: 0, s.count
+-%}
+
+<section class="sp-sec sp-pgrid-sec" style="--sp-sec-bg: {{ s.background }}; --sp-h2-size: {{ s.heading_size }}px; --sp-pgrid-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <sp-pet-aware class="sp-pgrid" data-heading-template="{{ s.heading | escape }}" data-sub-template="{{ s.subheading | escape }}">
+      <div class="sp-pgrid__head">
+        <div>
+          {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+          {%- if s.heading != blank -%}
+            <h2 class="sp-h2" data-heading>{{ s.heading | replace: '[pet]', 'your pet' }}</h2>
+          {%- endif -%}
+          {%- if s.subheading != blank -%}
+            <p class="sp-pgrid__sub" data-sub>{{ s.subheading | replace: '[weight]', '—' }}</p>
+          {%- endif -%}
+        </div>
+        {%- if s.link_text != blank -%}
+          <a class="sp-pgrid__all" href="{{ s.link_url | default: coll.url | default: '/collections/all' }}">{{ s.link_text | escape }}</a>
+        {%- endif -%}
+      </div>
+
+      <div class="sp-grid sp-pgrid__grid">
+        {%- if shown.size > 0 -%}
+          {%- for product in shown -%}
+            {% render 'sp-product-card', product: product, index: forloop.index0, show_quick_add: s.quick_add %}
+          {%- endfor -%}
+        {%- else -%}
+          {%- for i in (1..s.columns) -%}
+            {% render 'sp-product-card', index: forloop.index0 %}
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </sp-pet-aware>
+  </div>
+</section>
+
+<script type="module">
+  if (!customElements.get('sp-pet-aware')) {
+    customElements.define('sp-pet-aware', class extends HTMLElement {
+      connectedCallback() {
+        this.apply(this.read());
+        this.onChange = (e) => this.apply(e.detail);
+        document.addEventListener('sprout:pet-change', this.onChange);
+      }
+      disconnectedCallback() { document.removeEventListener('sprout:pet-change', this.onChange); }
+      read() {
+        try { return JSON.parse(localStorage.getItem('sprout:pet')) || null; } catch (e) { return null; }
+      }
+      apply(p) {
+        if (!p || !p.pet) return;
+        const pet = p.pet.toLowerCase();
+        const subject = pet === 'small pet' ? 'your small pet' : 'your ' + pet;
+        const h = this.querySelector('[data-heading]');
+        const sub = this.querySelector('[data-sub]');
+        if (h && this.dataset.headingTemplate) h.textContent = this.dataset.headingTemplate.replace('[pet]', subject);
+        if (sub && this.dataset.subTemplate) sub.textContent = this.dataset.subTemplate.replace('[weight]', p.weight + ' kg');
+        this.querySelectorAll('[data-fit]').forEach((n) => {
+          const size = p.weight < 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large');
+          n.textContent = size + ' fits';
+          n.hidden = false;
+        });
+      }
+    });
+  }
+</script>
+
+{% stylesheet %}
+  .sp-pgrid { display: block; }
+  .sp-pgrid__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; margin-bottom: 24px; }
+  .sp-pgrid__sub { margin: 6px 0 0; font-size: 16px; color: var(--sp-muted, #566358); }
+  .sp-pgrid__all { font-weight: 700; text-decoration: none; border-bottom: 2px solid var(--sp-leaf, #6fa368); padding-bottom: 2px; }
+  .sp-pgrid__grid { grid-template-columns: repeat(var(--sp-pgrid-cols, 4), minmax(0, 1fr)); }
+
+  .sp-card { display: flex; flex-direction: column; gap: 12px; }
+  .sp-card__media { position: relative; aspect-ratio: 4 / 5; border-radius: var(--sp-r-card, 28px); overflow: hidden; background: var(--sp-mint, #e7f0e2); display: grid; place-items: center; transition: transform 0.32s var(--sp-ease); }
+  .sp-card__media--1 { background: var(--sp-sand, #f3ece0); }
+  .sp-card:hover .sp-card__media { transform: translateY(-6px); }
+  .sp-card__link { position: absolute; inset: 0; display: block; }
+  .sp-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s ease, transform 0.4s var(--sp-ease); }
+  .sp-card__img--alt { opacity: 0; }
+  .sp-card:hover .sp-card__img--alt { opacity: 1; }
+  .sp-card:hover .sp-card__img--main { opacity: 0; }
+  .sp-card__ph { margin: 0; padding: 0 18px; font-size: 12px; font-weight: 700; color: #4c5b50; text-align: center; }
+
+  .sp-card__flag { position: absolute; top: 12px; left: 12px; z-index: 2; padding: 6px 12px; border-radius: 999px; background: var(--sp-cream, #fbf7ef); font-size: 12px; font-weight: 700; }
+  .sp-card__heart { position: absolute; top: 10px; right: 10px; z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: var(--sp-cream, #fbf7ef); color: var(--sp-ink, #27372b); cursor: pointer; }
+  .sp-card__quick { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 2; margin: 0; opacity: 0; transform: translateY(10px); transition: opacity 0.28s ease, transform 0.28s ease; }
+  .sp-card:hover .sp-card__quick, .sp-card:focus-within .sp-card__quick { opacity: 1; transform: translateY(0); }
+  .sp-card__quick-btn { width: 100%; }
+
+  .sp-card__title { margin: 0; font-size: 16px; font-weight: 700; }
+  .sp-card__title a { color: inherit; text-decoration: none; }
+  .sp-card__meta { margin: -6px 0 0; font-size: 14px; color: var(--sp-muted, #5e6e60); }
+  .sp-card__price { margin-top: auto; font-weight: 700; font-size: 16px; }
+  .sp-card__price s { margin-right: 6px; font-weight: 400; color: var(--sp-muted, #5e6e60); }
+
+  @media (prefers-reduced-motion: reduce) { .sp-card__media, .sp-card__img, .sp-card__quick { transition: none; } }
+  @media (max-width: 989px) { .sp-pgrid__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 749px) { .sp-pgrid__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } .sp-card__quick { opacity: 1; transform: none; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product grid",
+  "tag": "section",
+  "class": "sp-product-grid-section",
+  "settings": [
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "count", "label": "Products", "min": 2, "max": 12, "step": 1, "default": 4 },
+    { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 5, "step": 1, "default": 4 },
+    { "type": "checkbox", "id": "quick_add", "label": "Quick add on hover", "default": true },
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Bowl-licked clean" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Picked for [pet]", "info": "[pet] is replaced with the saved pet profile." },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "Sized for [weight] · portions worked out", "info": "[weight] is replaced with the saved weight." },
+    { "type": "text", "id": "link_text", "label": "Link text", "default": "See everything" },
+    { "type": "url", "id": "link_url", "label": "Link" },
+    { "type": "header", "content": "Style" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fbf7ef" },
+    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 24, "max": 64, "step": 2, "unit": "px", "default": 42 },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 40 }
+  ],
+  "presets": [{ "name": "Product grid", "category": "t:categories.custom" }]
+}
+{% endschema %}
