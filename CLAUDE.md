@@ -58,5 +58,7 @@ not in the theme yet is rejected. So:
 2. `templates/*.json` → separate commit
 3. `sections/*-group.json` (header, footer) → last
 
-Section group files keep their generated `/* ... */` header, and must not name a
-menu handle that does not exist in the store — that silently rejects the file.
+Section group files keep their generated `/* ... */` header. A section entry in
+one takes `type` and `settings` only — adding `blocks`/`block_order` (or a
+stray key like `disabled`) silently rejects the whole file. Blocks for a
+footer column are added in the theme editor, which writes them back here.
