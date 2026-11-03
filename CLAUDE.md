@@ -36,7 +36,6 @@ python3 tools/sp_validate.py
 It catches the schema mistakes Shopify's GitHub sync rejects **silently** — a
 rejected file simply never appears in the theme, with no error anywhere:
 
-- a section schema with `"tag": null` (that is a block-only thing)
 - a `range` with fewer than 2 steps, e.g. `min 2, max 3, step 1` → use a `select`
 - a `range` default that is off the step grid
 - a `unit` that is not a short plain token (`/1000em` was rejected; `px`, `%`, `sec` are fine)

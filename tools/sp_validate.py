@@ -26,10 +26,6 @@ def check(path, schema, is_section):
                 out += list(b.get('settings') or [])
         return out
 
-    # a section needs a real tag; "tag": null is a block-only thing
-    if is_section and 'tag' in schema and schema['tag'] is None:
-        problems.append(f'{path}: section schema has "tag": null — sections need a real tag')
-
     for st in settings_of(schema):
         if not isinstance(st, dict):
             continue

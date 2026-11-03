@@ -1,0 +1,41 @@
+<footer class="sp-x"></footer>
+
+{% schema %}
+{
+  "name": "F4",
+  "tag": "footer",
+  "class": "sp-footer-section",
+  "blocks": [
+    {
+      "type": "_sp-footer-menu"
+    }
+  ],
+  "settings": [],
+  "presets": [
+    {
+      "name": "Footer",
+      "category": "t:categories.custom",
+      "blocks": [
+        {
+          "type": "_sp-footer-menu",
+          "settings": {
+            "heading": "Shop"
+          }
+        },
+        {
+          "type": "_sp-footer-menu",
+          "settings": {
+            "heading": "Help"
+          }
+        },
+        {
+          "type": "_sp-footer-menu",
+          "settings": {
+            "heading": "About"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
