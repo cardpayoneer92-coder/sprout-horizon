@@ -273,9 +273,61 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "sp_hero": {
+      "type": "sp-hero",
+      "blocks": {
+        "t1": {
+          "type": "_sp-trust-item",
+          "settings": {
+            "text": "Vet approved",
+            "icon": "shield"
+          }
+        },
+        "t2": {
+          "type": "_sp-trust-item",
+          "settings": {
+            "text": "Non-toxic materials",
+            "icon": "leaf"
+          }
+        },
+        "t3": {
+          "type": "_sp-trust-item",
+          "settings": {
+            "text": "Compostable packs",
+            "icon": "check"
+          }
+        }
+      },
+      "block_order": [
+        "t1",
+        "t2",
+        "t3"
+      ],
+      "settings": {
+        "eyebrow": "Fresh batch, every week",
+        "heading": "Good food, happy tails",
+        "text": "<p>Gently cooked meals portioned for your pet \u2014 tell us about them once and the whole shop fits.</p>",
+        "alignment": "left",
+        "heading_size": 74,
+        "min_height": 540,
+        "scrim": 96,
+        "focal_x": 50,
+        "focal_y": 50,
+        "show_paws": true,
+        "button_text": "Shop by pet",
+        "button_link": "/collections/all",
+        "button2_text": "Find the right size",
+        "button2_link": "/collections/all",
+        "background": "#e7f0e2",
+        "text_color": "#27372b",
+        "padding_top": 24,
+        "padding_bottom": 24
+      }
     }
   },
   "order": [
+    "sp_hero",
     "hero_jVaWmY",
     "product_list_fa6P9H"
   ]

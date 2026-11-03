@@ -6,8 +6,20 @@
   {% render 'sp-base' %}
 {% endcomment %}
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;500;600;700&display=swap">
+
 <style>
   :root {
+    /* Brand faces, loaded above. Horizon's own tokens are repointed at them
+       so stock sections inherit the brand without being rewritten. */
+    --font-heading--family: 'Fredoka', system-ui, sans-serif;
+    --font-heading--weight: 500;
+    --font-body--family: 'Nunito', system-ui, sans-serif;
+    --font-subheading--family: 'Nunito', system-ui, sans-serif;
+    --font-accent--family: 'Fredoka', system-ui, sans-serif;
+
     /* ground + surfaces */
     --sp-cream: #fbf7ef;
     --sp-mint: #e7f0e2;
@@ -39,6 +51,9 @@
     --sp-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
     --sp-ease-back: cubic-bezier(0.2, 0.7, 0.2, 1.6);
   }
+
+  /* The cream ground, independent of the theme settings file. */
+  body { background-color: var(--sp-cream); color: var(--sp-ink); }
 
   /* ---- layout ---- */
   .sp-sec { padding-block: var(--sp-sec); background: var(--sp-sec-bg, transparent); color: var(--sp-sec-fg, inherit); }
