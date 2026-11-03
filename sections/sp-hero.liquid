@@ -1,0 +1,157 @@
+{% comment %}
+  Section contract.
+  Hero banner, photo-led: a full-bleed rounded image band with a soft scrim
+  at the bottom, an eyebrow, a big heading, a short line, two buttons and a
+  row of trust lines. Floating paw shapes drift behind. Trust lines are
+  child blocks.
+  @example
+  <!-- Good food, happy tails · Shop by pet / Find the right size -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+  assign scrim = s.scrim | divided_by: 100.0
+-%}
+
+<section class="sp-hero-sec" style="
+  --sp-hero-min: {{ s.min_height }}px;
+  --sp-hero-bg: {{ s.background }};
+  --sp-hero-fg: {{ s.text_color }};
+  --sp-hero-scrim: {{ scrim }};
+  --sp-h1-size: {{ s.heading_size }}px;
+  --sp-hero-pt: {{ s.padding_top }}px;
+  --sp-hero-pb: {{ s.padding_bottom }}px;
+">
+  <div class="sp-wrap sp-wrap--wide">
+    <div class="sp-hero">
+
+      {%- if s.image != blank -%}
+        <img
+          class="sp-hero__img"
+          src="{{ s.image | image_url: width: 2400 }}"
+          srcset="{{ s.image | image_url: width: 800 }} 800w, {{ s.image | image_url: width: 1400 }} 1400w, {{ s.image | image_url: width: 2000 }} 2000w, {{ s.image | image_url: width: 2400 }} 2400w"
+          sizes="(min-width: 1280px) 1240px, 100vw"
+          alt="{{ s.image.alt | escape }}"
+          width="{{ s.image.width }}"
+          height="{{ s.image.height }}"
+          loading="eager"
+          fetchpriority="high"
+          style="object-position: {{ s.focal_x }}% {{ s.focal_y }}%;"
+        >
+      {%- else -%}
+        <div class="sp-hero__placeholder" role="img" aria-label="{{ 'Hero image placeholder' }}">
+          <p>Add a hero photo — a pet mid-crunch over a bowl works well, with empty space on the side the text sits on.</p>
+        </div>
+      {%- endif -%}
+
+      {%- if s.show_paws -%}
+        <span class="sp-hero__paws" aria-hidden="true">
+          <span class="sp-float" style="--sp-r: -14deg; left: 4%; top: 14%; width: 64px;">{% render 'sp-icon', name: 'paw', size: 64 %}</span>
+          <span class="sp-float sp-float--b" style="--sp-r: 18deg; right: 36%; top: 8%; width: 44px;">{% render 'sp-icon', name: 'paw', size: 44 %}</span>
+          <span class="sp-float sp-float--c" style="--sp-r: 8deg; left: 12%; bottom: 12%; width: 54px;">{% render 'sp-icon', name: 'paw', size: 54 %}</span>
+        </span>
+      {%- endif -%}
+
+      <div class="sp-hero__body sp-hero__body--{{ s.alignment }}">
+        <div class="sp-hero__copy">
+          {%- if s.eyebrow != blank -%}<p class="sp-hero__eyebrow sp-pill">{{ s.eyebrow | escape }}</p>{%- endif -%}
+          {%- if s.heading != blank -%}<h2 class="sp-h1 sp-hero__title">{{ s.heading }}</h2>{%- endif -%}
+          {%- if s.text != blank -%}<div class="sp-lede sp-hero__text">{{ s.text }}</div>{%- endif -%}
+
+          {%- if s.button_text != blank or s.button2_text != blank -%}
+            <div class="sp-hero__actions">
+              {%- if s.button_text != blank -%}
+                <a class="sp-btn sp-btn--primary" href="{{ s.button_link | default: '#' }}">{{ s.button_text | escape }}</a>
+              {%- endif -%}
+              {%- if s.button2_text != blank -%}
+                <a class="sp-btn sp-btn--soft" href="{{ s.button2_link | default: '#' }}">{{ s.button2_text | escape }}</a>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {%- if section.blocks.size > 0 -%}
+            <ul class="sp-trust" role="list">{% content_for 'blocks' %}</ul>
+          {%- endif -%}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-hero-sec { padding-block: var(--sp-hero-pt, 24px) var(--sp-hero-pb, 24px); color: var(--sp-hero-fg, #27372b); }
+  .sp-hero { position: relative; border-radius: var(--sp-r-hero, 44px); overflow: hidden; min-height: var(--sp-hero-min, 540px); background: var(--sp-hero-bg, #e7f0e2); display: flex; align-items: flex-end; isolation: isolate; }
+  .sp-hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .sp-hero__placeholder { position: absolute; inset: 0; display: grid; place-items: center; padding: 32px; background: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.5) 0 22px, transparent 22px 44px); }
+  .sp-hero__placeholder p { margin: 0; max-width: 34ch; padding: 14px 22px; border-radius: 999px; background: rgb(251 247 239 / 0.92); font-size: 14px; font-weight: 700; text-align: center; color: #44544a; }
+
+  .sp-hero__paws { position: absolute; inset: 0; pointer-events: none; }
+  .sp-hero__paws > span { position: absolute; color: #fbf7ef; opacity: 0.45; }
+
+  .sp-hero__body { position: relative; width: 100%; padding: clamp(32px, 4vw, 56px) clamp(24px, 3.4vw, 48px); background: linear-gradient(to top, rgb(251 247 239 / var(--sp-hero-scrim, 0.96)) 38%, rgb(251 247 239 / 0)); }
+  .sp-hero__body--center { text-align: center; }
+  .sp-hero__body--center .sp-hero__copy { margin-inline: auto; }
+  .sp-hero__body--center .sp-hero__actions, .sp-hero__body--center .sp-trust { justify-content: center; }
+  .sp-hero__copy { max-width: 46ch; }
+  .sp-hero__eyebrow { margin: 0 0 16px; background: #fbf7ef; letter-spacing: 0.04em; text-transform: uppercase; }
+  .sp-hero__title { margin: 0 0 16px; }
+  .sp-hero__text { margin: 0 0 26px; color: #3c4b40; }
+  .sp-hero__text > :first-child { margin-top: 0; }
+  .sp-hero__text > :last-child { margin-bottom: 0; }
+  .sp-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+  .sp-trust { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0; padding: 0; list-style: none; }
+
+  @media (max-width: 749px) {
+    .sp-hero { min-height: calc(var(--sp-hero-min, 540px) * 0.82); }
+    .sp-hero__copy { max-width: none; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Hero banner",
+  "tag": "section",
+  "class": "sp-hero-section",
+  "blocks": [{ "type": "_sp-trust-item" }],
+  "settings": [
+    { "type": "header", "content": "Photo" },
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "range", "id": "focal_x", "label": "Focus across", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
+    { "type": "range", "id": "focal_y", "label": "Focus down", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
+    { "type": "range", "id": "min_height", "label": "Height", "min": 360, "max": 760, "step": 20, "unit": "px", "default": 540 },
+    { "type": "range", "id": "scrim", "label": "Text backdrop", "min": 0, "max": 100, "step": 4, "unit": "%", "default": 96, "info": "How solid the fade behind the text is." },
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Fresh batch, every week" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Good food, happy tails" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Gently cooked meals portioned for your pet — tell us about them once and the whole shop fits.</p>" },
+    {
+      "type": "select", "id": "alignment", "label": "Alignment", "default": "left",
+      "options": [{ "value": "left", "label": "Left" }, { "value": "center", "label": "Centre" }]
+    },
+    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 36, "max": 96, "step": 2, "unit": "px", "default": 74 },
+    { "type": "header", "content": "Buttons" },
+    { "type": "text", "id": "button_text", "label": "First button", "default": "Shop by pet" },
+    { "type": "url", "id": "button_link", "label": "First link" },
+    { "type": "text", "id": "button2_text", "label": "Second button", "default": "Find the right size" },
+    { "type": "url", "id": "button2_link", "label": "Second link" },
+    { "type": "header", "content": "Style" },
+    { "type": "checkbox", "id": "show_paws", "label": "Floating paw shapes", "default": true },
+    { "type": "color", "id": "background", "label": "Background", "default": "#e7f0e2" },
+    { "type": "color", "id": "text_color", "label": "Text", "default": "#27372b" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 24 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 24 }
+  ],
+  "presets": [
+    {
+      "name": "Hero banner",
+      "category": "t:categories.custom",
+      "blocks": [
+        { "type": "_sp-trust-item", "settings": { "text": "Vet approved", "icon": "shield" } },
+        { "type": "_sp-trust-item", "settings": { "text": "Non-toxic materials", "icon": "leaf" } },
+        { "type": "_sp-trust-item", "settings": { "text": "Compostable packs", "icon": "check" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
