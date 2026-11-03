@@ -1,0 +1,51 @@
+{% doc %}
+  One footer link column. Pick a menu; the heading falls back to the
+  menu's own name.
+
+  @example
+  Shop — Dog, Cat, Small pets, Bundles
+{% enddoc %}
+
+{%- liquid
+  assign b = block.settings
+  assign list = linklists[b.menu]
+  assign title = b.heading | strip
+  if title == blank
+    assign title = list.title
+  endif
+-%}
+
+<div class="sp-fcol" {{ block.shopify_attributes }}>
+  <h3 class="sp-fcol__title">{{ title }}</h3>
+  {%- if list.links.size > 0 -%}
+    <ul class="sp-fcol__list" role="list">
+      {%- for link in list.links -%}
+        <li><a class="sp-flink" href="{{ link.url }}">{{ link.title }}</a></li>
+      {%- endfor -%}
+    </ul>
+  {%- else -%}
+    <p class="sp-fcol__empty">Pick a menu for this column.</p>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .sp-fcol { flex: 1 1 150px; }
+  .sp-fcol__title { margin: 0 0 12px; font-family: var(--sp-font-head); font-size: 19px; font-weight: 500; }
+  .sp-fcol__list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; font-size: 15px; }
+  .sp-flink { display: inline-block; color: #44544a; text-decoration: none; transition: transform 0.25s var(--sp-ease-back), color 0.2s ease; }
+  .sp-flink:hover { transform: translateX(5px) rotate(-1.5deg); color: var(--sp-ink, #27372b); }
+  .sp-fcol__empty { margin: 0; font-size: 13px; opacity: 0.6; }
+  @media (prefers-reduced-motion: reduce) { .sp-flink:hover { transform: none; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Footer menu",
+  "tag": null,
+  "settings": [
+    { "type": "link_list", "id": "menu", "label": "Menu" },
+    { "type": "text", "id": "heading", "label": "Heading", "info": "Leave empty to use the menu's own name." }
+  ],
+  "presets": [{ "name": "Footer menu", "category": "t:categories.custom" }]
+}
+{% endschema %}
