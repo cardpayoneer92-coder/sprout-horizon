@@ -81,6 +81,30 @@ def main():
             continue
         check(f, schema, f.startswith('sections/'))
 
+    # settings_data.json values must sit inside the ranges settings_schema.json
+    # declares — one out-of-range value rejects the WHOLE file, silently.
+    try:
+        schema_raw = re.sub(r'^\s*/\*.*?\*/', '', open('config/settings_schema.json', encoding='utf-8').read(), flags=re.S)
+        data_raw = re.sub(r'^\s*/\*.*?\*/', '', open('config/settings_data.json', encoding='utf-8').read(), flags=re.S)
+        groups = json.loads(schema_raw)
+        current = json.loads(data_raw).get('current', {})
+    except (OSError, json.JSONDecodeError):
+        groups, current = [], {}
+    bounds = {}
+    for grp in groups:
+        if isinstance(grp, dict):
+            for st in grp.get('settings') or []:
+                if isinstance(st, dict) and st.get('type') == 'range' and 'id' in st:
+                    bounds[st['id']] = (st.get('min'), st.get('max'))
+    if isinstance(current, dict):
+        for key, val in current.items():
+            if key in bounds and isinstance(val, (int, float)):
+                lo, hi = bounds[key]
+                if lo is not None and val < lo:
+                    problems.append(f'config/settings_data.json: {key} is {val}, below the minimum {lo}')
+                if hi is not None and val > hi:
+                    problems.append(f'config/settings_data.json: {key} is {val}, above the maximum {hi}')
+
     for t in glob.glob('templates/*.json') + glob.glob('sections/*-group.json'):
         raw = re.sub(r'/\*.*?\*/', '', open(t, encoding='utf-8').read(), flags=re.S)
         try:
