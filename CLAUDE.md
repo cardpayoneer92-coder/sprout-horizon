@@ -41,6 +41,13 @@ rejected file simply never appears in the theme, with no error anywhere:
 - a `unit` that is not a short plain token (`/1000em` was rejected; `px`, `%`, `sec` are fine)
 - the reserved setting id `per_page`
 - malformed JSON in a template or section group
+- values in `config/settings_data.json` outside the range `settings_schema.json`
+  declares (one bad value rejects the whole file — the corner radii did)
+
+A section that belongs to a section group — the footer — declares
+`"enabled_on": {"groups": ["footer"]}` and carries **no presets**, the same
+shape Horizon's own `sections/footer.liquid` uses. Adding presets to it is
+what the sync rejected, silently.
 
 ## Push order
 
