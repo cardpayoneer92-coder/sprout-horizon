@@ -9,272 +9,7 @@
  */
 {
   "sections": {
-    "hero_jVaWmY": {
-      "type": "hero",
-      "blocks": {
-        "text_YLPk4p": {
-          "type": "text",
-          "name": "t:names.heading",
-          "settings": {
-            "text": "<p>Browse our latest products</p>",
-            "width": "fit-content",
-            "max_width": "normal",
-            "alignment": "left",
-            "type_preset": "h2",
-            "font": "var(--font-body--family)",
-            "font_size": "1rem",
-            "line_height": "normal",
-            "letter_spacing": "normal",
-            "case": "none",
-            "wrap": "pretty",
-            "text_color": "{{ settings.color_palette.background }}",
-            "background": false,
-            "background_color": "#00000026",
-            "corner_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {}
-        },
-        "button_H9gpTf": {
-          "type": "button",
-          "name": "t:names.button",
-          "settings": {
-            "label": "Shop all",
-            "link": "shopify://collections/all",
-            "open_in_new_tab": false,
-            "style_class": "button-custom",
-            "custom_button_background": "rgba(0, 0, 0, 0)",
-            "custom_button_text": "{{ settings.color_palette.background }}",
-            "custom_button_border": "{{ settings.color_palette.background }}",
-            "width": "fit-content",
-            "custom_width": 100,
-            "width_mobile": "fit-content",
-            "custom_width_mobile": 100
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "text_YLPk4p",
-        "button_H9gpTf"
-      ],
-      "name": "t:names.hero",
-      "settings": {
-        "media_type_1": "image",
-        "media_type_2": "image",
-        "link": "",
-        "open_in_new_tab": false,
-        "content_direction": "column",
-        "vertical_on_mobile": true,
-        "horizontal_alignment": "space-between",
-        "vertical_alignment": "flex-end",
-        "align_baseline": true,
-        "horizontal_alignment_flex_direction_column": "center",
-        "vertical_alignment_flex_direction_column": "flex-end",
-        "gap": 24,
-        "section_width": "page-width",
-        "section_height": "medium",
-        "section_height_custom": 50,
-        "toggle_overlay": true,
-        "overlay_color": "#12121266",
-        "overlay_style": "solid",
-        "gradient_direction": "to bottom",
-        "blurred_reflection": false,
-        "reflection_opacity": 75,
-        "padding-block-start": 100,
-        "padding-block-end": 72
-      }
-    },
-    "product_list_fa6P9H": {
-      "type": "product-list",
-      "blocks": {
-        "static-header": {
-          "type": "_product-list-content",
-          "name": "t:names.header",
-          "static": true,
-          "settings": {
-            "content_direction": "row",
-            "vertical_on_mobile": false,
-            "horizontal_alignment": "space-between",
-            "vertical_alignment": "flex-end",
-            "align_baseline": true,
-            "horizontal_alignment_flex_direction_column": "flex-start",
-            "vertical_alignment_flex_direction_column": "center",
-            "gap": 12,
-            "width": "fill",
-            "custom_width": 100,
-            "width_mobile": "fill",
-            "custom_width_mobile": 100,
-            "height": "fit",
-            "custom_height": 100,
-            "background_media": "none",
-            "video_position": "cover",
-            "background_image_position": "cover",
-            "border": "none",
-            "border_width": 1,
-            "border_opacity": 100,
-            "border_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {
-            "product_list_text_YFtzcL": {
-              "type": "_product-list-text",
-              "name": "t:names.collection_title",
-              "settings": {
-                "text": "<h3>{{ closest.collection.title }}</h3>",
-                "width": "fit-content",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "h4",
-                "font": "var(--font-body--family)",
-                "font_size": "",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "product_list_button_MWeP9V": {
-              "type": "_product-list-button",
-              "name": "t:names.product_list_button",
-              "settings": {
-                "label": "View all",
-                "open_in_new_tab": false,
-                "style_class": "button-unstyled",
-                "width": "fit-content",
-                "custom_width": 100,
-                "width_mobile": "fit-content",
-                "custom_width_mobile": 100
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "product_list_text_YFtzcL",
-            "product_list_button_MWeP9V"
-          ]
-        },
-        "static-product-card": {
-          "type": "_product-card",
-          "name": "t:names.product_card",
-          "static": true,
-          "settings": {
-            "product_card_gap": 4,
-            "border": "none",
-            "border_width": 1,
-            "border_opacity": 100,
-            "border_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {
-            "product_card_gallery_677WP3": {
-              "type": "_product-card-gallery",
-              "name": "t:names.product_card_media",
-              "settings": {
-                "image_ratio": "adapt",
-                "border": "none",
-                "border_width": 1,
-                "border_opacity": 100,
-                "border_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "product_title_YXxMTj": {
-              "type": "product-title",
-              "name": "t:names.product_title",
-              "settings": {
-                "width": "100%",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "paragraph",
-                "font": "var(--font-body--family)",
-                "font_size": "1rem",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 4,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "price_JQzVV4": {
-              "type": "price",
-              "name": "t:names.product_price",
-              "settings": {
-                "show_sale_price_first": true,
-                "show_installments": false,
-                "show_tax_info": false,
-                "type_preset": "h6",
-                "width": "100%",
-                "alignment": "left",
-                "font": "var(--font-body--family)",
-                "font_size": "1rem",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "product_card_gallery_677WP3",
-            "product_title_YXxMTj",
-            "price_JQzVV4"
-          ]
-        }
-      },
-      "name": "t:names.featured_collection",
-      "settings": {
-        "collection": "all",
-        "layout_type": "grid",
-        "carousel_on_mobile": false,
-        "max_products": 8,
-        "columns": 4,
-        "mobile_columns": "2",
-        "mobile_card_size": "60cqw",
-        "columns_gap": 8,
-        "rows_gap": 24,
-        "icons_style": "arrow",
-        "icons_shape": "none",
-        "section_width": "page-width",
-        "horizontal_alignment": "flex-start",
-        "gap": 28,
-        "padding-block-start": 48,
-        "padding-block-end": 48
-      }
-    },
-    "sp_hero": {
+    "hero": {
       "type": "sp-hero",
       "blocks": {
         "t1": {
@@ -324,11 +59,255 @@
         "padding_top": 24,
         "padding_bottom": 24
       }
+    },
+    "marquee": {
+      "type": "sp-marquee",
+      "blocks": {
+        "m1": {
+          "type": "_sp-marquee-item",
+          "settings": {
+            "text": "Free shipping over [AMOUNT]"
+          }
+        },
+        "m2": {
+          "type": "_sp-marquee-item",
+          "settings": {
+            "text": "Vet approved recipes"
+          }
+        },
+        "m3": {
+          "type": "_sp-marquee-item",
+          "settings": {
+            "text": "Happy pets, happy humans"
+          }
+        },
+        "m4": {
+          "type": "_sp-marquee-item",
+          "settings": {
+            "text": "Compostable packaging"
+          }
+        },
+        "m5": {
+          "type": "_sp-marquee-item",
+          "settings": {
+            "text": "Skip or cancel any time"
+          }
+        }
+      },
+      "block_order": [
+        "m1",
+        "m2",
+        "m3",
+        "m4",
+        "m5"
+      ],
+      "settings": {
+        "speed": 26,
+        "text_size": 19,
+        "background": "#3f6b4a",
+        "text_color": "#fbf7ef"
+      }
+    },
+    "profile": {
+      "type": "sp-pet-profile",
+      "settings": {
+        "eyebrow": "Takes 10 seconds",
+        "heading": "Who are we feeding?",
+        "note": "We remember it on this device.",
+        "step1_label": "1 \u00b7 Pet",
+        "step2_label": "2 \u00b7 Weight",
+        "step3_label": "3 \u00b7 What that means",
+        "pets": "Dog, Puppy, Cat, Small pet",
+        "weight_label": "Roughly how heavy are they?",
+        "weight_hint": "Drag it \u2014 no need to be exact.",
+        "weight_unit": "kg",
+        "weight_min": 1,
+        "weight_max": 45,
+        "weight_default": 14,
+        "small_max": 10,
+        "medium_max": 25,
+        "grams_per_kg": 22,
+        "pack_small": 1200,
+        "pack_medium": 2400,
+        "pack_large": 4000,
+        "pack_label": "Medium pack",
+        "fact_portion": "About",
+        "fact_lasts": "One pack lasts",
+        "fact_cadence": "Delivery every",
+        "button_text": "Show me what fits",
+        "button_link": "/collections/all",
+        "background": "#fbf7ef",
+        "card_background": "#e7f0e2",
+        "heading_size": 40,
+        "padding_top": 48,
+        "padding_bottom": 24
+      }
+    },
+    "grid": {
+      "type": "sp-product-grid",
+      "settings": {
+        "count": 4,
+        "columns": 4,
+        "quick_add": true,
+        "eyebrow": "Bowl-licked clean",
+        "heading": "Picked for [pet]",
+        "subheading": "Sized for [weight] \u00b7 portions worked out",
+        "link_text": "See everything",
+        "link_url": "/collections/all",
+        "background": "#fbf7ef",
+        "heading_size": 42,
+        "padding_top": 40,
+        "padding_bottom": 40
+      }
+    },
+    "bundle": {
+      "type": "sp-bundle",
+      "blocks": {
+        "b1": {
+          "type": "_sp-bundle-item",
+          "settings": {
+            "title": "Cloud bed",
+            "selected": true
+          }
+        },
+        "b2": {
+          "type": "_sp-bundle-item",
+          "settings": {
+            "title": "Waffle blanket",
+            "selected": false
+          }
+        },
+        "b3": {
+          "type": "_sp-bundle-item",
+          "settings": {
+            "title": "Rope bone",
+            "selected": true
+          }
+        },
+        "b4": {
+          "type": "_sp-bundle-item",
+          "settings": {
+            "title": "Slow bowl",
+            "selected": false
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "settings": {
+        "eyebrow": "Bought together",
+        "heading": "Complete their corner",
+        "subheading": "All sized for [pet].",
+        "picked_label": "picked",
+        "in_set_label": "in the set",
+        "button_text": "Add the set",
+        "threshold": 3,
+        "discount": 15,
+        "columns": 4,
+        "background": "#fbf7ef",
+        "heading_size": 42,
+        "padding_top": 40,
+        "padding_bottom": 40
+      }
+    },
+    "trust": {
+      "type": "sp-trust",
+      "blocks": {
+        "r1": {
+          "type": "_sp-trust-line",
+          "settings": {
+            "title": "Vet-formulated",
+            "text": "Written with a veterinary nutritionist",
+            "icon": "shield"
+          }
+        },
+        "r2": {
+          "type": "_sp-trust-line",
+          "settings": {
+            "title": "Six ingredients",
+            "text": "Everything fits on the front of the pack",
+            "icon": "leaf"
+          }
+        },
+        "r3": {
+          "type": "_sp-trust-line",
+          "settings": {
+            "title": "Compostable packs",
+            "text": "Plant film and paper outers, no plastic",
+            "icon": "bowl"
+          }
+        },
+        "r4": {
+          "type": "_sp-trust-line",
+          "settings": {
+            "title": "Fussy-eater promise",
+            "text": "They turn their nose up, we refund it",
+            "icon": "refresh"
+          }
+        }
+      },
+      "block_order": [
+        "r1",
+        "r2",
+        "r3",
+        "r4"
+      ],
+      "settings": {
+        "columns": 4,
+        "style": "lines",
+        "background": "#fbf7ef",
+        "padding_top": 24,
+        "padding_bottom": 24
+      }
+    },
+    "quote": {
+      "type": "sp-quote",
+      "blocks": {
+        "u1": {
+          "type": "_sp-ugc-tile",
+          "settings": {
+            "handle": "@sproutpets"
+          }
+        },
+        "u2": {
+          "type": "_sp-ugc-tile",
+          "settings": {
+            "handle": "@sproutpets"
+          }
+        },
+        "u3": {
+          "type": "_sp-ugc-tile",
+          "settings": {
+            "handle": "@sproutpets"
+          }
+        }
+      },
+      "block_order": [
+        "u1",
+        "u2",
+        "u3"
+      ],
+      "settings": {
+        "quote": "<p>\u201cPut a real customer line here \u2014 the one about the fussy eater who finally finished a bowl.\u201d</p>",
+        "attribution": "[ NAME ] \u00b7 [ PET NAME ], [ BREED ]",
+        "quote_size": 30,
+        "background": "#fbf7ef",
+        "padding_top": 36,
+        "padding_bottom": 48
+      }
     }
   },
   "order": [
-    "sp_hero",
-    "hero_jVaWmY",
-    "product_list_fa6P9H"
+    "hero",
+    "marquee",
+    "profile",
+    "grid",
+    "bundle",
+    "trust",
+    "quote"
   ]
 }
