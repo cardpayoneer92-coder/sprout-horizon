@@ -1,0 +1,87 @@
+{% comment %}
+  Section contract.
+  The size-finder page: the calculator front and centre, with the three pack
+  sizes explained underneath so the answer makes sense.
+  @example
+  <!-- Find their size — Small under 10kg, Medium 10–25kg, Large 25kg+ -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+  assign packs = s.packs | newline_to_br | split: '<br />'
+  assign tints = '#d8edcd,#fbe9d2,#bfe3ef' | split: ','
+-%}
+
+<section class="sp-sec sp-sizepage" style="--sp-sec-bg: {{ s.background }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <div class="sp-sizepage__top sp-reveal">
+      {% render 'sp-finder-card',
+        heading: s.finder_heading,
+        text: s.finder_text,
+        small_max: s.small_max,
+        medium_max: s.medium_max,
+        grams_per_kg: s.grams_per_kg %}
+    </div>
+
+    {%- if s.packs != blank -%}
+      <div class="sp-sizepage__packs sp-reveal">
+        {%- for line in packs -%}
+          {%- assign row = line | strip | split: '|' -%}
+          {%- assign name = row[0] | strip -%}
+          {%- if name != blank -%}
+            {%- assign n = forloop.index0 | modulo: 3 -%}
+            <div class="sp-sizepage__pack" style="--sp-pack-tint: {{ tints[n] }};">
+              <span class="sp-sizepage__art sp-bob">{% render 'sp-art', name: 'pouch', size: 110 %}</span>
+              <h3>{{ name }}</h3>
+              {%- if row[1] != blank -%}<p class="sp-sizepage__range">{{ row[1] | strip }}</p>{%- endif -%}
+              {%- if row[2] != blank -%}<p class="sp-sizepage__note">{{ row[2] | strip }}</p>{%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- if s.button_text != blank -%}
+      <div class="sp-sizepage__cta sp-reveal">
+        <a class="sp-btn sp-btn--primary" href="{{ s.button_link | default: '/collections/all' }}">{{ s.button_text | escape }}</a>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-sizepage__top { max-width: 720px; margin-inline: auto; }
+  .sp-sizepage__packs { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; margin-top: 32px; }
+  .sp-sizepage__pack { display: grid; justify-items: center; text-align: center; gap: 4px; padding: 28px 22px 26px; border-radius: var(--sp-r-card, 28px); background: var(--sp-pack-tint, #d8edcd); }
+  .sp-sizepage__art .sp-art { width: 96px; height: auto; max-width: none; }
+  .sp-sizepage__pack h3 { margin: 8px 0 0; font-family: var(--sp-font-head); font-size: 22px; font-weight: 500; }
+  .sp-sizepage__range { margin: 0; font-weight: 700; font-size: 15px; }
+  .sp-sizepage__note { margin: 4px 0 0; font-size: 14px; color: var(--sp-muted, #566358); }
+  .sp-sizepage__cta { display: flex; justify-content: center; margin-top: 32px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sp-reveal, .sp-reveal.is-in, .sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Size finder page",
+  "tag": "section",
+  "class": "sp-size-page-section",
+  "settings": [
+    { "type": "text", "id": "finder_heading", "label": "Heading", "default": "Find their size" },
+    { "type": "text", "id": "finder_text", "label": "Text", "default": "Pop in their weight and we will work out the pack and the portion." },
+    { "type": "range", "id": "small_max", "label": "Small up to", "min": 2, "max": 20, "step": 1, "unit": "kg", "default": 10 },
+    { "type": "range", "id": "medium_max", "label": "Medium up to", "min": 10, "max": 50, "step": 1, "unit": "kg", "default": 25 },
+    { "type": "range", "id": "grams_per_kg", "label": "Grams per kg a day", "min": 10, "max": 40, "step": 1, "default": 22 },
+    { "type": "textarea", "id": "packs", "label": "Packs", "info": "One per line, as Name | Range | Note.", "default": "Small pack | Under 10 kg | 1.2 kg of food, about nine days for a little one.\nMedium pack | 10 to 25 kg | 2.4 kg of food, the one most dogs end up on.\nLarge pack | 25 kg and up | 4 kg of food, for the big eaters." },
+    { "type": "text", "id": "button_text", "label": "Button", "default": "Shop the right size" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 56 }
+  ],
+  "presets": [{ "name": "Size finder page", "category": "t:categories.custom" }]
+}
+{% endschema %}

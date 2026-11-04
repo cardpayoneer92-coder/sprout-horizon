@@ -1,0 +1,95 @@
+{% comment %}
+  Section contract.
+  A column of written content that lives in the theme rather than in the page
+  body, so a template can ship finished copy. Optional pull-quote and a row of
+  small cards underneath.
+  @example
+  <!-- Our story — we started with one fussy beagle -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+  assign cards = s.cards | newline_to_br | split: '<br />'
+  assign tints = '#d8edcd,#fbe9d2,#bfe3ef,#ffd54a' | split: ','
+-%}
+
+<section class="sp-sec sp-prose" style="--sp-sec-bg: {{ s.background }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <div class="sp-prose__col sp-reveal">
+      {%- if s.heading != blank -%}<h2 class="sp-h2 sp-prose__title">{{ s.heading | escape }}</h2>{%- endif -%}
+      {%- if s.text != blank -%}<div class="sp-prose__body">{{ s.text }}</div>{%- endif -%}
+
+      {%- if s.quote != blank -%}
+        <blockquote class="sp-prose__quote">
+          <span class="sp-prose__mark" aria-hidden="true">{% render 'sp-icon', name: 'paw', size: 22 %}</span>
+          <p>{{ s.quote | escape }}</p>
+          {%- if s.quote_by != blank -%}<cite>{{ s.quote_by | escape }}</cite>{%- endif -%}
+        </blockquote>
+      {%- endif -%}
+
+      {%- if s.text_two != blank -%}<div class="sp-prose__body">{{ s.text_two }}</div>{%- endif -%}
+    </div>
+
+    {%- if s.cards != blank -%}
+      <div class="sp-prose__cards sp-reveal">
+        {%- for line in cards -%}
+          {%- assign row = line | strip | split: '|' -%}
+          {%- assign card_title = row[0] | strip -%}
+          {%- if card_title != blank -%}
+            {%- assign n = forloop.index0 | modulo: 4 -%}
+            <div class="sp-prose__card" style="--sp-prose-tint: {{ tints[n] }};">
+              <h3>{{ card_title }}</h3>
+              {%- if row[1] != blank -%}<p>{{ row[1] | strip }}</p>{%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-prose__col { max-width: 68ch; margin-inline: auto; }
+  .sp-prose__title { margin: 0 0 20px; }
+  .sp-prose__body { font-size: 18px; line-height: 1.75; }
+  .sp-prose__body > :first-child { margin-top: 0; }
+  .sp-prose__body p { margin: 0 0 20px; }
+  .sp-prose__body h3 { margin: 32px 0 10px; font-family: var(--sp-font-head); font-size: 23px; font-weight: 500; }
+  .sp-prose__body ul, .sp-prose__body ol { margin: 0 0 20px; padding-left: 24px; }
+  .sp-prose__body li { margin-bottom: 9px; }
+  .sp-prose__body a { color: var(--sp-moss, #2f7a46); }
+
+  .sp-prose__quote { position: relative; margin: 32px 0; padding: 28px 30px 26px; border-radius: var(--sp-r-card, 28px); background: var(--sp-mint, #d8edcd); }
+  .sp-prose__mark { position: absolute; top: -16px; left: 26px; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; background: var(--sp-sun, #ffd54a); color: var(--sp-ink, #27372b); }
+  .sp-prose__quote p { margin: 6px 0 0; font-family: var(--sp-font-head); font-size: 22px; line-height: 1.35; }
+  .sp-prose__quote cite { display: block; margin-top: 10px; font-size: 14px; font-style: normal; color: var(--sp-muted, #566358); }
+
+  .sp-prose__cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; max-width: 68ch; margin: 36px auto 0; }
+  .sp-prose__card { padding: 22px; border-radius: var(--sp-r-card, 28px); background: var(--sp-prose-tint, #d8edcd); }
+  .sp-prose__card h3 { margin: 0 0 5px; font-family: var(--sp-font-head); font-size: 19px; font-weight: 500; }
+  .sp-prose__card p { margin: 0; font-size: 15px; color: var(--sp-muted, #566358); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sp-reveal, .sp-reveal.is-in, .sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Written content",
+  "tag": "section",
+  "class": "sp-prose-section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "richtext", "id": "text", "label": "Text" },
+    { "type": "textarea", "id": "quote", "label": "Pull quote" },
+    { "type": "text", "id": "quote_by", "label": "Quote credit" },
+    { "type": "richtext", "id": "text_two", "label": "More text" },
+    { "type": "textarea", "id": "cards", "label": "Cards", "info": "One per line, as Title | Text." },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 56 }
+  ],
+  "presets": [{ "name": "Written content", "category": "t:categories.custom" }]
+}
+{% endschema %}
