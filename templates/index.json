@@ -500,6 +500,60 @@
         "padding_top": 48,
         "padding_bottom": 56
       }
+    },
+    "feature": {
+      "type": "sp-feature",
+      "blocks": {
+        "p1": {
+          "type": "_sp-feature-point",
+          "settings": {
+            "title": "Six ingredients",
+            "text": "Everything fits on the front of the pack.",
+            "icon": "check"
+          }
+        },
+        "p2": {
+          "type": "_sp-feature-point",
+          "settings": {
+            "title": "Vet-formulated",
+            "text": "Written with a veterinary nutritionist.",
+            "icon": "shield"
+          }
+        },
+        "p3": {
+          "type": "_sp-feature-point",
+          "settings": {
+            "title": "Posted chilled",
+            "text": "In a pack that goes in the food caddy.",
+            "icon": "leaf"
+          }
+        }
+      },
+      "block_order": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "settings": {
+        "eyebrow": "In our kitchen",
+        "heading": "Cooked like you would at home",
+        "text": "<p>Whole ingredients, gently cooked and portioned the same week they are posted. No kibble dust, no mystery meal — just food you would recognise in a pan.</p>",
+        "button_text": "See how we cook",
+        "button_link": "/collections/all",
+        "art": "bowl",
+        "media_side": "left",
+        "tilt": -2,
+        "focal_x": 50,
+        "focal_y": 50,
+        "sticker": "Made this week",
+        "stat_value": "48 hrs",
+        "stat_label": "from pot to post",
+        "frame_color": "#d8edcd",
+        "background": "#fdfaf2",
+        "heading_size": 46,
+        "padding_top": 64,
+        "padding_bottom": 64
+      }
     }
   },
   "order": [
@@ -508,6 +562,7 @@
     "pets",
     "profile",
     "grid",
+    "feature",
     "bundle",
     "trust",
     "wall",
