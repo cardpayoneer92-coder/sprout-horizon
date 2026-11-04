@@ -21,7 +21,7 @@
         "news_text": "New recipes, feeding tips and far too many dog photos.",
         "news_placeholder": "you@example.com",
         "news_button": "Sign up",
-        "news_success": "You're in \u2014 watch your inbox.",
+        "news_success": "You're in — watch your inbox.",
         "scallop": true,
         "show_pets": true,
         "show_paws": true,
@@ -29,7 +29,11 @@
         "card_background": "#fdfaf2",
         "text_color": "#27372b",
         "show_wordmark": true,
-        "wordmark": "sprout"
+        "wordmark": "sprout",
+        "instagram_url": "https://www.instagram.com",
+        "tiktok_url": "https://www.tiktok.com",
+        "pinterest_url": "https://www.pinterest.com",
+        "facebook_url": "https://www.facebook.com"
       }
     },
     "utilities": {

@@ -1,7 +1,7 @@
 {% comment %}
   Illustrated artwork, used wherever a photo has not been added yet so the
   page is never a grey box. Pass a name and an optional size.
-  Names: duo, dog, cat, bunny, pouch, tin, jar, bowl, bed, bone, blanket.
+  Names: duo, dog, puppy, cat, bunny, pouch, tin, jar, bowl, bed, bone, blanket.
 
   @example
   {% render 'sp-art', name: 'duo', size: 340 %}
@@ -40,6 +40,17 @@
       <ellipse cx="100" cy="113" rx="10" ry="8" fill="#27372b"/>
       <path d="M100 121v6M100 127q-7 8-13 1M100 127q7 8 13 1" stroke="#27372b" stroke-width="3.2" stroke-linecap="round" fill="none"/>
       <circle cx="70" cy="110" r="8" fill="#ff8a6b" opacity=".32"/><circle cx="130" cy="110" r="8" fill="#ff8a6b" opacity=".32"/>
+
+    {%- when 'puppy' -%}
+      <ellipse cx="100" cy="170" rx="50" ry="13" fill="#2f7a46" opacity=".10"/>
+      <circle cx="100" cy="112" r="40" fill="#fdfaf2"/>
+      <ellipse cx="58" cy="94" rx="15" ry="27" fill="#d08b4f"/>
+      <ellipse cx="142" cy="94" rx="15" ry="27" fill="#d08b4f"/>
+      <circle cx="86" cy="108" r="5.6" fill="#27372b"/><circle cx="114" cy="108" r="5.6" fill="#27372b"/>
+      <circle cx="88" cy="106" r="2" fill="#fff"/><circle cx="116" cy="106" r="2" fill="#fff"/>
+      <ellipse cx="100" cy="126" rx="8.5" ry="6.5" fill="#27372b"/>
+      <path d="M100 133v4M100 137q-6 7-11 1M100 137q6 7 11 1" stroke="#27372b" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+      <circle cx="74" cy="124" r="7" fill="#ff8a6b" opacity=".34"/><circle cx="126" cy="124" r="7" fill="#ff8a6b" opacity=".34"/>
 
     {%- when 'cat' -%}
       <ellipse cx="100" cy="168" rx="52" ry="14" fill="#2f7a46" opacity=".10"/>

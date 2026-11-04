@@ -52,7 +52,7 @@
   .sp-polaroid:hover { transform: rotate(0deg) translateY(-8px) scale(1.04); box-shadow: 0 20px 34px rgb(39 55 43 / 0.18); z-index: 2; }
 
   .sp-polaroid__tape {
-    position: absolute; top: -9px; left: 50%; width: 56px; height: 18px;
+    position: absolute; z-index: 3; top: -10px; left: 50%; width: 62px; height: 20px;
     transform: translateX(-50%) rotate(calc(var(--sp-pol-rotate, 0deg) * -1.4));
     background: var(--sp-pol-tape, #d8edcd); opacity: 0.92; border-radius: 2px;
   }
@@ -78,6 +78,7 @@
       "info": "Used while there is no photo.",
       "options": [
         { "value": "dog", "label": "Dog" },
+        { "value": "puppy", "label": "Puppy" },
         { "value": "cat", "label": "Cat" },
         { "value": "bunny", "label": "Small pet" },
         { "value": "duo", "label": "Dog and cat" },
@@ -85,7 +86,7 @@
         { "value": "bowl", "label": "Bowl" }
       ]
     },
-    { "type": "range", "id": "rotate", "label": "Tilt", "min": -6, "max": 6, "step": 1, "unit": "deg", "default": -2 },
+    { "type": "range", "id": "rotate", "label": "Tilt", "min": -8, "max": 8, "step": 1, "unit": "deg", "default": -3 },
     { "type": "color", "id": "tint", "label": "Frame colour", "default": "#d8edcd" },
     { "type": "color", "id": "tape", "label": "Tape colour", "default": "#fbe9d2" }
   ],

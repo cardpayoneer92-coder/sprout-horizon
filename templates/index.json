@@ -330,7 +330,7 @@
             "title": "Puppy",
             "pet": "Puppy",
             "count": "12 things",
-            "art": "duo",
+            "art": "puppy",
             "tint": "#fbe9d2",
             "sticker": "",
             "link": "/collections/all"
@@ -387,7 +387,7 @@
           "settings": {
             "handle": "@milo.the.beagle",
             "art": "dog",
-            "rotate": -2,
+            "rotate": -4,
             "tint": "#d8edcd",
             "tape": "#fbe9d2"
           }
@@ -397,7 +397,7 @@
           "settings": {
             "handle": "@noodle.cat",
             "art": "cat",
-            "rotate": 2,
+            "rotate": 3,
             "tint": "#fbe9d2",
             "tape": "#d8edcd"
           }
@@ -407,7 +407,7 @@
           "settings": {
             "handle": "@bun.and.co",
             "art": "bunny",
-            "rotate": -1,
+            "rotate": -2,
             "tint": "#ffd54a",
             "tape": "#d8edcd"
           }
@@ -416,8 +416,8 @@
           "type": "_sp-polaroid",
           "settings": {
             "handle": "@twoofthem",
-            "art": "duo",
-            "rotate": 3,
+            "art": "puppy",
+            "rotate": 5,
             "tint": "#bfe3ef",
             "tape": "#fbe9d2"
           }
@@ -426,8 +426,8 @@
           "type": "_sp-polaroid",
           "settings": {
             "handle": "@napsalot",
-            "art": "bed",
-            "rotate": -2,
+            "art": "duo",
+            "rotate": -3,
             "tint": "#ffb784",
             "tape": "#d8edcd"
           }
