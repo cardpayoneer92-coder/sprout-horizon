@@ -32,10 +32,10 @@
         {%- endif -%}
       </span>
 
-      <span class="sp-sticky__price">{{ v.price | money }}</span>
+      <span class="sp-sticky__price" data-sticky-price>{{ v.price | money }}</span>
 
       {%- form 'product', p, class: 'sp-sticky__form', id: null -%}
-        <input type="hidden" name="id" value="{{ v.id }}">
+        <input type="hidden" name="id" value="{{ v.id }}" data-sticky-id>
         <button type="submit" class="sp-btn sp-btn--primary sp-btn--sm"{% unless p.available %} disabled{% endunless %}>
           {%- if p.available -%}{{ s.button_text | escape }}{%- else -%}Sold out{%- endif -%}
         </button>
@@ -47,6 +47,17 @@
     if (!customElements.get('sp-sticky-buy')) {
       customElements.define('sp-sticky-buy', class extends HTMLElement {
         connectedCallback() {
+          // follow whatever the buy box has selected
+          this.onVariant = (e) => {
+            const price = this.querySelector('[data-sticky-price]');
+            const id = this.querySelector('[data-sticky-id]');
+            if (price) price.textContent = e.detail.priceText;
+            if (id) id.value = e.detail.id;
+            const sub = this.querySelector('.sp-sticky__copy span');
+            if (sub) sub.textContent = e.detail.title;
+          };
+          document.addEventListener('sprout:variant-change', this.onVariant);
+
           const anchor = document.querySelector('.sp-pdp__add');
           if (!anchor) return;
           this.observer = new IntersectionObserver((entries) => {
@@ -58,7 +69,10 @@
           }, { threshold: 0 });
           this.observer.observe(anchor);
         }
-        disconnectedCallback() { if (this.observer) this.observer.disconnect(); }
+        disconnectedCallback() {
+          document.removeEventListener('sprout:variant-change', this.onVariant);
+          if (this.observer) this.observer.disconnect();
+        }
       });
     }
   </script>

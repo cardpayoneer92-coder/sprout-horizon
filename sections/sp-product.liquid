@@ -103,8 +103,8 @@
 
         <p class="sp-pdp__price">
           {%- if v -%}
-            {%- if v.compare_at_price > v.price -%}<s>{{ v.compare_at_price | money }}</s>{%- endif -%}
-            <span class="sp-pdp__amount">{{ v.price | money }}</span>
+            <s data-compare{% unless v.compare_at_price > v.price %} hidden{% endunless %}>{{ v.compare_at_price | money }}</s>
+            <span class="sp-pdp__amount" data-price>{{ v.price | money }}</span>
           {%- else -%}
             <span class="sp-pdp__amount">[PRICE]</span>
           {%- endif -%}
@@ -139,6 +139,21 @@
                 {%- endfor -%}
               </div>
 
+              <script type="application/json" data-variants>
+                [
+                  {%- for variant in p.variants -%}
+                    {
+                      "id": {{ variant.id }},
+                      "available": {{ variant.available }},
+                      "price": {{ variant.price | json }},
+                      "priceText": {{ variant.price | money | json }},
+                      "compareText": {%- if variant.compare_at_price > variant.price -%}{{ variant.compare_at_price | money | json }}{%- else -%}null{%- endif -%},
+                      "title": {{ variant.title | json }}
+                    }{% unless forloop.last %},{% endunless %}
+                  {%- endfor -%}
+                ]
+              </script>
+
               <select class="sp-visually-hidden" name="id" data-variant-select>
                 {%- for variant in p.variants -%}
                   <option value="{{ variant.id }}" {% if variant == v %}selected{% endif %} {% unless variant.available %}disabled{% endunless %}>
@@ -156,7 +171,7 @@
                 <input class="sp-qty__input" type="number" name="quantity" value="1" min="1" inputmode="numeric" aria-label="Quantity">
                 <button type="button" class="sp-qty__btn" data-qty="1" aria-label="Increase quantity">+</button>
               </div>
-              <button type="submit" class="sp-btn sp-btn--primary sp-pdp__add"{% unless p.available %} disabled{% endunless %}>
+              <button type="submit" class="sp-btn sp-btn--primary sp-pdp__add" data-label="{{ s.button_text | escape }}"{% unless p.available %} disabled{% endunless %}>
                 {%- if p.available -%}{{ s.button_text | escape }}{%- else -%}Sold out{%- endif -%}
               </button>
             </div>
@@ -227,14 +242,43 @@
           select.dispatchEvent(new Event('change', { bubbles: true }));
         }
       };
+      let variants = [];
+      const data = scope.querySelector('[data-variants]');
+      if (data) { try { variants = JSON.parse(data.textContent); } catch (e) { variants = []; } }
+
+      // The price is rendered for the first variant, so it has to follow the
+      // choice — otherwise a shopper picks Large and still reads Small's price.
+      const paint = () => {
+        const chosen = variants.find((variant) => String(variant.id) === String(select.value));
+        if (!chosen) return;
+
+        const price = scope.querySelector('[data-price]');
+        const compare = scope.querySelector('[data-compare]');
+        if (price) price.textContent = chosen.priceText;
+        if (compare) {
+          compare.hidden = !chosen.compareText;
+          if (chosen.compareText) compare.textContent = chosen.compareText;
+        }
+
+        const add = scope.querySelector('.sp-pdp__add');
+        if (add) {
+          add.disabled = !chosen.available;
+          add.textContent = chosen.available ? add.dataset.label : 'Sold out';
+        }
+
+        document.dispatchEvent(new CustomEvent('sprout:variant-change', { detail: chosen }));
+      };
+
       scope.querySelectorAll('[data-opt]').forEach((input) => {
         input.addEventListener('change', () => {
           const group = input.closest('.sp-pdp__swatches');
           group.querySelectorAll('.sp-pdp__swatch').forEach((l) => l.classList.remove('is-on'));
           input.closest('.sp-pdp__swatch').classList.add('is-on');
           pick();
+          paint();
         });
       });
+      paint();
     }
   })();
 </script>
