@@ -16,7 +16,7 @@
     {%- if s.heading != blank -%}
       <h2 class="sp-h3 sp-trustrow__heading">{{ s.heading }}</h2>
     {%- endif -%}
-    <div class="sp-trustrow sp-trustrow--{{ s.style }}">{% content_for 'blocks' %}</div>
+    <div class="sp-trustrow sp-reveal sp-trustrow--{{ s.style }}">{% content_for 'blocks' %}</div>
   </div>
 </section>
 
@@ -27,6 +27,10 @@
   .sp-trustrow--band { padding: 34px 30px; border-radius: var(--sp-r-band, 36px); background: var(--sp-mint, #e7f0e2); }
   @media (max-width: 989px) { .sp-trustrow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 749px) { .sp-trustrow { grid-template-columns: minmax(0, 1fr); gap: 18px; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sp-reveal, .sp-reveal.is-in, .sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }
+  }
 {% endstylesheet %}
 
 {% schema %}

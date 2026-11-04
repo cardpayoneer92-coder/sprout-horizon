@@ -10,7 +10,7 @@
   assign s = section.settings
 -%}
 
-<div class="sp-marquee" style="--sp-marq-bg: {{ s.background }}; --sp-marq-fg: {{ s.text_color }}; --sp-marq-size: {{ s.text_size }}px; --sp-marq-speed: {{ s.speed }}s;">
+<div class="sp-marquee" style="--sp-marq-bg: {{ s.background }}; --sp-marq-fg: {{ s.text_color }}; --sp-marq-size: {{ s.text_size }}px; --sp-marq-speed: {{ s.speed }}s; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
   <div class="sp-marquee__track" aria-hidden="true">
     <div class="sp-marquee__belt">{% content_for 'blocks' %}</div>
     <div class="sp-marquee__belt sp-marquee__belt--clone" data-clone></div>
@@ -45,6 +45,8 @@
   "settings": [
     { "type": "range", "id": "speed", "label": "Loop time", "min": 10, "max": 60, "step": 2, "unit": "sec", "default": 26 },
     { "type": "range", "id": "text_size", "label": "Text size", "min": 13, "max": 32, "step": 1, "unit": "px", "default": 19 },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 60, "step": 2, "unit": "px", "default": 0 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 60, "step": 2, "unit": "px", "default": 0 },
     { "type": "color", "id": "background", "label": "Background", "default": "#3f6b4a" },
     { "type": "color", "id": "text_color", "label": "Text", "default": "#fbf7ef" }
   ],

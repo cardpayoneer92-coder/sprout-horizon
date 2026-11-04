@@ -13,7 +13,7 @@
 <section class="sp-sec sp-quote-sec" style="--sp-sec-bg: {{ s.background }}; --sp-quote-size: {{ s.quote_size }}px; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
   <div class="sp-wrap">
     <div class="sp-quote">
-      <div class="sp-quote__main">
+      <div class="sp-quote__main sp-reveal">
         {%- if s.quote != blank -%}
           <blockquote class="sp-quote__text">{{ s.quote }}</blockquote>
         {%- endif -%}
@@ -39,6 +39,10 @@
   .sp-quote__link { display: inline-block; margin-top: 12px; font-weight: 700; text-decoration: none; border-bottom: 2px solid var(--sp-leaf, #6fa368); padding-bottom: 2px; }
   .sp-quote__tiles { flex: 1 1 300px; min-width: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   @media (max-width: 749px) { .sp-quote__tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sp-reveal, .sp-reveal.is-in, .sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }
+  }
 {% endstylesheet %}
 
 {% schema %}

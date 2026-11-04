@@ -24,7 +24,7 @@
       data-pack-large="{{ s.pack_large }}"
       style="--sp-profile-card: {{ s.card_background }};"
     >
-      <div class="sp-profile__head">
+      <div class="sp-profile__head sp-reveal">
         <div>
           {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
           {%- if s.heading != blank -%}<h2 class="sp-h2">{{ s.heading }}</h2>{%- endif -%}
@@ -32,7 +32,7 @@
         {%- if s.note != blank -%}<p class="sp-profile__note">{{ s.note | escape }}</p>{%- endif -%}
       </div>
 
-      <div class="sp-profile__steps">
+      <div class="sp-profile__steps sp-reveal">
 
         <fieldset class="sp-profile__step">
           <legend class="sp-profile__legend">{{ s.step1_label | escape }}</legend>

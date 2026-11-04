@@ -25,7 +25,7 @@
 <section class="sp-sec sp-pgrid-sec" style="--sp-sec-bg: {{ s.background }}; --sp-h2-size: {{ s.heading_size }}px; --sp-pgrid-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
   <div class="sp-wrap">
     <sp-pet-aware class="sp-pgrid" data-heading-template="{{ s.heading | escape }}" data-sub-template="{{ s.subheading | escape }}">
-      <div class="sp-pgrid__head">
+      <div class="sp-pgrid__head sp-reveal">
         <div>
           {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
           {%- if s.heading != blank -%}
@@ -40,7 +40,7 @@
         {%- endif -%}
       </div>
 
-      <div class="sp-grid sp-pgrid__grid">
+      <div class="sp-grid sp-pgrid__grid sp-reveal">
         {%- if items.size > 0 -%}
           {%- for item in items -%}
             {%- if picked >= s.count -%}{%- break -%}{%- endif -%}

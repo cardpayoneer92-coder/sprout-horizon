@@ -25,6 +25,10 @@
 {% stylesheet %}
   .sp-duo { display: grid; grid-template-columns: repeat(var(--sp-duo-cols, 2), minmax(0, 1fr)); gap: 24px; }
   @media (max-width: 989px) { .sp-duo { grid-template-columns: minmax(0, 1fr); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sp-reveal, .sp-reveal.is-in, .sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }
+  }
 {% endstylesheet %}
 
 {% schema %}

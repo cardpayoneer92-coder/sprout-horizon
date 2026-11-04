@@ -116,6 +116,8 @@
   .sp-feat__media.sp-reveal.is-in, .sp-feat__copy.sp-reveal.is-in { animation: sp-slide-in 0.72s var(--sp-ease) both; }
   .sp-feat__copy.sp-reveal.is-in { animation-delay: 0.1s; }
   @keyframes sp-slide-in { to { opacity: 1; transform: translate(0, 0); } }
+  /* the halves move as one piece, so the shared child stagger is off here */
+  .sp-feat__media.sp-reveal.is-in > *, .sp-feat__copy.sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }
 
   @media (max-width: 989px) {
     .sp-feat { grid-template-columns: minmax(0, 1fr); }

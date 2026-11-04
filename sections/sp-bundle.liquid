@@ -14,7 +14,7 @@
 <section class="sp-sec sp-bundle-sec" style="--sp-sec-bg: {{ s.background }}; --sp-h2-size: {{ s.heading_size }}px; --sp-bundle-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
   <div class="sp-wrap">
     <sp-bundle class="sp-bundle" data-threshold="{{ s.threshold }}" data-discount="{{ s.discount }}" data-sub-template="{{ s.subheading | escape }}">
-      <div class="sp-bundle__head">
+      <div class="sp-bundle__head sp-reveal">
         <div>
           {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
           {%- if s.heading != blank -%}<h2 class="sp-h2">{{ s.heading }}</h2>{%- endif -%}
@@ -25,7 +25,7 @@
         <p class="sp-bundle__sub" data-sub>{{ s.subheading | replace: '[pet]', 'your pet' }}</p>
       {%- endif -%}
 
-      <div class="sp-grid sp-bundle__grid">{% content_for 'blocks' %}</div>
+      <div class="sp-grid sp-bundle__grid sp-reveal">{% content_for 'blocks' %}</div>
 
       <div class="sp-bundle__bar">
         <p class="sp-bundle__note"><strong><span data-count>0</span> {{ s.in_set_label | escape }}</strong> <span data-note></span></p>
@@ -90,6 +90,10 @@
   .sp-bundle__note { margin: 0; font-size: 16px; }
   @media (max-width: 989px) { .sp-bundle__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 749px) { .sp-bundle__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sp-reveal, .sp-reveal.is-in, .sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }
+  }
 {% endstylesheet %}
 
 {% schema %}
