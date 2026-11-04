@@ -169,33 +169,33 @@
         "b1": {
           "type": "_sp-bundle-item",
           "settings": {
-            "title": "Cloud bed",
             "selected": true,
-            "art": "bed"
+            "art": "bed",
+            "product": "cloud-bed"
           }
         },
         "b2": {
           "type": "_sp-bundle-item",
           "settings": {
-            "title": "Waffle blanket",
             "selected": false,
-            "art": "blanket"
+            "art": "blanket",
+            "product": "waffle-blanket"
           }
         },
         "b3": {
           "type": "_sp-bundle-item",
           "settings": {
-            "title": "Rope bone",
             "selected": true,
-            "art": "bone"
+            "art": "bone",
+            "product": "rope-bone"
           }
         },
         "b4": {
           "type": "_sp-bundle-item",
           "settings": {
-            "title": "Slow bowl",
             "selected": false,
-            "art": "bowl"
+            "art": "bowl",
+            "product": "slow-bowl"
           }
         }
       },
@@ -302,8 +302,8 @@
         "u3"
       ],
       "settings": {
-        "quote": "<p>“Put a real customer line here — the one about the fussy eater who finally finished a bowl.”</p>",
-        "attribution": "[ NAME ] · [ PET NAME ], [ BREED ]",
+        "quote": "<p>“He went off his old food for a fortnight. First bowl of this, gone in a minute — and he has not missed one since.”</p>",
+        "attribution": "Hannah R. · Milo, beagle",
         "quote_size": 30,
         "background": "#fdfaf2",
         "padding_top": 36,
