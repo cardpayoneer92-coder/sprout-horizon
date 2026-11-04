@@ -46,10 +46,11 @@ rejected file simply never appears in the theme, with no error anywhere:
 - values in `config/settings_data.json` outside the range `settings_schema.json`
   declares (one bad value rejects the whole file — the corner radii did)
 
-A section that belongs to a section group — the footer — declares
-`"enabled_on": {"groups": ["footer"]}` and carries **no presets**, the same
-shape Horizon's own `sections/footer.liquid` uses. Adding presets to it is
-what the sync rejected, silently.
+A section that belongs to a section group — the header or the footer —
+declares `"enabled_on": {"groups": ["header"]}` (or `["footer"]`), the same
+shape Horizon's own `sections/footer.liquid` and `header-announcements.liquid`
+use. Presets alongside `enabled_on` are fine: Horizon ships them. What was
+rejecting our group sections was `"tag": null`, above.
 
 ## Push order
 
