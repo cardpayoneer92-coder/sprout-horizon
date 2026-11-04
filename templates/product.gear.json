@@ -1,0 +1,95 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "sp-product",
+      "blocks": {
+        "materials": {
+          "type": "_sp-pd-row",
+          "settings": {
+            "title": "Materials",
+            "text": "<p>Recycled fill, cotton cover, and a zip so the whole cover comes off. No glue, no foam offcuts.</p>",
+            "open": true
+          }
+        },
+        "care": {
+          "type": "_sp-pd-row",
+          "settings": {
+            "title": "Washing &amp; care",
+            "text": "<p>Cover goes in at 30°C and comes out the same shape. Air dry rather than tumble, and it will keep its bounce.</p>",
+            "open": false
+          }
+        },
+        "delivery": {
+          "type": "_sp-pd-row",
+          "settings": {
+            "title": "Delivery &amp; returns",
+            "text": "<p>Posted flat-packed in recycled card. Thirty days to change your mind, even if they have slept on it.</p>",
+            "open": false
+          }
+        }
+      },
+      "block_order": [
+        "materials",
+        "care",
+        "delivery"
+      ],
+      "settings": {
+        "eyebrow": "Comfy things",
+        "badges": "Machine washable\nNon-toxic materials\nRecycled fill\nNo plastic in the pack",
+        "price_note": "each",
+        "button_text": "Add to bag",
+        "reassurance": "Free delivery over [AMOUNT] · thirty days to change your mind",
+        "flag": "New in",
+        "art": "bed",
+        "show_breadcrumb": true,
+        "show_finder": false,
+        "finder_heading": "Which size does my pet need?",
+        "finder_text": "Pop in their weight and we will work out the portion.",
+        "small_max": 10,
+        "medium_max": 25,
+        "grams_per_kg": 22,
+        "background": "#fdfaf2",
+        "padding_top": 32,
+        "padding_bottom": 48
+      }
+    },
+    "sticky": {
+      "type": "sp-sticky-buy",
+      "settings": {
+        "button_text": "Add to bag",
+        "background": "#fdfaf2"
+      }
+    },
+    "more": {
+      "type": "sp-product-grid",
+      "settings": {
+        "count": 4,
+        "columns": 4,
+        "quick_add": true,
+        "eyebrow": "Goes well with this",
+        "heading": "Finish their corner",
+        "subheading": "Picked for [pet]",
+        "link_text": "See everything",
+        "link_url": "/collections/all",
+        "background": "#fbe9d2",
+        "heading_size": 36,
+        "padding_top": 48,
+        "padding_bottom": 56
+      }
+    }
+  },
+  "order": [
+    "main",
+    "sticky",
+    "more"
+  ]
+}
