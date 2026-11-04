@@ -153,6 +153,16 @@
 </style>
 
 <script>
+  /* A product that has no photo falls back to a theme asset named after its
+     handle. When that asset is not there, the image removes itself and the
+     illustration behind it stands in. */
+  document.addEventListener('error', function (e) {
+    var t = e.target;
+    if (t && t.tagName === 'IMG' && t.hasAttribute('data-sp-fallback')) t.remove();
+  }, true);
+</script>
+
+<script>
   (() => {
     const start = () => {
       const items = document.querySelectorAll('.sp-reveal');

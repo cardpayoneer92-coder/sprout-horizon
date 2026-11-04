@@ -53,6 +53,10 @@
           {%- endif -%}
         {%- else -%}
           <span class="sp-card__art sp-bob">{% render 'sp-art', name: 'pouch', size: 170, label: p.title %}</span>
+          {%- assign shot = 'sp-' | append: p.handle | append: '-1.png' -%}
+          {%- assign shot_alt = 'sp-' | append: p.handle | append: '-2.png' -%}
+          <img class="sp-card__img sp-card__img--main" data-sp-fallback src="{{ shot | asset_url }}" alt="{{ p.title | escape }}" loading="lazy">
+          <img class="sp-card__img sp-card__img--alt" data-sp-fallback src="{{ shot_alt | asset_url }}" alt="" loading="lazy" aria-hidden="true">
         {%- endif -%}
       </a>
 
