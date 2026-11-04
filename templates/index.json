@@ -41,12 +41,9 @@
       ],
       "settings": {
         "eyebrow": "Fresh batch, every week",
-        "heading": "Good food, happy tails",
+        "heading": "Good food,",
         "text": "<p>Gently cooked meals portioned for your pet — tell us about them once and the whole shop fits.</p>",
-        "alignment": "left",
-        "heading_size": 74,
-        "min_height": 540,
-        "scrim": 96,
+        "heading_size": 72,
         "focal_x": 50,
         "focal_y": 50,
         "show_paws": true,
@@ -56,10 +53,14 @@
         "button2_link": "/collections/all",
         "background": "#d8edcd",
         "text_color": "#27372b",
-        "padding_top": 24,
-        "padding_bottom": 24,
+        "padding_top": 56,
+        "padding_bottom": 20,
         "blob_one": "#ffd54a",
-        "blob_two": "#ff8a6b"
+        "blob_two": "#ff8a6b",
+        "heading_tail": "happy tails",
+        "proof": "Loved by 4,000+ bowls a week",
+        "stamp": "Cooked this week",
+        "stage_color": "#fdfaf2"
       }
     },
     "marquee": {

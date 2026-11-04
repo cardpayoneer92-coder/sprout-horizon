@@ -1,115 +1,216 @@
 {% comment %}
   Section contract.
-  Hero banner, photo-led: a full-bleed rounded image band with a soft scrim
-  at the bottom, an eyebrow, a big heading, a short line, two buttons and a
-  row of trust lines. Floating paw shapes drift behind. Trust lines are
-  child blocks.
+  Hero banner, two columns: the copy on the left, a round illustrated stage
+  on the right with morphing blobs, drifting paws and a stamp that spins
+  slowly. A wave closes the bottom edge, and the trust strip rides on it.
+  Trust lines are child blocks.
   @example
   <!-- Good food, happy tails · Shop by pet / Find the right size -->
 {% endcomment %}
 
 {%- liquid
   assign s = section.settings
-  assign scrim = s.scrim | divided_by: 100.0
 -%}
 
-<section class="sp-hero-sec" style="
-  --sp-hero-min: {{ s.min_height }}px;
-  --sp-hero-bg: {{ s.background }};
-  --sp-hero-fg: {{ s.text_color }};
-  --sp-hero-scrim: {{ scrim }};
-  --sp-h1-size: {{ s.heading_size }}px;
-  --sp-hero-pt: {{ s.padding_top }}px;
-  --sp-hero-pb: {{ s.padding_bottom }}px;
-">
-  <div class="sp-wrap sp-wrap--wide">
-    <div class="sp-hero">
+<section
+  class="sp-hero-sec"
+  style="
+    --sp-hero-bg: {{ s.background }};
+    --sp-hero-fg: {{ s.text_color }};
+    --sp-hero-stage: {{ s.stage_color }};
+    --sp-hero-blob-a: {{ s.blob_one }};
+    --sp-hero-blob-b: {{ s.blob_two }};
+    --sp-h1-size: {{ s.heading_size }}px;
+    --sp-hero-pt: {{ s.padding_top }}px;
+    --sp-hero-pb: {{ s.padding_bottom }}px;
+  "
+>
+  <div class="sp-hero">
+    <div class="sp-wrap sp-wrap--wide sp-hero__grid">
 
-      {%- if s.image != blank -%}
-        <img
-          class="sp-hero__img"
-          src="{{ s.image | image_url: width: 2400 }}"
-          srcset="{{ s.image | image_url: width: 800 }} 800w, {{ s.image | image_url: width: 1400 }} 1400w, {{ s.image | image_url: width: 2000 }} 2000w, {{ s.image | image_url: width: 2400 }} 2400w"
-          sizes="(min-width: 1280px) 1240px, 100vw"
-          alt="{{ s.image.alt | escape }}"
-          width="{{ s.image.width }}"
-          height="{{ s.image.height }}"
-          loading="eager"
-          fetchpriority="high"
-          style="object-position: {{ s.focal_x }}% {{ s.focal_y }}%;"
-        >
-      {%- else -%}
-        <div class="sp-hero__art">
-          <span class="sp-hero__blob sp-blob" style="background: {{ s.blob_one }};"></span>
-          <span class="sp-hero__blob sp-hero__blob--b sp-blob" style="background: {{ s.blob_two }};"></span>
-          {% render 'sp-art', name: 'duo', size: 380, label: 'A dog and a cat waiting for dinner' %}
-        </div>
-      {%- endif -%}
+      <div class="sp-hero__copy sp-reveal">
+        {%- if s.eyebrow != blank -%}
+          <p class="sp-hero__eyebrow">
+            <span class="sp-hero__dot" aria-hidden="true"></span>
+            {{ s.eyebrow | escape }}
+          </p>
+        {%- endif -%}
 
-      {%- if s.show_paws -%}
-        <span class="sp-hero__paws" aria-hidden="true">
-          <span class="sp-float" style="--sp-r: -14deg; left: 4%; top: 14%; width: 64px;">{% render 'sp-icon', name: 'paw', size: 64 %}</span>
-          <span class="sp-float sp-float--b" style="--sp-r: 18deg; right: 36%; top: 8%; width: 44px;">{% render 'sp-icon', name: 'paw', size: 44 %}</span>
-          <span class="sp-float sp-float--c" style="--sp-r: 8deg; left: 12%; bottom: 12%; width: 54px;">{% render 'sp-icon', name: 'paw', size: 54 %}</span>
-        </span>
-      {%- endif -%}
+        {%- if s.heading != blank -%}
+          <h2 class="sp-h1 sp-hero__title">
+            {{ s.heading }}{%- if s.heading_tail != blank -%}
+              <span class="sp-hero__tail">
+                {{ s.heading_tail | escape }}
+                <svg class="sp-hero__underline" viewBox="0 0 220 14" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M3 9c40-6 92-8 142-5 26 1 50 4 72 7" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+                </svg>
+              </span>
+            {%- endif -%}
+          </h2>
+        {%- endif -%}
 
-      <div class="sp-hero__body sp-hero__body--{{ s.alignment }}">
-        <div class="sp-hero__copy">
-          {%- if s.eyebrow != blank -%}<p class="sp-hero__eyebrow sp-pill">{{ s.eyebrow | escape }}</p>{%- endif -%}
-          {%- if s.heading != blank -%}<h2 class="sp-h1 sp-hero__title">{{ s.heading }}</h2>{%- endif -%}
-          {%- if s.text != blank -%}<div class="sp-lede sp-hero__text">{{ s.text }}</div>{%- endif -%}
+        {%- if s.text != blank -%}<div class="sp-lede sp-hero__text">{{ s.text }}</div>{%- endif -%}
 
-          {%- if s.button_text != blank or s.button2_text != blank -%}
-            <div class="sp-hero__actions">
-              {%- if s.button_text != blank -%}
-                <a class="sp-btn sp-btn--primary" href="{{ s.button_link | default: '#' }}">{{ s.button_text | escape }}</a>
-              {%- endif -%}
-              {%- if s.button2_text != blank -%}
-                <a class="sp-btn sp-btn--soft" href="{{ s.button2_link | default: '#' }}">{{ s.button2_text | escape }}</a>
-              {%- endif -%}
-            </div>
-          {%- endif -%}
+        {%- if s.button_text != blank or s.button2_text != blank -%}
+          <div class="sp-hero__actions">
+            {%- if s.button_text != blank -%}
+              <a class="sp-btn sp-btn--primary" href="{{ s.button_link | default: '#' }}">
+                {{ s.button_text | escape }}
+                {% render 'sp-icon', name: 'arrow', size: 18 %}
+              </a>
+            {%- endif -%}
+            {%- if s.button2_text != blank -%}
+              <a class="sp-btn sp-btn--soft" href="{{ s.button2_link | default: '#' }}">{{ s.button2_text | escape }}</a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
 
-          {%- if section.blocks.size > 0 -%}
-            <ul class="sp-trust" role="list">{% content_for 'blocks' %}</ul>
-          {%- endif -%}
-        </div>
+        {%- if s.proof != blank -%}
+          <p class="sp-hero__proof">
+            <span class="sp-hero__faces" aria-hidden="true">
+              <span style="background: var(--sp-sun);">{% render 'sp-icon', name: 'paw', size: 14 %}</span>
+              <span style="background: var(--sp-peach);">{% render 'sp-icon', name: 'heart', size: 14 %}</span>
+              <span style="background: var(--sp-sky);">{% render 'sp-icon', name: 'star', size: 14 %}</span>
+            </span>
+            {{ s.proof | escape }}
+          </p>
+        {%- endif -%}
+      </div>
+
+      <div class="sp-hero__stage">
+        <span class="sp-hero__blob sp-hero__blob--a sp-blob" aria-hidden="true"></span>
+        <span class="sp-hero__blob sp-hero__blob--b sp-blob" aria-hidden="true"></span>
+
+        {%- if s.image != blank -%}
+          <img
+            class="sp-hero__photo"
+            src="{{ s.image | image_url: width: 1200 }}"
+            srcset="{{ s.image | image_url: width: 600 }} 600w, {{ s.image | image_url: width: 1200 }} 1200w"
+            sizes="(min-width: 990px) 520px, 90vw"
+            alt="{{ s.image.alt | escape }}"
+            width="{{ s.image.width }}"
+            height="{{ s.image.height }}"
+            loading="eager"
+            fetchpriority="high"
+            style="object-position: {{ s.focal_x }}% {{ s.focal_y }}%;"
+          >
+        {%- else -%}
+          <span class="sp-hero__art sp-bob">
+            {% render 'sp-art', name: 'duo', size: 420, label: 'A dog and a cat waiting for dinner' %}
+          </span>
+        {%- endif -%}
+
+        {%- if s.stamp != blank -%}
+          <span class="sp-hero__stamp" aria-hidden="true">
+            <svg viewBox="0 0 120 120" class="sp-hero__stamp-ring">
+              <defs><path id="sp-stamp-{{ section.id }}" d="M60 60m-42 0a42 42 0 1 1 84 0a42 42 0 1 1-84 0"/></defs>
+              <text><textPath href="#sp-stamp-{{ section.id }}">{{ s.stamp | escape }} · {{ s.stamp | escape }} · </textPath></text>
+            </svg>
+            <span class="sp-hero__stamp-mid">{% render 'sp-icon', name: 'leaf', size: 22 %}</span>
+          </span>
+        {%- endif -%}
+
+        {%- if s.show_paws -%}
+          <span class="sp-hero__paws" aria-hidden="true">
+            <span class="sp-float"   style="--sp-r: -16deg; left: -2%;  top: 12%;">{% render 'sp-icon', name: 'paw', size: 40 %}</span>
+            <span class="sp-float sp-float--b" style="--sp-r: 20deg;  right: 2%;  top: 2%;">{% render 'sp-icon', name: 'paw', size: 28 %}</span>
+            <span class="sp-float sp-float--c" style="--sp-r: 8deg;   left: 8%;   bottom: 6%;">{% render 'sp-icon', name: 'paw', size: 34 %}</span>
+          </span>
+        {%- endif -%}
       </div>
 
     </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="sp-hero__strip">
+        <div class="sp-wrap sp-wrap--wide">
+          <ul class="sp-trust" role="list">{% content_for 'blocks' %}</ul>
+        </div>
+      </div>
+    {%- endif -%}
+
+    <svg class="sp-hero__wave" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 90V38c120-26 240-38 360-30s240 36 360 44 240-6 360-26 240-26 360-14v78Z" fill="currentColor"/>
+    </svg>
   </div>
 </section>
 
 {% stylesheet %}
-  .sp-hero-sec { padding-block: var(--sp-hero-pt, 24px) var(--sp-hero-pb, 24px); color: var(--sp-hero-fg, #27372b); }
-  .sp-hero { position: relative; border-radius: var(--sp-r-hero, 44px); overflow: hidden; min-height: var(--sp-hero-min, 540px); background-color: var(--sp-hero-bg, #d8edcd); background-image: radial-gradient(120% 92% at 78% 14%, rgb(255 213 74 / .55), rgb(255 213 74 / 0) 56%), radial-gradient(92% 82% at 10% 96%, rgb(108 179 89 / .38), rgb(108 179 89 / 0) 62%); display: flex; align-items: flex-end; isolation: isolate; }
-  .sp-hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .sp-hero__art { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; }
-  @media (min-width: 990px) { .sp-hero__art { place-items: center end; padding-right: 7%; } }
-  .sp-hero__art .sp-art { position: relative; z-index: 1; width: min(46%, 560px); max-width: none; height: auto; animation: sp-bob 5.2s ease-in-out infinite; }
-  .sp-hero__blob { position: absolute; width: 34%; right: 6%; top: 12%; aspect-ratio: 1 / 1; border-radius: 48% 52% 44% 56% / 52% 44% 56% 48%; opacity: .92; }
-  .sp-hero__blob--b { width: 17%; right: 34%; bottom: 8%; top: auto; opacity: .8; }
+  .sp-hero-sec { color: var(--sp-hero-fg, #27372b); }
+  .sp-hero {
+    position: relative; isolation: isolate; overflow: hidden;
+    padding-block: var(--sp-hero-pt, 56px) 0;
+    background-color: var(--sp-hero-bg, #d8edcd);
+    background-image:
+      radial-gradient(90% 70% at 84% 10%, rgb(255 213 74 / .42), rgb(255 213 74 / 0) 60%),
+      radial-gradient(80% 70% at 6% 92%, rgb(108 179 89 / .34), rgb(108 179 89 / 0) 62%);
+  }
 
-  .sp-hero__paws { position: absolute; inset: 0; pointer-events: none; }
-  .sp-hero__paws > span { position: absolute; color: #fbf7ef; opacity: 0.45; }
+  .sp-hero__grid { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr); align-items: center; gap: clamp(24px, 4vw, 56px); padding-bottom: var(--sp-hero-pb, 24px); }
 
-  .sp-hero__body { position: relative; width: 100%; padding: clamp(32px, 4vw, 56px) clamp(24px, 3.4vw, 48px); background: linear-gradient(to top, rgb(253 250 242 / var(--sp-hero-scrim, 0.96)) 38%, rgb(253 250 242 / 0)); }
-  .sp-hero__body--center { text-align: center; }
-  .sp-hero__body--center .sp-hero__copy { margin-inline: auto; }
-  .sp-hero__body--center .sp-hero__actions, .sp-hero__body--center .sp-trust { justify-content: center; }
-  .sp-hero__copy { max-width: 46ch; }
-  .sp-hero__eyebrow { margin: 0 0 16px; background: #fbf7ef; letter-spacing: 0.04em; text-transform: uppercase; }
-  .sp-hero__title { margin: 0 0 16px; }
-  .sp-hero__text { margin: 0 0 26px; color: #3c4b40; }
+  /* ---- copy ---- */
+  .sp-hero__copy { max-width: 30ch; }
+  .sp-hero__eyebrow { display: inline-flex; align-items: center; gap: 9px; margin: 0 0 18px; padding: 8px 16px; border-radius: 999px; background: rgb(253 250 242 / .82); font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .sp-hero__dot { width: 8px; height: 8px; border-radius: 999px; background: var(--sp-coral, #ff8a6b); animation: sp-pulse 2s ease-in-out infinite; }
+  @keyframes sp-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: .55; } }
+
+  .sp-hero__title { margin: 0 0 18px; }
+  .sp-hero__tail { position: relative; display: inline-block; white-space: nowrap; color: var(--sp-moss, #2f7a46); }
+  .sp-hero__underline { position: absolute; left: 0; right: 0; bottom: -0.1em; width: 100%; height: 0.19em; color: var(--sp-sun, #ffd54a); }
+  .sp-hero__underline path { stroke-dasharray: 230; stroke-dashoffset: 230; animation: sp-draw 1.1s var(--sp-ease) 0.45s forwards; }
+  @keyframes sp-draw { to { stroke-dashoffset: 0; } }
+
+  .sp-hero__text { margin: 0 0 28px; color: #3c4b40; max-width: 42ch; }
   .sp-hero__text > :first-child { margin-top: 0; }
   .sp-hero__text > :last-child { margin-bottom: 0; }
-  .sp-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
-  .sp-trust { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0; padding: 0; list-style: none; }
+  .sp-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
+  .sp-hero__actions .sp-btn svg { transition: transform 0.26s var(--sp-ease-back); }
+  .sp-hero__actions .sp-btn:hover svg { transform: translateX(4px); }
 
-  @media (max-width: 749px) {
-    .sp-hero { min-height: calc(var(--sp-hero-min, 540px) * 0.82); }
-    .sp-hero__copy { max-width: none; }
+  .sp-hero__proof { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 14px; font-weight: 700; color: #3c4b40; }
+  .sp-hero__faces { display: inline-flex; }
+  .sp-hero__faces > span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 999px; border: 2px solid var(--sp-cream, #fdfaf2); color: var(--sp-ink, #27372b); }
+  .sp-hero__faces > span + span { margin-left: -10px; }
+
+  /* ---- stage ---- */
+  .sp-hero__stage { position: relative; aspect-ratio: 1 / 1; display: grid; place-items: center; }
+  .sp-hero__stage::before { content: ""; position: absolute; inset: 7%; border-radius: 999px; background: var(--sp-hero-stage, #fdfaf2); opacity: .62; }
+  .sp-hero__blob { position: absolute; aspect-ratio: 1 / 1; border-radius: 48% 52% 44% 56% / 52% 44% 56% 48%; }
+  .sp-hero__blob--a { width: 62%; right: 4%; top: 6%; background: var(--sp-hero-blob-a, #ffd54a); opacity: .92; }
+  .sp-hero__blob--b { width: 30%; left: 2%; bottom: 10%; background: var(--sp-hero-blob-b, #ff8a6b); opacity: .8; animation-duration: 15s; animation-delay: -4s; }
+
+  .sp-hero__art, .sp-hero__photo { position: relative; z-index: 2; }
+  .sp-hero__art .sp-art { width: min(74%, 440px); height: auto; max-width: none; }
+  .sp-hero__photo { width: 78%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 999px; box-shadow: 0 20px 44px rgb(39 55 43 / 0.16); }
+
+  .sp-hero__stamp { position: absolute; z-index: 3; right: 2%; bottom: 8%; width: 104px; height: 104px; display: grid; place-items: center; border-radius: 999px; background: var(--sp-moss, #2f7a46); color: var(--sp-cream, #fdfaf2); box-shadow: 0 10px 26px rgb(39 55 43 / 0.2); }
+  .sp-hero__stamp-ring { position: absolute; inset: 0; width: 100%; height: 100%; animation: sp-spin 16s linear infinite; }
+  .sp-hero__stamp-ring text { font-family: var(--sp-font-body); font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: currentColor; text-transform: uppercase; }
+  .sp-hero__stamp-mid { display: inline-flex; }
+  @keyframes sp-spin { to { transform: rotate(360deg); } }
+
+  .sp-hero__paws { position: absolute; inset: 0; z-index: 1; pointer-events: none; color: rgb(253 250 242 / .72); }
+  .sp-hero__paws > span { position: absolute; display: inline-flex; }
+
+  /* ---- strip + wave ---- */
+  .sp-hero__strip { position: relative; z-index: 2; padding-bottom: 46px; }
+  .sp-trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 12px; margin: 0; padding: 0; list-style: none; }
+  .sp-hero__strip .sp-trust__item { padding: 9px 16px; border-radius: 999px; background: rgb(253 250 242 / .8); color: var(--sp-ink, #27372b); }
+  .sp-hero__strip .sp-trust__item svg { color: var(--sp-moss, #2f7a46); }
+
+  .sp-hero__wave { position: absolute; left: 0; right: 0; bottom: -1px; z-index: 1; display: block; width: 100%; height: clamp(50px, 6vw, 90px); color: var(--sp-cream, #fdfaf2); pointer-events: none; }
+
+  @media (max-width: 989px) {
+    .sp-hero__grid { grid-template-columns: minmax(0, 1fr); text-align: center; }
+    .sp-hero__copy { max-width: none; margin-inline: auto; }
+    .sp-hero__eyebrow, .sp-hero__actions, .sp-hero__proof { justify-content: center; }
+    .sp-hero__text { margin-inline: auto; }
+    .sp-hero__stage { order: -1; aspect-ratio: 4 / 3; }
+    .sp-hero__stamp { width: 82px; height: 82px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sp-hero__dot, .sp-hero__stamp-ring { animation: none; }
+    .sp-hero__underline path { animation: none; stroke-dashoffset: 0; }
   }
 {% endstylesheet %}
 
@@ -120,34 +221,32 @@
   "class": "sp-hero-section",
   "blocks": [{ "type": "_sp-trust-item" }],
   "settings": [
-    { "type": "header", "content": "Photo" },
-    { "type": "image_picker", "id": "image", "label": "Image" },
-    { "type": "range", "id": "focal_x", "label": "Focus across", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
-    { "type": "range", "id": "focal_y", "label": "Focus down", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
-    { "type": "range", "id": "min_height", "label": "Height", "min": 360, "max": 760, "step": 20, "unit": "px", "default": 540 },
-    { "type": "range", "id": "scrim", "label": "Text backdrop", "min": 0, "max": 100, "step": 4, "unit": "%", "default": 96, "info": "How solid the fade behind the text is." },
     { "type": "header", "content": "Text" },
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Fresh batch, every week" },
-    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Good food, happy tails" },
+    { "type": "textarea", "id": "heading", "label": "Heading", "default": "Good food," },
+    { "type": "text", "id": "heading_tail", "label": "Underlined word", "default": "happy tails", "info": "Drawn with a hand-made underline." },
     { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Gently cooked meals portioned for your pet — tell us about them once and the whole shop fits.</p>" },
-    {
-      "type": "select", "id": "alignment", "label": "Alignment", "default": "left",
-      "options": [{ "value": "left", "label": "Left" }, { "value": "center", "label": "Centre" }]
-    },
-    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 36, "max": 96, "step": 2, "unit": "px", "default": 74 },
+    { "type": "text", "id": "proof", "label": "Proof line", "default": "Loved by 4,000+ bowls a week" },
+    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 36, "max": 96, "step": 2, "unit": "px", "default": 72 },
     { "type": "header", "content": "Buttons" },
     { "type": "text", "id": "button_text", "label": "First button", "default": "Shop by pet" },
     { "type": "url", "id": "button_link", "label": "First link" },
     { "type": "text", "id": "button2_text", "label": "Second button", "default": "Find the right size" },
     { "type": "url", "id": "button2_link", "label": "Second link" },
-    { "type": "header", "content": "Style" },
-    { "type": "checkbox", "id": "show_paws", "label": "Floating paw shapes", "default": true },
+    { "type": "header", "content": "Stage" },
+    { "type": "image_picker", "id": "image", "label": "Photo", "info": "Leave empty to use the illustration." },
+    { "type": "range", "id": "focal_x", "label": "Focus across", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
+    { "type": "range", "id": "focal_y", "label": "Focus down", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
+    { "type": "text", "id": "stamp", "label": "Spinning stamp", "default": "Cooked this week" },
+    { "type": "checkbox", "id": "show_paws", "label": "Drifting paws", "default": true },
+    { "type": "header", "content": "Colour" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#d8edcd" },
+    { "type": "color", "id": "stage_color", "label": "Stage circle", "default": "#fdfaf2" },
     { "type": "color", "id": "blob_one", "label": "Blob one", "default": "#ffd54a" },
     { "type": "color", "id": "blob_two", "label": "Blob two", "default": "#ff8a6b" },
-    { "type": "color", "id": "background", "label": "Background", "default": "#d8edcd" },
     { "type": "color", "id": "text_color", "label": "Text", "default": "#27372b" },
-    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 24 },
-    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 24 }
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 56 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 20 }
   ],
   "presets": [
     {

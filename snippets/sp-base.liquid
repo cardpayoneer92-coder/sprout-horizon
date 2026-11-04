@@ -58,6 +58,8 @@
   /* The cream ground, independent of the theme settings file. */
   body { background-color: var(--sp-cream); color: var(--sp-ink); }
 
+  .sp-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
   /* ---- layout ---- */
   .sp-sec { padding-block: var(--sp-sec); background: var(--sp-sec-bg, transparent); color: var(--sp-sec-fg, inherit); }
   .sp-wrap { width: min(var(--sp-page), calc(100% - var(--sp-gutter) * 2)); margin-inline: auto; }
@@ -103,6 +105,7 @@
   .sp-bob { animation: sp-bob 4.6s ease-in-out infinite; }
   .sp-bob--b { animation-duration: 5.8s; animation-delay: -1.5s; }
   .sp-bob--c { animation-duration: 6.6s; animation-delay: -3s; }
+  .sp-wiggle { animation: sp-wiggle 2.6s ease-in-out infinite; }
   .sp-float { animation: sp-float 7s ease-in-out infinite; }
   .sp-float--b { animation-duration: 9s; animation-delay: -2s; }
   .sp-float--c { animation-duration: 11s; animation-delay: -4s; }
@@ -128,7 +131,7 @@
   .sp-blob { animation: sp-blob 12s ease-in-out infinite; }
 
   @media (prefers-reduced-motion: reduce) {
-    .sp-bob, .sp-float, .sp-heart:hover svg, .sp-wag, .sp-blob { animation: none; }
+    .sp-bob, .sp-float, .sp-heart:hover svg, .sp-wag, .sp-blob, .sp-wiggle { animation: none; }
     .sp-reveal, .sp-reveal.is-in, .sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }
     .sp-btn { transition: none; }
   }
