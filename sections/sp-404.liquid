@@ -1,0 +1,66 @@
+{% comment %}
+  Section contract.
+  The not-found page: a dog that has clearly buried the page somewhere, a
+  short apology and the ways back in.
+  @example
+  <!-- This one got buried · Back home · Browse everything -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<section class="sp-sec sp-404" style="--sp-sec-bg: {{ s.background }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <div class="sp-404__card sp-reveal">
+      <span class="sp-404__code" aria-hidden="true">{{ s.code | escape }}</span>
+      <span class="sp-404__art sp-bob">{% render 'sp-art', name: 'dog', size: 220, label: 'A dog looking guilty' %}</span>
+      <h1 class="sp-h2">{{ s.heading | escape }}</h1>
+      {%- if s.text != blank -%}<p class="sp-lede sp-404__lede">{{ s.text | escape }}</p>{%- endif -%}
+
+      <form class="sp-404__search" action="{{ routes.search_url }}" method="get" role="search">
+        <label class="sp-visually-hidden" for="sp-404-q">Search</label>
+        <input id="sp-404-q" type="search" name="q" placeholder="{{ s.search_placeholder | escape }}">
+        <button type="submit" class="sp-btn sp-btn--primary sp-btn--sm">{% render 'sp-icon', name: 'search', size: 18 %}<span>Search</span></button>
+      </form>
+
+      <div class="sp-404__links">
+        <a class="sp-btn sp-btn--soft" href="{{ routes.root_url }}">{{ s.home_text | escape }}</a>
+        <a class="sp-btn sp-btn--soft" href="{{ s.shop_link | default: '/collections/all' }}">{{ s.shop_text | escape }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-404__card { position: relative; display: grid; justify-items: center; gap: 12px; text-align: center; padding: 60px 24px 64px; border-radius: var(--sp-r-hero, 44px); background: var(--sp-mint, #d8edcd); overflow: hidden; }
+  .sp-404__code { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: var(--sp-font-head); font-size: clamp(160px, 30vw, 360px); font-weight: 600; line-height: 1; color: rgb(47 122 70 / 0.09); pointer-events: none; user-select: none; }
+  .sp-404__art, .sp-404__card > :not(.sp-404__code) { position: relative; z-index: 1; }
+  .sp-404__art .sp-art { width: 180px; height: auto; max-width: none; }
+  .sp-404__lede { max-width: 44ch; }
+
+  .sp-404__search { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+  .sp-404__search input { min-width: min(320px, 76vw); min-height: 50px; padding: 0 20px; border: 2px solid #c9dac2; border-radius: 999px; background: var(--sp-cream, #fdfaf2); font-family: inherit; font-size: 16px; color: inherit; }
+  .sp-404__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Not found",
+  "tag": "section",
+  "class": "sp-404-section",
+  "enabled_on": { "templates": ["404"] },
+  "settings": [
+    { "type": "text", "id": "code", "label": "Watermark", "default": "404" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "This one got buried" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Somebody dug up the page you were after. Try a search, or start again from the shop." },
+    { "type": "text", "id": "search_placeholder", "label": "Search placeholder", "default": "Try \"salmon\" or \"bed\"" },
+    { "type": "text", "id": "home_text", "label": "First button", "default": "Back home" },
+    { "type": "text", "id": "shop_text", "label": "Second button", "default": "Browse everything" },
+    { "type": "url", "id": "shop_link", "label": "Second link" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 72 }
+  ]
+}
+{% endschema %}

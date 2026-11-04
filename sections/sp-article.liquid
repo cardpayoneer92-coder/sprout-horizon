@@ -1,0 +1,95 @@
+{% comment %}
+  Section contract.
+  One blog post: a centred title block over a mint band, the cover image
+  pulled up into it, then the body in a readable column with a paw sign-off.
+  @example
+  <!-- How much should a puppy eat? — 6 min read -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+  assign words = article.content | strip_html | split: ' ' | size
+  assign minutes = words | divided_by: 200
+  if minutes < 1
+    assign minutes = 1
+  endif
+-%}
+
+<article class="sp-sec sp-art-page" style="--sp-sec-bg: {{ s.background }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <header class="sp-art-page__head sp-reveal" style="--sp-art-banner: {{ s.banner }};">
+      <nav class="sp-art-page__crumb" aria-label="Breadcrumb">
+        <a href="{{ blog.url | default: routes.root_url }}">{{ blog.title | default: 'Journal' }}</a>
+      </nav>
+      <h1 class="sp-h2 sp-art-page__title">{{ article.title | default: 'A post' }}</h1>
+      <p class="sp-art-page__meta">
+        {{ article.published_at | date: '%-d %B %Y' }}
+        {%- if s.show_reading_time -%} · {{ minutes }} min read{%- endif -%}
+        {%- if article.author != blank -%} · {{ article.author }}{%- endif -%}
+      </p>
+    </header>
+
+    {%- if article.image -%}
+      <img class="sp-art-page__cover sp-reveal" src="{{ article.image | image_url: width: 1600 }}" alt="{{ article.image.alt | escape }}" width="{{ article.image.width }}" height="{{ article.image.height }}" loading="eager">
+    {%- endif -%}
+
+    <div class="sp-art-page__body sp-reveal">
+      {%- if article.content != blank -%}
+        {{ article.content }}
+      {%- else -%}
+        <p>This post has no content yet.</p>
+      {%- endif -%}
+    </div>
+
+    <div class="sp-art-page__end" aria-hidden="true">
+      <span class="sp-wiggle">{% render 'sp-icon', name: 'paw', size: 26 %}</span>
+    </div>
+
+    {%- if s.back_text != blank -%}
+      <p class="sp-art-page__back">
+        <a class="sp-btn sp-btn--soft" href="{{ blog.url | default: routes.root_url }}">{{ s.back_text | escape }}</a>
+      </p>
+    {%- endif -%}
+  </div>
+</article>
+
+{% stylesheet %}
+  .sp-art-page__head { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 48px 24px 56px; border-radius: var(--sp-r-hero, 44px); background: var(--sp-art-banner, #d8edcd); }
+  .sp-art-page__crumb a { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sp-moss, #2f7a46); text-decoration: none; }
+  .sp-art-page__title { max-width: 20ch; }
+  .sp-art-page__meta { margin: 0; font-size: 14px; color: var(--sp-muted, #566358); }
+
+  .sp-art-page__cover { display: block; width: min(880px, 100%); margin: -32px auto 0; border-radius: var(--sp-r-card, 28px); aspect-ratio: 16 / 9; object-fit: cover; box-shadow: 0 18px 38px rgb(39 55 43 / 0.14); }
+
+  .sp-art-page__body { max-width: 68ch; margin: 44px auto 0; font-size: 18px; line-height: 1.75; }
+  .sp-art-page__body > :first-child { margin-top: 0; }
+  .sp-art-page__body p { margin: 0 0 20px; }
+  .sp-art-page__body h2 { margin: 38px 0 12px; font-family: var(--sp-font-head); font-size: 29px; font-weight: 500; }
+  .sp-art-page__body h3 { margin: 30px 0 10px; font-family: var(--sp-font-head); font-size: 23px; font-weight: 500; }
+  .sp-art-page__body ul, .sp-art-page__body ol { margin: 0 0 20px; padding-left: 24px; }
+  .sp-art-page__body li { margin-bottom: 9px; }
+  .sp-art-page__body img { max-width: 100%; height: auto; border-radius: var(--sp-r-card, 28px); }
+  .sp-art-page__body a { color: var(--sp-moss, #2f7a46); }
+  .sp-art-page__body blockquote { margin: 28px 0; padding: 20px 26px; border-radius: var(--sp-r-card, 28px); background: var(--sp-mint, #d8edcd); font-family: var(--sp-font-head); font-size: 21px; }
+  .sp-art-page__body blockquote p:last-child { margin: 0; }
+
+  .sp-art-page__end { display: grid; place-items: center; margin: 36px 0 12px; color: var(--sp-leaf, #6cb359); }
+  .sp-art-page__back { display: flex; justify-content: center; margin: 0; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Blog post",
+  "tag": "section",
+  "class": "sp-article-section",
+  "enabled_on": { "templates": ["article"] },
+  "settings": [
+    { "type": "checkbox", "id": "show_reading_time", "label": "Reading time", "default": true },
+    { "type": "text", "id": "back_text", "label": "Back button", "default": "More from the journal" },
+    { "type": "color", "id": "banner", "label": "Banner", "default": "#d8edcd" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 32 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 72 }
+  ]
+}
+{% endschema %}

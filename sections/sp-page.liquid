@@ -1,0 +1,76 @@
+{% comment %}
+  Section contract.
+  A plain content page: a mint banner with the title, then the page body in a
+  readable column. Used by every ordinary page in the shop.
+  @example
+  <!-- Our story — gently cooked food for dogs and cats -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<section class="sp-sec sp-page" style="--sp-sec-bg: {{ s.background }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <header class="sp-page__head sp-reveal" style="--sp-page-banner: {{ s.banner }};">
+      <span class="sp-page__art sp-bob" aria-hidden="true">{% render 'sp-art', name: s.art, size: 160 %}</span>
+      {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+      <h1 class="sp-h2 sp-page__title">{{ page.title | default: s.fallback_title }}</h1>
+      {%- if s.text != blank -%}<p class="sp-lede sp-page__lede">{{ s.text | escape }}</p>{%- endif -%}
+    </header>
+
+    <div class="sp-page__body sp-reveal">
+      {%- if page.content != blank -%}
+        {{ page.content }}
+      {%- else -%}
+        <p>This page has no content yet. Add some in the Shopify admin and it will appear here.</p>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-page__head { position: relative; display: grid; justify-items: center; text-align: center; gap: 6px; padding: 44px 24px 48px; margin-bottom: 40px; border-radius: var(--sp-r-hero, 44px); background: var(--sp-page-banner, #d8edcd); overflow: hidden; }
+  .sp-page__art { display: inline-flex; }
+  .sp-page__art .sp-art { width: 128px; height: auto; max-width: none; }
+  .sp-page__title { margin: 0; }
+  .sp-page__lede { max-width: 54ch; }
+
+  .sp-page__body { max-width: 68ch; margin-inline: auto; font-size: 17px; line-height: 1.7; }
+  .sp-page__body h2 { margin: 36px 0 12px; font-family: var(--sp-font-head); font-size: 28px; font-weight: 500; }
+  .sp-page__body h3 { margin: 28px 0 10px; font-family: var(--sp-font-head); font-size: 22px; font-weight: 500; }
+  .sp-page__body p { margin: 0 0 18px; }
+  .sp-page__body ul, .sp-page__body ol { margin: 0 0 18px; padding-left: 22px; }
+  .sp-page__body li { margin-bottom: 8px; }
+  .sp-page__body img { max-width: 100%; height: auto; border-radius: var(--sp-r-card, 28px); }
+  .sp-page__body a { color: var(--sp-moss, #2f7a46); }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Page",
+  "tag": "section",
+  "class": "sp-page-section",
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Sprout" },
+    { "type": "text", "id": "fallback_title", "label": "Fallback title", "default": "A page" },
+    { "type": "text", "id": "text", "label": "Text" },
+    {
+      "type": "select", "id": "art", "label": "Illustration", "default": "duo",
+      "options": [
+        { "value": "duo", "label": "Dog and cat" },
+        { "value": "dog", "label": "Dog" },
+        { "value": "cat", "label": "Cat" },
+        { "value": "bunny", "label": "Small pet" },
+        { "value": "bowl", "label": "Bowl" },
+        { "value": "pouch", "label": "Pouch" }
+      ]
+    },
+    { "type": "color", "id": "banner", "label": "Banner", "default": "#d8edcd" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 32 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 64 }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,85 @@
+{% comment %}
+  Section contract.
+  Every collection as a big rounded tile, each on its own colour, with the
+  product count underneath. Used by the list-collections page.
+  @example
+  <!-- Shop the shelves — Dog food · Cat food · Treats · Beds -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+  assign tints = '#d8edcd,#fbe9d2,#bfe3ef,#ffd54a,#ffb784,#d8edcd' | split: ','
+  assign arts = 'pouch,tin,jar,bowl,bed,bone' | split: ','
+  assign list = collections
+  if s.only_menu != blank
+    assign list = linklists[s.only_menu].links
+  endif
+-%}
+
+<section class="sp-sec sp-clist" style="--sp-sec-bg: {{ s.background }}; --sp-clist-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <header class="sp-clist__head sp-reveal">
+      {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+      <h1 class="sp-h2">{{ s.heading | escape }}</h1>
+      {%- if s.text != blank -%}<p class="sp-lede sp-clist__lede">{{ s.text | escape }}</p>{%- endif -%}
+    </header>
+
+    <div class="sp-grid sp-clist__grid">
+      {%- for coll in collections -%}
+        {%- assign n = forloop.index0 | modulo: 6 -%}
+        <a class="sp-ctile sp-reveal" href="{{ coll.url }}" style="--sp-ctile-tint: {{ tints[n] }};">
+          <span class="sp-ctile__media">
+            {%- if coll.featured_image -%}
+              <img src="{{ coll.featured_image | image_url: width: 700 }}" alt="{{ coll.featured_image.alt | escape }}" width="350" height="260" loading="lazy">
+            {%- else -%}
+              <span class="sp-bob">{% render 'sp-art', name: arts[n], size: 130 %}</span>
+            {%- endif -%}
+          </span>
+          <span class="sp-ctile__body">
+            <span class="sp-ctile__name">{{ coll.title }}</span>
+            <span class="sp-ctile__count">{{ coll.products_count }} {% if coll.products_count == 1 %}thing{% else %}things{% endif %}</span>
+          </span>
+        </a>
+      {%- else -%}
+        <p class="sp-clist__none">No collections yet. Create one in the Shopify admin and it will appear here.</p>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-clist__head { display: grid; gap: 6px; margin-bottom: 30px; }
+  .sp-clist__lede { max-width: 52ch; }
+  .sp-clist__grid { grid-template-columns: repeat(var(--sp-clist-cols, 3), minmax(0, 1fr)); }
+
+  .sp-ctile { display: grid; align-content: start; color: inherit; text-decoration: none; border-radius: var(--sp-r-card, 28px); overflow: hidden; background: var(--sp-cream, #fdfaf2); border: 1px solid var(--sp-line, #e3dccd); transition: transform 0.3s var(--sp-ease-back), box-shadow 0.3s var(--sp-ease); }
+  .sp-ctile:hover { transform: translateY(-8px) rotate(-1deg); box-shadow: 0 20px 34px rgb(39 55 43 / 0.13); }
+  .sp-ctile__media { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 3; background: var(--sp-ctile-tint, #d8edcd); overflow: hidden; }
+  .sp-ctile__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .sp-ctile__media .sp-art { width: 118px; height: auto; max-width: none; }
+  .sp-ctile__body { display: grid; gap: 3px; padding: 18px 22px 22px; }
+  .sp-ctile__name { font-family: var(--sp-font-head); font-size: 23px; font-weight: 500; }
+  .sp-ctile__count { font-size: 14px; color: var(--sp-muted, #566358); }
+  .sp-clist__none { grid-column: 1 / -1; margin: 0; color: var(--sp-muted, #566358); }
+
+  @media (max-width: 989px) { .sp-clist__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Collection list",
+  "tag": "section",
+  "class": "sp-collection-list-section",
+  "enabled_on": { "templates": ["list-collections"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Everything we make" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop the shelves" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Food, treats and the comfy things — grouped the way a pet would." },
+    { "type": "link_list", "id": "only_menu", "label": "Order by menu", "info": "Optional." },
+    { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 4, "step": 1, "default": 3 },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 64 }
+  ]
+}
+{% endschema %}

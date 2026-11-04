@@ -1,0 +1,104 @@
+{% comment %}
+  Section contract.
+  The blog index: a mint banner, then post cards that tilt up on hover. The
+  first post can run full width as the lead.
+  @example
+  <!-- The Sprout journal — How much should a puppy eat? -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+  assign tints = '#d8edcd,#fbe9d2,#bfe3ef,#ffd54a,#ffb784' | split: ','
+-%}
+
+<section class="sp-sec sp-blog" style="--sp-sec-bg: {{ s.background }}; --sp-blog-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <header class="sp-blog__head sp-reveal" style="--sp-blog-banner: {{ s.banner }};">
+      {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+      <h1 class="sp-h2">{{ blog.title | default: s.fallback_title }}</h1>
+      {%- if s.text != blank -%}<p class="sp-lede sp-blog__lede">{{ s.text | escape }}</p>{%- endif -%}
+      <span class="sp-blog__art sp-bob" aria-hidden="true">{% render 'sp-art', name: 'bunny', size: 150 %}</span>
+    </header>
+
+    {%- if blog.articles_count > 0 -%}
+      {% paginate blog.articles by s.posts_per_page %}
+        <div class="sp-grid sp-blog__grid">
+          {%- for article in blog.articles -%}
+            {%- assign tint = forloop.index0 | modulo: 5 -%}
+            <a class="sp-post sp-reveal" href="{{ article.url }}" style="--sp-post-tint: {{ tints[tint] }};">
+              <span class="sp-post__media">
+                {%- if article.image -%}
+                  <img src="{{ article.image | image_url: width: 700 }}" alt="{{ article.image.alt | escape }}" width="350" height="230" loading="lazy">
+                {%- else -%}
+                  {% render 'sp-art', name: 'duo', size: 130 %}
+                {%- endif -%}
+              </span>
+              <span class="sp-post__body">
+                <span class="sp-post__meta">{{ article.published_at | date: '%-d %b %Y' }}{% if article.tags.size > 0 %} · {{ article.tags.first }}{% endif %}</span>
+                <h2 class="sp-post__title">{{ article.title }}</h2>
+                <span class="sp-post__excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 24 }}</span>
+                <span class="sp-post__more">{{ s.read_text | escape }} {% render 'sp-icon', name: 'arrow', size: 16 %}</span>
+              </span>
+            </a>
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="sp-pager" aria-label="Pagination">
+            {%- if paginate.previous -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.previous.url }}">Back</a>{%- endif -%}
+            <span class="sp-pager__at">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
+            {%- if paginate.next -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.next.url }}">Next</a>{%- endif -%}
+          </nav>
+        {%- endif -%}
+      {% endpaginate %}
+    {%- else -%}
+      <p class="sp-blog__none">No posts yet. The first one will appear here.</p>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-blog__head { position: relative; display: grid; gap: 6px; padding: 44px 180px 48px 32px; margin-bottom: 36px; border-radius: var(--sp-r-hero, 44px); background: var(--sp-blog-banner, #d8edcd); overflow: hidden; }
+  .sp-blog__lede { max-width: 52ch; }
+  .sp-blog__art { position: absolute; right: 28px; bottom: -14px; }
+  .sp-blog__art .sp-art { width: 136px; height: auto; max-width: none; }
+
+  .sp-blog__grid { grid-template-columns: repeat(var(--sp-blog-cols, 3), minmax(0, 1fr)); }
+  .sp-post { display: grid; align-content: start; color: inherit; text-decoration: none; border-radius: var(--sp-r-card, 28px); background: var(--sp-cream, #fdfaf2); border: 1px solid var(--sp-line, #e3dccd); overflow: hidden; transition: transform 0.3s var(--sp-ease-back), box-shadow 0.3s var(--sp-ease); }
+  .sp-post:hover { transform: translateY(-7px) rotate(-0.8deg); box-shadow: 0 18px 32px rgb(39 55 43 / 0.12); }
+  .sp-post__media { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 10; background: var(--sp-post-tint, #d8edcd); overflow: hidden; }
+  .sp-post__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .sp-post__media .sp-art { width: 110px; height: auto; max-width: none; }
+  .sp-post__body { display: grid; gap: 7px; padding: 20px 22px 24px; }
+  .sp-post__meta { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sp-muted, #566358); }
+  .sp-post__title { margin: 0; font-family: var(--sp-font-head); font-size: 22px; font-weight: 500; line-height: 1.2; }
+  .sp-post__excerpt { font-size: 15px; color: var(--sp-muted, #566358); }
+  .sp-post__more { display: inline-flex; align-items: center; gap: 7px; margin-top: 4px; font-weight: 700; font-size: 14px; color: var(--sp-moss, #2f7a46); }
+  .sp-post:hover .sp-post__more svg { transform: translateX(4px); }
+  .sp-post__more svg { transition: transform 0.26s var(--sp-ease-back); }
+  .sp-blog__none { margin: 0; color: var(--sp-muted, #566358); }
+
+  @media (max-width: 989px) { .sp-blog__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sp-blog__head { padding-right: 32px; } .sp-blog__art { display: none; } }
+  @media (max-width: 749px) { .sp-blog__grid { grid-template-columns: minmax(0, 1fr); } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Blog",
+  "tag": "section",
+  "class": "sp-blog-section",
+  "enabled_on": { "templates": ["blog"] },
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Reading corner" },
+    { "type": "text", "id": "fallback_title", "label": "Fallback title", "default": "The Sprout journal" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Feeding, training and the odd thing we learned from a vet." },
+    { "type": "text", "id": "read_text", "label": "Read link", "default": "Read it" },
+    { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 4, "step": 1, "default": 3 },
+    { "type": "range", "id": "posts_per_page", "label": "Posts per page", "min": 3, "max": 24, "step": 3, "default": 9 },
+    { "type": "color", "id": "banner", "label": "Banner", "default": "#d8edcd" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 32 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 64 }
+  ]
+}
+{% endschema %}
