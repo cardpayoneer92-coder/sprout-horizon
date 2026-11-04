@@ -102,10 +102,23 @@
         };
         this.onScroll();
         this.scroller.addEventListener('scroll', this.onScroll, { passive: true });
+
+        // anything that adds to the bag without a page load tells us here
+        this.onCart = async () => {
+          try {
+            const cart = await fetch('/cart.js', { headers: { Accept: 'application/json' } }).then((r) => r.json());
+            const badge = this.querySelector('[data-cart-count]');
+            if (!badge) return;
+            badge.textContent = cart.item_count;
+            badge.classList.toggle('is-empty', cart.item_count === 0);
+          } catch (e) { /* leave the badge as it was */ }
+        };
+        document.addEventListener('sprout:cart-change', this.onCart);
       }
 
       disconnectedCallback() {
         if (this.scroller) this.scroller.removeEventListener('scroll', this.onScroll);
+        document.removeEventListener('sprout:cart-change', this.onCart);
       }
 
       toggle() {
