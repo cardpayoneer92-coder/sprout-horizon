@@ -31,7 +31,7 @@
         "delivery": {
           "type": "_sp-pd-row",
           "settings": {
-            "title": "Delivery &amp; storage",
+            "title": "Delivery & storage",
             "text": "<p>Posted chilled in a compostable pack. Keep it in the fridge once it is open and use within four days, or freeze it on the day it arrives.</p>",
             "open": false
           }

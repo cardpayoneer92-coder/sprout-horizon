@@ -10,8 +10,16 @@
 {%- liquid
   assign s = section.settings
   assign coll = collections[s.collection]
+  if s.collection == blank
+    assign coll = collections.all
+  endif
   assign items = coll.products
-  assign shown = items | slice: 0, s.count
+  comment
+    On a product page this grid is "goes well with this", so the product the
+    shopper is already looking at is not one of the suggestions.
+  endcomment
+  assign shown = ''
+  assign picked = 0
 -%}
 
 <section class="sp-sec sp-pgrid-sec" style="--sp-sec-bg: {{ s.background }}; --sp-h2-size: {{ s.heading_size }}px; --sp-pgrid-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
@@ -33,9 +41,13 @@
       </div>
 
       <div class="sp-grid sp-pgrid__grid">
-        {%- if shown.size > 0 -%}
-          {%- for product in shown -%}
-            {% render 'sp-product-card', product: product, index: forloop.index0, show_quick_add: s.quick_add %}
+        {%- if items.size > 0 -%}
+          {%- for item in items -%}
+            {%- if picked >= s.count -%}{%- break -%}{%- endif -%}
+            {%- unless product != blank and item.handle == product.handle -%}
+              {% render 'sp-product-card', product: item, index: picked, show_quick_add: s.quick_add %}
+              {%- assign picked = picked | plus: 1 -%}
+            {%- endunless -%}
           {%- endfor -%}
         {%- else -%}
           {%- for i in (1..s.columns) -%}
