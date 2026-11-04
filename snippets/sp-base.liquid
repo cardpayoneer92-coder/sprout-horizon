@@ -175,23 +175,48 @@
         items.forEach((n) => n.classList.add('is-in'));
         return;
       }
+      /* Horizon scrolls .page-wrapper rather than the document, so the
+         observer has to watch that element — with the viewport as root it
+         only reports the state at the moment it starts and never follows
+         the scroll, leaving everything below the fold invisible. */
+      const scroller = document.querySelector('.page-wrapper');
       const io = new IntersectionObserver((entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
         });
-      }, { rootMargin: '0px 0px -12% 0px' });
+      }, { root: scroller || null, rootMargin: '0px 0px -8% 0px' });
       items.forEach((n) => io.observe(n));
 
-      /* Nothing may stay invisible: if the observer never fires for an item
-         (an odd scroll container, a restored scroll position, a stalled
-         animation), show it anyway. */
-      setTimeout(function () {
+      /* Belt and braces: reveal anything that has reached the viewport as the
+         page scrolls, whichever element is doing the scrolling. */
+      const sweep = function () {
+        let left = false;
         items.forEach(function (n) {
           if (n.classList.contains('is-in')) return;
-          var box = n.getBoundingClientRect();
-          if (box.top < window.innerHeight * 1.2) n.classList.add('is-in');
+          if (n.getBoundingClientRect().top < window.innerHeight) n.classList.add('is-in');
+          else left = true;
         });
-      }, 2500);
+        if (!left) {
+          (scroller || window).removeEventListener('scroll', onScroll);
+          window.removeEventListener('resize', onScroll);
+        }
+      };
+      let ticking = false;
+      const onScroll = function () {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function () { ticking = false; sweep(); });
+      };
+      (scroller || window).addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      sweep();
+
+      /* Nothing may stay invisible. If neither path has reached an item a few
+         seconds in, show it anyway — a missing animation beats a blank page. */
+      setTimeout(function () {
+        items.forEach(function (n) { n.classList.add('is-in'); });
+      }, 4000);
+
     };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
     else start();
