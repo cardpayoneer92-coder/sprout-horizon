@@ -1,0 +1,43 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "banner": {
+      "type": "sp-page",
+      "settings": {
+        "eyebrow": "For the pet person",
+        "fallback_title": "Gifting",
+        "text": "Ready-made boxes with a hand-written note, and the price kept off the slip.",
+        "art": "blanket",
+        "banner": "#ffb784",
+        "background": "#fdfaf2",
+        "padding_top": 32,
+        "padding_bottom": 0
+      }
+    },
+    "body": {
+      "type": "sp-prose",
+      "settings": {
+        "background": "#fdfaf2",
+        "padding_top": 48,
+        "padding_bottom": 56,
+        "heading": "Boxes that arrive looking like a present",
+        "text": "<p>Pick a box, write the note at checkout, and we copy it out by hand onto a card. The packing slip goes out without prices on it, so nobody has to do the polite thing of pretending not to look.</p>",
+        "quote": "Write the note at checkout. We copy it out by hand.",
+        "text_two": "<h3>Not sure what they have?</h3><p>The treat and toy boxes suit any dog or cat, whatever they are eating. If you want food in there, the size finder will tell you which pack fits — or send a gift card and let them choose.</p>",
+        "cards": "Hand-written note | Copied out, not printed.\nNo prices on the slip | They will not see what you spent.\nPick a date | Tell us when it should land."
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "body"
+  ]
+}

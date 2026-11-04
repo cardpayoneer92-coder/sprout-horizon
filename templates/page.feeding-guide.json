@@ -1,0 +1,60 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "banner": {
+      "type": "sp-page",
+      "settings": {
+        "eyebrow": "How much, how often",
+        "fallback_title": "Feeding guide",
+        "text": "Portions, meal times, and how to move them over without upsetting anything.",
+        "art": "bunny",
+        "banner": "#ffd54a",
+        "background": "#fdfaf2",
+        "padding_top": 32,
+        "padding_bottom": 0
+      }
+    },
+    "body": {
+      "type": "sp-prose",
+      "settings": {
+        "background": "#fdfaf2",
+        "padding_top": 48,
+        "padding_bottom": 56,
+        "heading": "Start with their weight",
+        "text": "<p>As a rule, an adult dog eats about 22g of our food per kilo of body weight a day, split across two meals. A 14 kg dog is roughly 310g a day, so around 155g morning and evening. Cats are closer to 25g per kilo.</p><p>That is a starting point, not a law. Working dogs, puppies and anyone recovering from illness eat more; an older dog on short walks eats less. Weigh them monthly for the first few months and adjust.</p>",
+        "quote": "Ribs you can feel but not see. That is the target.",
+        "text_two": "<h3>Moving them over</h3><p>Take a week. Days one and two, a quarter new food. Days three and four, half. Days five and six, three quarters. Day seven, all of it. Rushing it upsets stomachs, and then everyone blames the food.</p><h3>Once it is open</h3><p>Keep the pack in the fridge and use it within four days, or freeze it the day it arrives and move a pack down the night before.</p>",
+        "cards": "Adult dogs | About 22g per kilo, split in two.\nCats | Closer to 25g per kilo.\nSwitching over | A week, a quarter at a time."
+      }
+    },
+    "finder": {
+      "type": "sp-size-page",
+      "settings": {
+        "finder_heading": "Work out their portion",
+        "finder_text": "Weight in, portion out.",
+        "small_max": 10,
+        "medium_max": 25,
+        "grams_per_kg": 22,
+        "packs": "",
+        "button_text": "Shop the right size",
+        "button_link": "/collections/all",
+        "background": "#fdfaf2",
+        "padding_top": 8,
+        "padding_bottom": 56
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "body",
+    "finder"
+  ]
+}

@@ -1,0 +1,43 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "banner": {
+      "type": "sp-page",
+      "settings": {
+        "eyebrow": "What goes in",
+        "fallback_title": "Ingredients",
+        "text": "Everything we use, why it is in there, and what we will never put in.",
+        "art": "bowl",
+        "banner": "#fbe9d2",
+        "background": "#fdfaf2",
+        "padding_top": 32,
+        "padding_bottom": 0
+      }
+    },
+    "body": {
+      "type": "sp-prose",
+      "settings": {
+        "background": "#fdfaf2",
+        "padding_top": 48,
+        "padding_bottom": 56,
+        "heading": "What we cook with",
+        "text": "<p>Every recipe is built the same way: one named muscle meat, one vegetable for fibre, one slow carbohydrate, one leafy green, one source of omega-3, and a vitamin and mineral mix put together with a veterinary nutritionist.</p><h3>The meat</h3><p>Named cuts only — chicken thigh, beef chuck, salmon fillet. Never \"meat derivatives\", never \"animal by-product\", because those words can mean almost anything.</p><h3>The rest</h3><p>Pumpkin, sweet potato, brown rice, spinach, flaxseed. Cooked gently so it keeps its shape and its nutrients.</p>",
+        "quote": "If we cannot say what it is, it does not go in the pot.",
+        "text_two": "<h3>What we never use</h3><p>No fillers, no artificial colours, no preservatives, no sugar, no salt added for taste. No ingredient that exists to pad the weight out.</p><p>Every batch is cooked in a kitchen we can walk into, and every pack is dated with the week it was made.</p>",
+        "cards": "Named cuts only | No \"derivatives\", no mystery meal.\nVet-formulated | The vitamin mix is not guesswork.\nNothing added | No colours, preservatives or sugar."
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "body"
+  ]
+}

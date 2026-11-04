@@ -1,0 +1,44 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "banner": {
+      "type": "sp-page",
+      "settings": {
+        "eyebrow": "How we started",
+        "fallback_title": "Our story",
+        "text": "One fussy beagle, a lot of leftovers, and a vet who finally told us what to do.",
+        "art": "dog",
+        "banner": "#d8edcd",
+        "background": "#fdfaf2",
+        "padding_top": 32,
+        "padding_bottom": 0
+      }
+    },
+    "body": {
+      "type": "sp-prose",
+      "settings": {
+        "background": "#fdfaf2",
+        "padding_top": 48,
+        "padding_bottom": 56,
+        "heading": "It started with a dog who would not eat",
+        "text": "<p>Milo turned his nose up at everything. We tried eight brands, three vets and one very expensive tin that he licked once and walked away from. The vet's advice was simple: fewer ingredients, cooked gently, and portions that actually suit him.</p><p>So we cooked it ourselves. Chicken thigh, pumpkin, brown rice. He finished the bowl, then looked up for more.</p>",
+        "quote": "Six ingredients you can name beat twenty you cannot.",
+        "quote_by": "Our vet, on the phone, slightly exasperated",
+        "text_two": "<p>Sprout is that bowl, made properly. We cook in small batches every week, portion it to the pet rather than the packet, and post it chilled in something you can put in the food caddy.</p><p>We are a small team. If you email us, one of us answers.</p>",
+        "cards": "Cooked weekly | Never stockpiled, never sat in a warehouse.\nSix ingredients | All of them on the front of the pack.\nPortioned to your pet | Tell us their weight once."
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "body"
+  ]
+}

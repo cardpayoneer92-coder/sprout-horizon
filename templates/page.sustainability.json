@@ -1,0 +1,43 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "banner": {
+      "type": "sp-page",
+      "settings": {
+        "eyebrow": "The packet, and the rest",
+        "fallback_title": "Sustainability",
+        "text": "What our packaging is made of, what happens to it, and where we are still not good enough.",
+        "art": "pouch",
+        "banner": "#d8edcd",
+        "background": "#fdfaf2",
+        "padding_top": 32,
+        "padding_bottom": 0
+      }
+    },
+    "body": {
+      "type": "sp-prose",
+      "settings": {
+        "background": "#fdfaf2",
+        "padding_top": 48,
+        "padding_bottom": 56,
+        "heading": "The pack goes in the food caddy",
+        "text": "<p>Our outer is paper. The film inside is plant-based and certified home-compostable, so the whole thing can go in your food waste — no separating, no rinsing, no special collection.</p><p>The box is recycled card, the tape is paper, and the ice packs are water and starch. Cut the corner off and the gel goes down the sink.</p>",
+        "quote": "Cooking weekly means nothing sits in a freezer for a year.",
+        "text_two": "<h3>Where we are not there yet</h3><p>Chilled delivery has a footprint, and we are not going to pretend otherwise. We batch deliveries by postcode to cut the miles, and we would rather tell you that than put a leaf on the box and call it done.</p><p>We publish what we use each quarter. If you want the numbers, email us and we will send them.</p>",
+        "cards": "Home compostable | Film and outer both go in the caddy.\nRecycled card | Box, tape and insert.\nBatched by postcode | Fewer vans, shorter routes."
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "body"
+  ]
+}
