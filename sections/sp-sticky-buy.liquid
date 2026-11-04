@@ -1,0 +1,96 @@
+{% comment %}
+  Section contract.
+  A slim buy bar that slides down once the main add-to-bag has scrolled out
+  of view: the product in miniature, its price and a second add button.
+  @example
+  <!-- Chicken & pumpkin dinner · £18.00 · Add to bag -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+  assign p = product
+  assign v = product.selected_or_first_available_variant
+-%}
+
+{%- if p != blank -%}
+  <sp-sticky-buy class="sp-sticky" hidden style="--sp-sticky-bg: {{ s.background }};">
+    <div class="sp-wrap sp-sticky__bar">
+      <span class="sp-sticky__thumb">
+        {%- if p.featured_media -%}
+          <img src="{{ p.featured_media | image_url: width: 120 }}" alt="" width="60" height="60" loading="lazy">
+        {%- else -%}
+          {%- assign shot = 'sp-' | append: p.handle | append: '-1.png' -%}
+          <img data-sp-fallback src="{{ shot | asset_url }}" alt="" width="60" height="60" loading="lazy">
+          {% render 'sp-icon', name: 'bag', size: 22 %}
+        {%- endif -%}
+      </span>
+
+      <span class="sp-sticky__copy">
+        <strong>{{ p.title }}</strong>
+        {%- if v and p.has_only_default_variant == false -%}
+          <span>{{ v.title }}</span>
+        {%- endif -%}
+      </span>
+
+      <span class="sp-sticky__price">{{ v.price | money }}</span>
+
+      {%- form 'product', p, class: 'sp-sticky__form', id: null -%}
+        <input type="hidden" name="id" value="{{ v.id }}">
+        <button type="submit" class="sp-btn sp-btn--primary sp-btn--sm"{% unless p.available %} disabled{% endunless %}>
+          {%- if p.available -%}{{ s.button_text | escape }}{%- else -%}Sold out{%- endif -%}
+        </button>
+      {%- endform -%}
+    </div>
+  </sp-sticky-buy>
+
+  <script type="module">
+    if (!customElements.get('sp-sticky-buy')) {
+      customElements.define('sp-sticky-buy', class extends HTMLElement {
+        connectedCallback() {
+          const anchor = document.querySelector('.sp-pdp__add');
+          if (!anchor) return;
+          this.observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              const show = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+              this.hidden = !show;
+              this.classList.toggle('is-in', show);
+            });
+          }, { threshold: 0 });
+          this.observer.observe(anchor);
+        }
+        disconnectedCallback() { if (this.observer) this.observer.disconnect(); }
+      });
+    }
+  </script>
+{%- endif -%}
+
+{% stylesheet %}
+  .sp-sticky { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: block; background: var(--sp-sticky-bg, #fdfaf2); border-top: 1px solid var(--sp-line, #e3dccd); box-shadow: 0 -8px 24px rgb(39 55 43 / 0.1); transform: translateY(100%); transition: transform 0.3s var(--sp-ease); }
+  .sp-sticky.is-in { transform: translateY(0); }
+  .sp-sticky__bar { display: flex; align-items: center; gap: 14px; padding-block: 10px; }
+
+  .sp-sticky__thumb { position: relative; flex: 0 0 auto; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: var(--sp-mint, #d8edcd); overflow: hidden; color: var(--sp-moss, #2f7a46); }
+  .sp-sticky__thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+  .sp-sticky__copy { flex: 1 1 auto; min-width: 0; display: grid; }
+  .sp-sticky__copy strong { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sp-sticky__copy span { font-size: 13px; color: var(--sp-muted, #566358); }
+  .sp-sticky__price { flex: 0 0 auto; font-weight: 700; font-size: 17px; }
+  .sp-sticky__form { flex: 0 0 auto; margin: 0; }
+
+  @media (max-width: 749px) { .sp-sticky__price { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .sp-sticky { transition: none; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Sticky buy bar",
+  "tag": "div",
+  "class": "sp-sticky-section",
+  "enabled_on": { "templates": ["product"] },
+  "settings": [
+    { "type": "text", "id": "button_text", "label": "Button", "default": "Add to bag" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,45 @@
+{% doc %}
+  One accordion row under the buy box — ingredients, feeding, delivery.
+
+  @example
+  Ingredients ▸ Chicken thigh (62%), pumpkin, brown rice…
+{% enddoc %}
+
+{%- liquid
+  assign b = block.settings
+-%}
+
+{%- if b.title != blank -%}
+  <details class="sp-pdrow"{% if b.open %} open{% endif %} {{ block.shopify_attributes }}>
+    <summary class="sp-pdrow__head">
+      <span>{{ b.title | escape }}</span>
+      <span class="sp-pdrow__mark" aria-hidden="true">{% render 'sp-icon', name: 'chevron', size: 18 %}</span>
+    </summary>
+    <div class="sp-pdrow__body">{{ b.text }}</div>
+  </details>
+{%- endif -%}
+
+{% stylesheet %}
+  .sp-pdrow { border-bottom: 1px solid var(--sp-line, #e3dccd); }
+  .sp-pdrow__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 0; font-weight: 700; font-size: 16px; cursor: pointer; list-style: none; }
+  .sp-pdrow__head::-webkit-details-marker { display: none; }
+  .sp-pdrow__mark { display: inline-flex; color: var(--sp-moss, #2f7a46); transition: transform 0.26s var(--sp-ease); }
+  .sp-pdrow[open] .sp-pdrow__mark { transform: rotate(180deg); }
+  .sp-pdrow__body { padding: 0 0 18px; font-size: 15px; line-height: 1.6; color: var(--sp-muted, #566358); }
+  .sp-pdrow__body > :first-child { margin-top: 0; }
+  .sp-pdrow__body > :last-child { margin-bottom: 0; }
+  @media (prefers-reduced-motion: reduce) { .sp-pdrow__mark { transition: none; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Detail row",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "title", "label": "Title", "default": "Ingredients" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Chicken thigh, pumpkin, brown rice, spinach, flaxseed and a vitamin mix — nothing else.</p>" },
+    { "type": "checkbox", "id": "open", "label": "Open by default", "default": false }
+  ],
+  "presets": [{ "name": "Detail row", "category": "t:categories.custom" }]
+}
+{% endschema %}

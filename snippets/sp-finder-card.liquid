@@ -1,0 +1,113 @@
+{% comment %}
+  The size finder, as a snippet so the product section and the standalone
+  block share one implementation. It seeds itself from the saved pet profile
+  and writes the weight back, so the rest of the shop follows along.
+
+  @example
+  {% render 'sp-finder-card', heading: 'Which size?', small_max: 10 %}
+{% endcomment %}
+
+{%- liquid
+  assign sm = small_max | default: 10
+  assign md = medium_max | default: 25
+  assign gpk = grams_per_kg | default: 22
+-%}
+
+<sp-size-finder
+  class="sp-finder"
+  data-small-max="{{ sm }}"
+  data-medium-max="{{ md }}"
+  data-grams-per-kg="{{ gpk }}"
+>
+  {%- if heading != blank -%}<h2 class="sp-finder__title">{{ heading | escape }}</h2>{%- endif -%}
+  {%- if text != blank -%}<p class="sp-finder__text">{{ text | escape }}</p>{%- endif -%}
+
+  <div class="sp-finder__row">
+    <label class="sp-finder__field">
+      <span>Weight (kg)</span>
+      <input type="number" min="1" max="90" value="12" data-weight inputmode="numeric">
+    </label>
+    <label class="sp-finder__field">
+      <span>Chest (cm, optional)</span>
+      <input type="number" min="10" max="140" placeholder="e.g. 54" data-chest inputmode="numeric">
+    </label>
+  </div>
+
+  <p class="sp-finder__out" aria-live="polite" data-out>Pop in a weight and we will size it.</p>
+
+  <div class="sp-finder__sizes" role="group" aria-label="Pack size">
+    <button type="button" class="sp-finder__size" data-size="Small">Small</button>
+    <button type="button" class="sp-finder__size" data-size="Medium">Medium</button>
+    <button type="button" class="sp-finder__size" data-size="Large">Large</button>
+  </div>
+</sp-size-finder>
+
+<script type="module">
+  if (!customElements.get('sp-size-finder')) {
+    customElements.define('sp-size-finder', class extends HTMLElement {
+      connectedCallback() {
+        this.weight = this.querySelector('[data-weight]');
+        this.out = this.querySelector('[data-out]');
+        this.sizes = [...this.querySelectorAll('[data-size]')];
+
+        const saved = this.read();
+        if (saved && saved.weight) this.weight.value = saved.weight;
+
+        this.weight.addEventListener('input', () => this.run(true));
+        this.sizes.forEach((b) => b.addEventListener('click', () => this.mark(b.dataset.size)));
+        this.run(false);
+      }
+
+      read() {
+        try { return JSON.parse(localStorage.getItem('sprout:pet')) || null; } catch (e) { return null; }
+      }
+
+      size(kg) {
+        const sm = Number(this.dataset.smallMax) || 10;
+        const md = Number(this.dataset.mediumMax) || 25;
+        return kg <= sm ? 'Small' : (kg <= md ? 'Medium' : 'Large');
+      }
+
+      run(save) {
+        const kg = Number(this.weight.value);
+        if (!kg || kg < 1) { this.out.textContent = 'Pop in a weight and we will size it.'; return; }
+
+        const size = this.size(kg);
+        const grams = Math.round((kg * (Number(this.dataset.gramsPerKg) || 22)) / 5) * 5;
+        const pack = size === 'Small' ? 1200 : (size === 'Medium' ? 2400 : 4000);
+        const days = Math.max(1, Math.round(pack / grams));
+
+        this.out.innerHTML =
+          '<strong>' + size + ' pack</strong> — about <strong>' + grams + 'g</strong> a day, ' +
+          'so one pack lasts around <strong>' + days + ' days</strong>.';
+        this.mark(size);
+
+        if (save) {
+          const current = this.read() || {};
+          const next = { pet: current.pet || 'Dog', weight: kg };
+          try { localStorage.setItem('sprout:pet', JSON.stringify(next)); } catch (e) { /* private mode */ }
+          document.dispatchEvent(new CustomEvent('sprout:pet-change', { detail: next }));
+        }
+      }
+
+      mark(size) {
+        this.sizes.forEach((b) => b.classList.toggle('is-on', b.dataset.size === size));
+      }
+    });
+  }
+</script>
+
+{% stylesheet %}
+  .sp-finder { display: block; padding: 24px; margin-bottom: 24px; border-radius: var(--sp-r-card, 28px); background: var(--sp-mint, #d8edcd); }
+  .sp-finder__title { margin: 0 0 4px; font-family: var(--sp-font-head); font-size: 22px; font-weight: 500; }
+  .sp-finder__text { margin: 0 0 16px; font-size: 14px; color: var(--sp-muted, #566358); }
+  .sp-finder__row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .sp-finder__field { flex: 1 1 140px; min-width: 0; }
+  .sp-finder__field span { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; }
+  .sp-finder__field input { width: 100%; min-height: 48px; padding: 0 16px; border: 2px solid #c9dac2; border-radius: 999px; background: var(--sp-cream, #fdfaf2); font-family: inherit; font-size: 16px; color: inherit; box-sizing: border-box; }
+  .sp-finder__field input:focus-visible { outline: 3px solid var(--sp-moss, #2f7a46); outline-offset: 1px; }
+  .sp-finder__out { margin: 16px 0 0; padding: 14px 18px; border-radius: 20px; background: var(--sp-cream, #fdfaf2); font-size: 15px; line-height: 1.5; }
+  .sp-finder__sizes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .sp-finder__size { min-height: 42px; padding: 0 18px; border: 2px solid transparent; border-radius: 999px; background: var(--sp-cream, #fdfaf2); font-family: inherit; font-weight: 700; font-size: 14px; color: inherit; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }
+  .sp-finder__size.is-on { background: var(--sp-moss, #2f7a46); color: var(--sp-cream, #fdfaf2); }
+{% endstylesheet %}
