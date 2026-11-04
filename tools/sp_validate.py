@@ -19,6 +19,11 @@ problems = []
 
 
 def check(path, schema, is_section):
+    # A section rendered with "tag": null is rejected silently. Horizon's own
+    # sections either name a real tag or leave the key out; only blocks use null.
+    if is_section and 'tag' in schema and schema['tag'] is None:
+        problems.append(f'{path}: section has "tag": null — name a real tag or drop the key')
+
     def settings_of(obj):
         out = list(obj.get('settings') or [])
         for b in obj.get('blocks', []) or []:

@@ -114,8 +114,10 @@
 </script>
 
 {% stylesheet %}
+  /* The section tag wraps this element, so the wrapper is what sticks —
+     a sticky child would only stick inside its own box. */
+  .sp-header-section:has(.sp-head--sticky) { position: sticky; top: 0; z-index: 40; }
   .sp-head { display: block; position: relative; z-index: 40; background: var(--sp-head-bg, #fdfaf2); color: var(--sp-head-fg, #27372b); transition: box-shadow 0.25s ease; }
-  .sp-head--sticky { position: sticky; top: 0; }
   .sp-head.is-stuck { box-shadow: 0 6px 20px rgb(39 55 43 / 0.08); }
 
   .sp-head__bar { display: flex; align-items: center; gap: 18px; min-height: 72px; padding-block: 10px; }
@@ -161,7 +163,8 @@
 {% schema %}
 {
   "name": "Header",
-  "tag": null,
+  "tag": "header",
+  "class": "sp-header-section",
   "enabled_on": { "groups": ["header"] },
   "settings": [
     { "type": "header", "content": "Brand" },

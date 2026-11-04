@@ -40,6 +40,8 @@ rejected file simply never appears in the theme, with no error anywhere:
 - a `range` default that is off the step grid
 - a `unit` that is not a short plain token (`/1000em` was rejected; `px`, `%`, `sec` are fine)
 - the reserved setting id `per_page`
+- a section schema with `"tag": null` — Horizon's own sections name a real tag
+  or leave the key out; only blocks use `null`
 - malformed JSON in a template or section group
 - values in `config/settings_data.json` outside the range `settings_schema.json`
   declares (one bad value rejects the whole file — the corner radii did)
