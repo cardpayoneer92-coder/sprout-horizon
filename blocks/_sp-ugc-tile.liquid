@@ -13,7 +13,7 @@
   {%- if b.image != blank -%}
     <img src="{{ b.image | image_url: width: 600 }}" alt="{{ b.image.alt | escape }}" width="{{ b.image.width }}" height="{{ b.image.height }}" loading="lazy">
   {%- else -%}
-    <span class="sp-quote__ph">{{ b.handle | default: '[ customer photo ]' | escape }}</span>
+    <span class="sp-quote__art sp-bob">{% render 'sp-art', name: b.art, size: 120 %}</span>
   {%- endif -%}
   {%- if b.handle != blank -%}<figcaption>{{ b.handle | escape }}</figcaption>{%- endif -%}
 </figure>
@@ -21,7 +21,10 @@
 {% stylesheet %}
   .sp-quote__tile { position: relative; margin: 0; aspect-ratio: 1 / 1; border-radius: var(--sp-r-tile, 22px); overflow: hidden; background: var(--sp-mint, #e7f0e2); display: grid; place-items: center; }
   .sp-quote__tile img { width: 100%; height: 100%; object-fit: cover; }
-  .sp-quote__ph { padding: 8px; font-size: 11px; font-weight: 700; color: #4c5b50; text-align: center; }
+  .sp-quote__art { display: grid; place-items: center; width: 100%; height: 100%; }
+  .sp-quote__art .sp-art { max-width: 76%; height: auto; }
+  .sp-quote__tile:nth-child(2n) { background: var(--sp-peach); }
+  .sp-quote__tile:nth-child(3n) { background: var(--sp-sun); }
   .sp-quote__tile figcaption { position: absolute; left: 8px; bottom: 8px; padding: 4px 10px; border-radius: 999px; background: rgb(251 247 239 / 0.92); font-size: 11px; font-weight: 700; }
 {% endstylesheet %}
 
@@ -31,7 +34,15 @@
   "tag": null,
   "settings": [
     { "type": "image_picker", "id": "image", "label": "Photo" },
-    { "type": "text", "id": "handle", "label": "Handle", "default": "@sproutpets" }
+    { "type": "text", "id": "handle", "label": "Handle", "default": "@sproutpets" },
+    {
+      "type": "select", "id": "art", "label": "Illustration", "default": "dog",
+      "info": "Shown until a real photo is added.",
+      "options": [
+        { "value": "dog", "label": "Dog" }, { "value": "cat", "label": "Cat" },
+        { "value": "bunny", "label": "Bunny" }, { "value": "bed", "label": "Bed" }
+      ]
+    }
   ],
   "presets": [{ "name": "Customer photo", "category": "t:categories.custom" }]
 }

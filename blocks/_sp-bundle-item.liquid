@@ -24,7 +24,7 @@
     {%- elsif b.image != blank -%}
       <img src="{{ b.image | image_url: width: 400 }}" alt="" width="{{ b.image.width }}" height="{{ b.image.height }}" loading="lazy">
     {%- else -%}
-      <span class="sp-bundle__ph">[ photo ]</span>
+      <span class="sp-bundle__art sp-bob">{% render 'sp-art', name: b.art, size: 110 %}</span>
     {%- endif -%}
   </span>
   <span class="sp-bundle__name">{% if b.title != blank %}{{ b.title | escape }}{% elsif p != blank %}{{ p.title }}{% else %}Add a product{% endif %}</span>
@@ -39,7 +39,11 @@
   .sp-bundle__item.is-on .sp-bundle__tick { background: var(--sp-moss, #3f6b4a); color: var(--sp-cream, #fbf7ef); }
   .sp-bundle__media { width: 100%; aspect-ratio: 1 / 1; border-radius: var(--sp-r-tile, 22px); overflow: hidden; background: var(--sp-mint, #e7f0e2); display: grid; place-items: center; }
   .sp-bundle__media img { width: 100%; height: 100%; object-fit: cover; }
-  .sp-bundle__ph { font-size: 11px; font-weight: 700; color: #4c5b50; }
+  .sp-bundle__art { display: grid; place-items: center; }
+  .sp-bundle__art .sp-art { max-width: 76%; height: auto; }
+  .sp-bundle__item:nth-child(2n) .sp-bundle__media { background: var(--sp-peach); }
+  .sp-bundle__item:nth-child(3n) .sp-bundle__media { background: var(--sp-sun); }
+  .sp-bundle__item:nth-child(4n) .sp-bundle__media { background: var(--sp-sky); }
   .sp-bundle__name { font-weight: 700; font-size: 15px; text-align: center; }
   .sp-bundle__price { font-size: 13px; color: var(--sp-muted, #5e6e60); }
   @media (prefers-reduced-motion: reduce) { .sp-bundle__item { transition: none; } }
@@ -53,7 +57,17 @@
     { "type": "product", "id": "product", "label": "Product" },
     { "type": "text", "id": "title", "label": "Title override" },
     { "type": "image_picker", "id": "image", "label": "Image override" },
-    { "type": "checkbox", "id": "selected", "label": "Selected to start", "default": false }
+    { "type": "checkbox", "id": "selected", "label": "Selected to start", "default": false },
+    {
+      "type": "select", "id": "art", "label": "Illustration", "default": "bed",
+      "info": "Shown when the product has no photo.",
+      "options": [
+        { "value": "bed", "label": "Bed" }, { "value": "blanket", "label": "Blanket" },
+        { "value": "bone", "label": "Rope bone" }, { "value": "bowl", "label": "Bowl" },
+        { "value": "pouch", "label": "Food pouch" }, { "value": "jar", "label": "Treat jar" },
+        { "value": "tin", "label": "Tin" }
+      ]
+    }
   ],
   "presets": [{ "name": "Bundle item", "category": "t:categories.custom" }]
 }

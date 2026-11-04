@@ -13,11 +13,16 @@
 -%}
 
 {%- if p == blank or p == empty -%}
+  {%- liquid
+    assign demo_art = 'pouch,jar,bed,bowl,tin,bone' | split: ','
+    assign demo_names = 'Chicken &amp; pumpkin dinner,Carrot crunch treats,Cloud bed,Slow bowl,Salmon pâté,Rope bone' | split: ','
+    assign pick = index | default: 0 | modulo: 6
+  -%}
   <article class="sp-card sp-card--empty">
     <div class="sp-card__media sp-card__media--{{ tint }}">
-      <p class="sp-card__ph">[ product photo ]</p>
+      <span class="sp-card__art sp-bob">{% render 'sp-art', name: demo_art[pick], size: 170 %}</span>
     </div>
-    <h3 class="sp-card__title">Example product</h3>
+    <h3 class="sp-card__title">{{ demo_names[pick] }}</h3>
     <span class="sp-card__price">[PRICE]</span>
   </article>
 {%- else -%}
@@ -47,7 +52,7 @@
             >
           {%- endif -%}
         {%- else -%}
-          <p class="sp-card__ph">[ add a photo to {{ p.title | escape }} ]</p>
+          <span class="sp-card__art sp-bob">{% render 'sp-art', name: 'pouch', size: 170, label: p.title %}</span>
         {%- endif -%}
       </a>
 

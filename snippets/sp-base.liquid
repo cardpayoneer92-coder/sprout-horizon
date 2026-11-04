@@ -21,12 +21,15 @@
     --font-accent--family: 'Fredoka', system-ui, sans-serif;
 
     /* ground + surfaces */
-    --sp-cream: #fbf7ef;
-    --sp-mint: #e7f0e2;
-    --sp-sand: #f3ece0;
-    --sp-leaf: #6fa368;
-    --sp-moss: #3f6b4a;
-    --sp-peach: #f3c3a0;
+    --sp-cream: #fdfaf2;
+    --sp-mint: #d8edcd;
+    --sp-sand: #fbe9d2;
+    --sp-leaf: #6cb359;
+    --sp-moss: #2f7a46;
+    --sp-peach: #ffb784;
+    --sp-sun: #ffd54a;
+    --sp-coral: #ff8a6b;
+    --sp-sky: #bfe3ef;
     --sp-ink: #27372b;
     --sp-ink-rgb: 39 55 43;
     --sp-muted: #566358;
@@ -105,13 +108,28 @@
   .sp-float--c { animation-duration: 11s; animation-delay: -4s; }
   .sp-heart:hover svg { animation: sp-pop 0.45s ease; }
 
-  @supports (animation-timeline: view()) {
-    .sp-reveal { animation: sp-rise linear both; animation-timeline: view(); animation-range: entry 5% cover 26%; }
-  }
+  /* Entrance: hidden until the observer marks it in view, so it plays in
+     every browser, not only the ones with scroll-driven animations. */
+  .sp-reveal { opacity: 0; transform: translateY(26px); }
+  .sp-reveal.is-in { animation: sp-rise 0.7s var(--sp-ease) both; }
+  .sp-reveal.is-in > * { animation: sp-rise 0.7s var(--sp-ease) both; }
+  html.no-js .sp-reveal, .sp-reveal.is-in { opacity: 1; transform: none; }
+
+  /* a little stagger for children of a revealed row */
+  .sp-reveal.is-in > *:nth-child(2) { animation-delay: 0.08s; }
+  .sp-reveal.is-in > *:nth-child(3) { animation-delay: 0.16s; }
+  .sp-reveal.is-in > *:nth-child(4) { animation-delay: 0.24s; }
+  .sp-reveal.is-in > *:nth-child(5) { animation-delay: 0.32s; }
+
+  @keyframes sp-wag { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
+  .sp-wag { transform-origin: bottom left; animation: sp-wag 1.6s ease-in-out infinite; }
+  @keyframes sp-blob { 0%, 100% { border-radius: 48% 52% 44% 56% / 52% 44% 56% 48%; }
+                       50% { border-radius: 56% 44% 52% 48% / 44% 56% 48% 52%; } }
+  .sp-blob { animation: sp-blob 12s ease-in-out infinite; }
 
   @media (prefers-reduced-motion: reduce) {
-    .sp-bob, .sp-float, .sp-heart:hover svg { animation: none; }
-    .sp-reveal { animation: none; opacity: 1; transform: none; }
+    .sp-bob, .sp-float, .sp-heart:hover svg, .sp-wag, .sp-blob { animation: none; }
+    .sp-reveal, .sp-reveal.is-in, .sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }
     .sp-btn { transition: none; }
   }
 
@@ -124,4 +142,30 @@
     :root { --sp-gutter: 16px; }
     .sp-grid--2, .sp-grid--3, .sp-grid--4 { grid-template-columns: minmax(0, 1fr); }
   }
+  /* colour bands so the page is not cream on cream */
+  .sp-band--mint { background: var(--sp-mint); }
+  .sp-band--sand { background: var(--sp-sand); }
+  .sp-band--peach { background: var(--sp-peach); }
+  .sp-band--moss { background: var(--sp-moss); color: var(--sp-cream); }
 </style>
+
+<script>
+  (() => {
+    const start = () => {
+      const items = document.querySelectorAll('.sp-reveal');
+      if (!('IntersectionObserver' in window)) {
+        items.forEach((n) => n.classList.add('is-in'));
+        return;
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+        });
+      }, { rootMargin: '0px 0px -12% 0px' });
+      items.forEach((n) => io.observe(n));
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+    else start();
+    document.addEventListener('shopify:section:load', start);
+  })();
+</script>

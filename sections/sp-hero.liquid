@@ -39,8 +39,10 @@
           style="object-position: {{ s.focal_x }}% {{ s.focal_y }}%;"
         >
       {%- else -%}
-        <div class="sp-hero__placeholder" role="img" aria-label="{{ 'Hero image placeholder' }}">
-          <p>Add a hero photo — a pet mid-crunch over a bowl works well, with empty space on the side the text sits on.</p>
+        <div class="sp-hero__art">
+          <span class="sp-hero__blob sp-blob" style="background: {{ s.blob_one }};"></span>
+          <span class="sp-hero__blob sp-hero__blob--b sp-blob" style="background: {{ s.blob_two }};"></span>
+          {% render 'sp-art', name: 'duo', size: 380, label: 'A dog and a cat waiting for dinner' %}
         </div>
       {%- endif -%}
 
@@ -83,13 +85,15 @@
   .sp-hero-sec { padding-block: var(--sp-hero-pt, 24px) var(--sp-hero-pb, 24px); color: var(--sp-hero-fg, #27372b); }
   .sp-hero { position: relative; border-radius: var(--sp-r-hero, 44px); overflow: hidden; min-height: var(--sp-hero-min, 540px); background: var(--sp-hero-bg, #e7f0e2); display: flex; align-items: flex-end; isolation: isolate; }
   .sp-hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .sp-hero__placeholder { position: absolute; inset: 0; display: grid; place-items: center; padding: 32px; background: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.5) 0 22px, transparent 22px 44px); }
-  .sp-hero__placeholder p { margin: 0; max-width: 34ch; padding: 14px 22px; border-radius: 999px; background: rgb(251 247 239 / 0.92); font-size: 14px; font-weight: 700; text-align: center; color: #44544a; }
+  .sp-hero__art { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; }
+  .sp-hero__art .sp-art { position: relative; z-index: 1; max-width: 72%; height: auto; }
+  .sp-hero__blob { position: absolute; width: 46%; aspect-ratio: 1 / 1; border-radius: 48% 52% 44% 56% / 52% 44% 56% 48%; opacity: .9; }
+  .sp-hero__blob--b { width: 26%; right: 8%; top: 10%; opacity: .75; }
 
   .sp-hero__paws { position: absolute; inset: 0; pointer-events: none; }
   .sp-hero__paws > span { position: absolute; color: #fbf7ef; opacity: 0.45; }
 
-  .sp-hero__body { position: relative; width: 100%; padding: clamp(32px, 4vw, 56px) clamp(24px, 3.4vw, 48px); background: linear-gradient(to top, rgb(251 247 239 / var(--sp-hero-scrim, 0.96)) 38%, rgb(251 247 239 / 0)); }
+  .sp-hero__body { position: relative; width: 100%; padding: clamp(32px, 4vw, 56px) clamp(24px, 3.4vw, 48px); background: linear-gradient(to top, rgb(253 250 242 / var(--sp-hero-scrim, 0.96)) 38%, rgb(253 250 242 / 0)); }
   .sp-hero__body--center { text-align: center; }
   .sp-hero__body--center .sp-hero__copy { margin-inline: auto; }
   .sp-hero__body--center .sp-hero__actions, .sp-hero__body--center .sp-trust { justify-content: center; }
@@ -137,7 +141,9 @@
     { "type": "url", "id": "button2_link", "label": "Second link" },
     { "type": "header", "content": "Style" },
     { "type": "checkbox", "id": "show_paws", "label": "Floating paw shapes", "default": true },
-    { "type": "color", "id": "background", "label": "Background", "default": "#e7f0e2" },
+    { "type": "color", "id": "blob_one", "label": "Blob one", "default": "#ffd54a" },
+    { "type": "color", "id": "blob_two", "label": "Blob two", "default": "#ff8a6b" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#d8edcd" },
     { "type": "color", "id": "text_color", "label": "Text", "default": "#27372b" },
     { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 24 },
     { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 120, "step": 4, "unit": "px", "default": 24 }

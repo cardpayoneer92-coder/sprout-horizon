@@ -54,10 +54,12 @@
         "button_link": "/collections/all",
         "button2_text": "Find the right size",
         "button2_link": "/collections/all",
-        "background": "#e7f0e2",
+        "background": "#d8edcd",
         "text_color": "#27372b",
         "padding_top": 24,
-        "padding_bottom": 24
+        "padding_bottom": 24,
+        "blob_one": "#ffd54a",
+        "blob_two": "#ff8a6b"
       }
     },
     "marquee": {
@@ -104,8 +106,8 @@
       "settings": {
         "speed": 26,
         "text_size": 19,
-        "background": "#3f6b4a",
-        "text_color": "#fbf7ef"
+        "background": "#2f7a46",
+        "text_color": "#fdfaf2"
       }
     },
     "profile": {
@@ -136,8 +138,8 @@
         "fact_cadence": "Delivery every",
         "button_text": "Show me what fits",
         "button_link": "/collections/all",
-        "background": "#fbf7ef",
-        "card_background": "#e7f0e2",
+        "background": "#fdfaf2",
+        "card_background": "#d8edcd",
         "heading_size": 40,
         "padding_top": 48,
         "padding_bottom": 24
@@ -154,7 +156,7 @@
         "subheading": "Sized for [weight] \u00b7 portions worked out",
         "link_text": "See everything",
         "link_url": "/collections/all",
-        "background": "#fbf7ef",
+        "background": "#fdfaf2",
         "heading_size": 42,
         "padding_top": 40,
         "padding_bottom": 40
@@ -167,28 +169,32 @@
           "type": "_sp-bundle-item",
           "settings": {
             "title": "Cloud bed",
-            "selected": true
+            "selected": true,
+            "art": "bed"
           }
         },
         "b2": {
           "type": "_sp-bundle-item",
           "settings": {
             "title": "Waffle blanket",
-            "selected": false
+            "selected": false,
+            "art": "blanket"
           }
         },
         "b3": {
           "type": "_sp-bundle-item",
           "settings": {
             "title": "Rope bone",
-            "selected": true
+            "selected": true,
+            "art": "bone"
           }
         },
         "b4": {
           "type": "_sp-bundle-item",
           "settings": {
             "title": "Slow bowl",
-            "selected": false
+            "selected": false,
+            "art": "bowl"
           }
         }
       },
@@ -208,7 +214,7 @@
         "threshold": 3,
         "discount": 15,
         "columns": 4,
-        "background": "#fbf7ef",
+        "background": "#fbe9d2",
         "heading_size": 42,
         "padding_top": 40,
         "padding_bottom": 40
@@ -258,8 +264,8 @@
       ],
       "settings": {
         "columns": 4,
-        "style": "lines",
-        "background": "#fbf7ef",
+        "style": "band",
+        "background": "#fdfaf2",
         "padding_top": 24,
         "padding_bottom": 24
       }
@@ -270,19 +276,22 @@
         "u1": {
           "type": "_sp-ugc-tile",
           "settings": {
-            "handle": "@sproutpets"
+            "handle": "@sproutpets",
+            "art": "dog"
           }
         },
         "u2": {
           "type": "_sp-ugc-tile",
           "settings": {
-            "handle": "@sproutpets"
+            "handle": "@sproutpets",
+            "art": "cat"
           }
         },
         "u3": {
           "type": "_sp-ugc-tile",
           "settings": {
-            "handle": "@sproutpets"
+            "handle": "@sproutpets",
+            "art": "bunny"
           }
         }
       },
@@ -295,7 +304,7 @@
         "quote": "<p>\u201cPut a real customer line here \u2014 the one about the fussy eater who finally finished a bowl.\u201d</p>",
         "attribution": "[ NAME ] \u00b7 [ PET NAME ], [ BREED ]",
         "quote_size": 30,
-        "background": "#fbf7ef",
+        "background": "#fdfaf2",
         "padding_top": 36,
         "padding_bottom": 48
       }
