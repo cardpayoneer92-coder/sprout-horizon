@@ -60,7 +60,7 @@
       </div>
 
       <div class="sp-feat__copy sp-reveal">
-        {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+        {%- if s.eyebrow != blank -%}<p class="sp-eyebrow sp-feat__eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
         {%- if s.heading != blank -%}<h2 class="sp-h2 sp-feat__title">{{ s.heading | escape }}</h2>{%- endif -%}
         {%- if s.text != blank -%}<div class="sp-lede sp-feat__text">{{ s.text }}</div>{%- endif -%}
 
@@ -86,25 +86,28 @@
 
   /* media */
   .sp-feat__media { position: relative; }
-  .sp-feat__frame { position: relative; padding: 18px; border-radius: 40px; background: var(--sp-feat-frame, #d8edcd); transform: rotate(var(--sp-feat-tilt, -2deg)); transition: transform 0.4s var(--sp-ease); }
+  .sp-feat__frame { position: relative; padding: 14px; border-radius: 36px; background: var(--sp-feat-frame, #d8edcd); transform: rotate(var(--sp-feat-tilt, -2deg)); transition: transform 0.4s var(--sp-ease); }
   .sp-feat__media:hover .sp-feat__frame { transform: rotate(0deg); }
-  .sp-feat__arch { position: relative; aspect-ratio: 4 / 5; display: grid; place-items: center; overflow: hidden; background: var(--sp-cream, #fdfaf2); border-radius: 999px 999px 28px 28px; }
+  .sp-feat__arch { position: relative; aspect-ratio: 1 / 1; display: grid; place-items: center; overflow: hidden; background: var(--sp-cream, #fdfaf2); border-radius: 999px 999px 24px 24px; }
+  .sp-feat__arch::before { content: ""; position: absolute; width: 74%; aspect-ratio: 1 / 1; border-radius: 999px; background: var(--sp-feat-frame, #d8edcd); opacity: .5; }
   .sp-feat__arch img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .sp-feat__art .sp-art { width: 62%; height: auto; max-width: none; }
+  .sp-feat__art { position: relative; z-index: 1; display: block; }
+  .sp-feat__art .sp-art { width: min(72%, 320px); height: auto; max-width: none; }
 
   .sp-feat__sticker { position: absolute; z-index: 2; top: -14px; right: 22px; padding: 9px 18px; border-radius: 999px; background: var(--sp-sun, #ffd54a); color: var(--sp-ink, #27372b); font-size: 13px; font-weight: 700; transform: rotate(5deg); box-shadow: 0 6px 16px rgb(39 55 43 / 0.14); }
 
-  .sp-feat__stat { position: absolute; z-index: 3; bottom: 18px; left: -14px; display: grid; gap: 1px; padding: 16px 22px; border-radius: 24px; background: var(--sp-cream, #fdfaf2); box-shadow: 0 14px 30px rgb(39 55 43 / 0.14); }
+  .sp-feat__stat { position: absolute; z-index: 3; bottom: 24px; left: 0; display: grid; gap: 1px; padding: 16px 22px; border-radius: 24px; background: var(--sp-cream, #fdfaf2); box-shadow: 0 14px 30px rgb(39 55 43 / 0.14); }
   .sp-feat__stat strong { font-family: var(--sp-font-head); font-size: 30px; font-weight: 500; line-height: 1; color: var(--sp-moss, #2f7a46); }
   .sp-feat__stat span { font-size: 13px; color: var(--sp-muted, #566358); }
-  .sp-feat--right .sp-feat__stat { left: auto; right: -14px; }
+  .sp-feat--right .sp-feat__stat { left: auto; right: 0; }
 
   /* copy */
-  .sp-feat__title { margin: 0 0 16px; max-width: 16ch; }
-  .sp-feat__text { margin: 0 0 24px; max-width: 46ch; }
+  .sp-feat__eyebrow { margin: 0 0 12px; }
+  .sp-feat__title { margin: 0 0 18px; max-width: 17ch; line-height: 1.08; }
+  .sp-feat__text { margin: 0 0 30px; max-width: 46ch; }
   .sp-feat__text > :first-child { margin-top: 0; }
   .sp-feat__text > :last-child { margin-bottom: 0; }
-  .sp-feat__points { display: grid; gap: 16px; margin: 0 0 28px; padding: 0; list-style: none; }
+  .sp-feat__points { display: grid; gap: 20px; margin: 0 0 32px; padding: 0; list-style: none; }
   .sp-feat__btn svg { transition: transform 0.26s var(--sp-ease-back); }
   .sp-feat__btn:hover svg { transform: translateX(4px); }
 

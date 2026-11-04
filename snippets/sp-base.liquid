@@ -176,6 +176,17 @@
         });
       }, { rootMargin: '0px 0px -12% 0px' });
       items.forEach((n) => io.observe(n));
+
+      /* Nothing may stay invisible: if the observer never fires for an item
+         (an odd scroll container, a restored scroll position, a stalled
+         animation), show it anyway. */
+      setTimeout(function () {
+        items.forEach(function (n) {
+          if (n.classList.contains('is-in')) return;
+          var box = n.getBoundingClientRect();
+          if (box.top < window.innerHeight * 1.2) n.classList.add('is-in');
+        });
+      }, 2500);
     };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
     else start();

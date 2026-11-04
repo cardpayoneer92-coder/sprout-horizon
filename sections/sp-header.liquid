@@ -94,14 +94,19 @@
         if (this.burger && this.drawer) {
           this.burger.addEventListener('click', () => this.toggle());
         }
+        // Horizon scrolls .page-wrapper, not the window, so listen there.
+        this.scroller = this.closest('.page-wrapper') || document.querySelector('.page-wrapper') || window;
         this.onScroll = () => {
-          this.classList.toggle('is-stuck', window.scrollY > 8);
+          const y = this.scroller === window ? window.scrollY : this.scroller.scrollTop;
+          this.classList.toggle('is-stuck', y > 8);
         };
         this.onScroll();
-        window.addEventListener('scroll', this.onScroll, { passive: true });
+        this.scroller.addEventListener('scroll', this.onScroll, { passive: true });
       }
 
-      disconnectedCallback() { window.removeEventListener('scroll', this.onScroll); }
+      disconnectedCallback() {
+        if (this.scroller) this.scroller.removeEventListener('scroll', this.onScroll);
+      }
 
       toggle() {
         const open = this.burger.getAttribute('aria-expanded') === 'true';
