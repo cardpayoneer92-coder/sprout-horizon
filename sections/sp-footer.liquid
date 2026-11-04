@@ -78,6 +78,12 @@
         {% content_for 'blocks' %}
       </div>
 
+      {%- if s.show_wordmark -%}
+        <div class="sp-footer__big" aria-hidden="true">
+          <span>{{ s.wordmark | default: shop.name }}</span>
+        </div>
+      {%- endif -%}
+
       {%- if s.show_paws -%}
         <div class="sp-footer__trail" aria-hidden="true">
           <span style="--sp-r: -18deg; opacity: .4">{% render 'sp-icon', name: 'paw', size: 20 %}</span>
@@ -118,6 +124,9 @@
   .sp-footer__brand { flex: 1 1 260px; min-width: 0; }
   .sp-footer__logo { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-family: var(--sp-font-head); font-size: 28px; font-weight: 600; letter-spacing: -0.02em; color: var(--sp-moss, #3f6b4a); }
   .sp-footer__blurb { margin: 0; font-size: 15px; color: var(--sp-muted, #566358); max-width: 32ch; }
+
+  .sp-footer__big { position: relative; margin: 6px 0 -2px; overflow: hidden; line-height: .78; text-align: center; pointer-events: none; user-select: none; }
+  .sp-footer__big span { display: block; font-family: var(--sp-font-head); font-size: clamp(64px, 17vw, 240px); font-weight: 600; letter-spacing: -0.045em; color: transparent; background-image: linear-gradient(to bottom, var(--sp-moss) 42%, rgb(47 122 70 / 0) 94%); -webkit-background-clip: text; background-clip: text; }
 
   .sp-footer__trail { display: flex; align-items: center; gap: 18px; padding-bottom: 14px; color: var(--sp-leaf, #9cc48f); }
   .sp-footer__trail > span { display: inline-flex; transform: rotate(var(--sp-r, 0deg)); }

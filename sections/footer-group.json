@@ -25,9 +25,11 @@
         "scallop": true,
         "show_pets": true,
         "show_paws": true,
-        "background": "#e7f0e2",
-        "card_background": "#fbf7ef",
-        "text_color": "#27372b"
+        "background": "#d8edcd",
+        "card_background": "#fdfaf2",
+        "text_color": "#27372b",
+        "show_wordmark": true,
+        "wordmark": "sprout"
       }
     },
     "utilities": {
