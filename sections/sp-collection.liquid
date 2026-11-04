@@ -110,7 +110,12 @@
             {%- for product in collection.products -%}
               {% render 'sp-product-card', product: product, index: forloop.index0, show_quick_add: s.quick_add %}
             {%- else -%}
-              <p class="sp-coll__empty">Nothing here yet. Add products to this collection.</p>
+              <div class="sp-coll__empty">
+                <span class="sp-bob">{% render 'sp-art', name: 'bowl', size: 200, label: 'An empty bowl' %}</span>
+                <h3>An empty bowl</h3>
+                <p>Nothing in this collection yet. Try another shelf while we fill it.</p>
+                <a class="sp-btn sp-btn--primary" href="/collections/all">Browse everything</a>
+              </div>
             {%- endfor -%}
           </sp-pet-aware>
 
@@ -192,7 +197,10 @@
   .sp-coll__sort > span { font-weight: 700; }
   .sp-coll__sort select { min-height: 44px; padding: 0 16px; border: 2px solid #ddd5c6; border-radius: 999px; background: var(--sp-cream, #fbf7ef); font-family: inherit; font-size: 15px; color: inherit; }
   .sp-coll__grid { grid-template-columns: repeat(var(--sp-coll-cols, 3), minmax(0, 1fr)); }
-  .sp-coll__empty { grid-column: 1 / -1; margin: 0; color: var(--sp-muted, #566358); }
+  .sp-coll__empty { grid-column: 1 / -1; margin: 0; display: grid; justify-items: center; gap: 10px; text-align: center; padding: 48px 16px 56px; border-radius: var(--sp-r-card, 28px); background: var(--sp-mint, #d8edcd); }
+  .sp-coll__empty .sp-art { width: 160px; height: auto; }
+  .sp-coll__empty h3 { margin: 0; font-family: var(--sp-font-head); font-size: 26px; }
+  .sp-coll__empty p { margin: 0 0 8px; color: var(--sp-muted, #566358); max-width: 34ch; }
   .sp-coll__pages { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 36px; }
   .sp-coll__page-of { font-size: 14px; color: var(--sp-muted, #5e6e60); }
 
