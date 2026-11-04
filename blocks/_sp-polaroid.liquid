@@ -1,0 +1,94 @@
+{% doc %}
+  One polaroid on the happy-pets wall: a photo (or an illustration while
+  there isn't one), a strip of tape at the top and a handle underneath.
+
+  @example
+  A tilted photo of a dog captioned @milo.the.beagle
+{% enddoc %}
+
+{%- liquid
+  assign b = block.settings
+-%}
+
+<figure
+  class="sp-polaroid"
+  style="--sp-pol-rotate: {{ b.rotate }}deg; --sp-pol-tape: {{ b.tape }}; --sp-pol-tint: {{ b.tint }};"
+  {{ block.shopify_attributes }}
+>
+  <span class="sp-polaroid__tape" aria-hidden="true"></span>
+
+  <div class="sp-polaroid__frame">
+    {%- if b.image != blank -%}
+      <img
+        class="sp-polaroid__img"
+        src="{{ b.image | image_url: width: 600 }}"
+        srcset="{{ b.image | image_url: width: 300 }} 300w, {{ b.image | image_url: width: 600 }} 600w"
+        sizes="(min-width: 990px) 220px, 44vw"
+        alt="{{ b.image.alt | default: b.handle | escape }}"
+        width="{{ b.image.width }}"
+        height="{{ b.image.height }}"
+        loading="lazy"
+      >
+    {%- else -%}
+      <span class="sp-polaroid__art sp-bob">
+        {% render 'sp-art', name: b.art, size: 140, label: b.handle %}
+      </span>
+    {%- endif -%}
+  </div>
+
+  {%- if b.handle != blank -%}
+    <figcaption class="sp-polaroid__cap">{{ b.handle | escape }}</figcaption>
+  {%- endif -%}
+</figure>
+
+{% stylesheet %}
+  .sp-polaroid {
+    position: relative; margin: 0; padding: 12px 12px 38px;
+    border-radius: 10px; background: #fff;
+    box-shadow: 0 10px 22px rgb(39 55 43 / 0.10);
+    transform: rotate(var(--sp-pol-rotate, 0deg));
+    transition: transform 0.32s var(--sp-ease-back), box-shadow 0.32s var(--sp-ease);
+  }
+  .sp-polaroid:hover { transform: rotate(0deg) translateY(-8px) scale(1.04); box-shadow: 0 20px 34px rgb(39 55 43 / 0.18); z-index: 2; }
+
+  .sp-polaroid__tape {
+    position: absolute; top: -9px; left: 50%; width: 56px; height: 18px;
+    transform: translateX(-50%) rotate(calc(var(--sp-pol-rotate, 0deg) * -1.4));
+    background: var(--sp-pol-tape, #d8edcd); opacity: 0.92; border-radius: 2px;
+  }
+
+  .sp-polaroid__frame { aspect-ratio: 1 / 1; border-radius: 4px; overflow: hidden; background: var(--sp-pol-tint, #d8edcd); display: grid; place-items: center; }
+  .sp-polaroid__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sp-polaroid__art .sp-art { width: 104px; height: auto; max-width: none; }
+
+  .sp-polaroid__cap { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; font-size: 12px; font-weight: 700; color: var(--sp-muted, #566358); }
+
+  @media (prefers-reduced-motion: reduce) { .sp-polaroid { transition: none; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Polaroid",
+  "tag": null,
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Photo" },
+    { "type": "text", "id": "handle", "label": "Handle", "default": "@sproutpets" },
+    {
+      "type": "select", "id": "art", "label": "Illustration", "default": "dog",
+      "info": "Used while there is no photo.",
+      "options": [
+        { "value": "dog", "label": "Dog" },
+        { "value": "cat", "label": "Cat" },
+        { "value": "bunny", "label": "Small pet" },
+        { "value": "duo", "label": "Dog and cat" },
+        { "value": "bed", "label": "Bed" },
+        { "value": "bowl", "label": "Bowl" }
+      ]
+    },
+    { "type": "range", "id": "rotate", "label": "Tilt", "min": -6, "max": 6, "step": 1, "unit": "deg", "default": -2 },
+    { "type": "color", "id": "tint", "label": "Frame colour", "default": "#d8edcd" },
+    { "type": "color", "id": "tape", "label": "Tape colour", "default": "#fbe9d2" }
+  ],
+  "presets": [{ "name": "Polaroid", "category": "t:categories.custom" }]
+}
+{% endschema %}

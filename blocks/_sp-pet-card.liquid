@@ -1,0 +1,105 @@
+{% doc %}
+  One pet in the shop-by-pet row: an illustration, a name, a count and an
+  optional sticker. Clicking it saves the pet to the profile every other
+  section reads, then follows the link.
+
+  @example
+  Dog — 24 things — "Most loved"
+{% enddoc %}
+
+{%- liquid
+  assign b = block.settings
+  assign tints = 'var(--sp-mint),var(--sp-sand),var(--sp-sky),var(--sp-peach)' | split: ','
+  assign tint = b.tint
+-%}
+
+<a
+  class="sp-pet-card sp-reveal"
+  href="{{ b.link | default: '/collections/all' }}"
+  data-sp-pet="{{ b.pet | escape }}"
+  style="--sp-pet-tint: {{ tint }};"
+  {{ block.shopify_attributes }}
+>
+  {%- if b.sticker != blank -%}
+    <span class="sp-pet-card__sticker">{{ b.sticker | escape }}</span>
+  {%- endif -%}
+
+  <span class="sp-pet-card__art sp-bob sp-bob--{{ b.art }}">
+    {% render 'sp-art', name: b.art, size: 150, label: b.title %}
+  </span>
+
+  <span class="sp-pet-card__name">{{ b.title | escape }}</span>
+  {%- if b.count != blank -%}
+    <span class="sp-pet-card__count">{{ b.count | escape }}</span>
+  {%- endif -%}
+</a>
+
+{% stylesheet %}
+  .sp-pet-card {
+    position: relative; display: grid; justify-items: center; gap: 4px;
+    padding: 28px 16px 24px; border-radius: var(--sp-r-card, 28px);
+    background: var(--sp-pet-tint, #d8edcd); color: var(--sp-ink, #27372b);
+    text-decoration: none; border: 3px solid transparent;
+    transition: transform 0.3s var(--sp-ease-back), border-color 0.2s ease, box-shadow 0.3s var(--sp-ease);
+  }
+  .sp-pet-card:hover { transform: translateY(-8px) rotate(-1.5deg); box-shadow: 0 18px 32px rgb(39 55 43 / 0.14); }
+  .sp-pet-card:focus-visible { outline: 3px solid var(--sp-moss, #2f7a46); outline-offset: 3px; }
+  .sp-pet-card.is-picked { border-color: var(--sp-moss, #2f7a46); }
+
+  .sp-pet-card__art { display: block; }
+  .sp-pet-card__art .sp-art { width: 112px; height: auto; max-width: none; }
+  .sp-pet-card:hover .sp-pet-card__art { animation-play-state: paused; }
+
+  .sp-pet-card__name { font-family: var(--sp-font-head); font-size: 22px; font-weight: 500; }
+  .sp-pet-card__count { font-size: 13px; opacity: 0.72; }
+
+  .sp-pet-card__sticker {
+    position: absolute; top: -12px; right: 16px; z-index: 2;
+    padding: 6px 13px; border-radius: 999px;
+    background: var(--sp-sun, #ffd54a); color: var(--sp-ink, #27372b);
+    font-size: 11px; font-weight: 700; transform: rotate(6deg);
+    box-shadow: 0 4px 10px rgb(39 55 43 / 0.12);
+  }
+
+  @media (max-width: 749px) {
+    .sp-pet-card { padding: 20px 10px 18px; }
+    .sp-pet-card__art .sp-art { width: 84px; }
+    .sp-pet-card__name { font-size: 18px; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Pet",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "title", "label": "Name", "default": "Dog" },
+    {
+      "type": "select", "id": "pet", "label": "Saves as", "default": "Dog",
+      "info": "What the rest of the shop remembers when this is picked.",
+      "options": [
+        { "value": "Dog", "label": "Dog" },
+        { "value": "Puppy", "label": "Puppy" },
+        { "value": "Cat", "label": "Cat" },
+        { "value": "Small pet", "label": "Small pet" }
+      ]
+    },
+    { "type": "text", "id": "count", "label": "Count", "default": "24 things" },
+    { "type": "url", "id": "link", "label": "Link" },
+    { "type": "text", "id": "sticker", "label": "Sticker", "info": "Leave empty for no sticker." },
+    {
+      "type": "select", "id": "art", "label": "Illustration", "default": "dog",
+      "options": [
+        { "value": "dog", "label": "Dog" },
+        { "value": "cat", "label": "Cat" },
+        { "value": "bunny", "label": "Small pet" },
+        { "value": "duo", "label": "Dog and cat" },
+        { "value": "bowl", "label": "Bowl" },
+        { "value": "pouch", "label": "Pouch" }
+      ]
+    },
+    { "type": "color", "id": "tint", "label": "Tile colour", "default": "#d8edcd" }
+  ],
+  "presets": [{ "name": "Pet", "category": "t:categories.custom" }]
+}
+{% endschema %}

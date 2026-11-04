@@ -1,0 +1,102 @@
+{% comment %}
+  Section contract.
+  The customer wall: a heading, a pet-of-the-week sticker and a row of taped
+  polaroids that straighten and lift on hover. Photos go in the blocks; until
+  they do, each polaroid shows an illustration.
+  @example
+  <!-- Our happy pets — tag #sproutpets -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<section
+  class="sp-sec sp-wall-sec"
+  style="--sp-sec-bg: {{ s.background }}; --sp-h2-size: {{ s.heading_size }}px; --sp-wall-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;"
+>
+  <div class="sp-wrap">
+    <div class="sp-wall">
+      <div class="sp-wall__head">
+        <div>
+          {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+          {%- if s.heading != blank -%}<h2 class="sp-h2">{{ s.heading | escape }}</h2>{%- endif -%}
+          {%- if s.text != blank -%}<div class="sp-lede sp-wall__lede">{{ s.text }}</div>{%- endif -%}
+        </div>
+
+        {%- if s.sticker != blank -%}
+          <span class="sp-wall__sticker">
+            {% render 'sp-icon', name: 'star', size: 16 %}
+            {{ s.sticker | escape }}
+          </span>
+        {%- endif -%}
+      </div>
+
+      <div class="sp-wall__row">
+        {% content_for 'blocks' %}
+      </div>
+
+      {%- if s.button_text != blank -%}
+        <div class="sp-wall__actions">
+          <a class="sp-btn sp-btn--soft" href="{{ s.button_link | default: '#' }}">{{ s.button_text | escape }}</a>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-wall__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 30px; }
+  .sp-wall__lede { margin-top: 6px; }
+  .sp-wall__lede p { margin: 0; }
+  .sp-wall__sticker {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: 999px;
+    background: var(--sp-sun, #ffd54a); color: var(--sp-ink, #27372b);
+    font-weight: 700; font-size: 14px; transform: rotate(2deg);
+    box-shadow: 0 6px 14px rgb(39 55 43 / 0.12);
+  }
+  .sp-wall__row { display: grid; grid-template-columns: repeat(var(--sp-wall-cols, 5), minmax(0, 1fr)); gap: 18px; }
+  .sp-wall__actions { margin-top: 28px; display: flex; justify-content: center; }
+
+  @media (max-width: 989px) { .sp-wall__row { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 749px) { .sp-wall__row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Happy pets wall",
+  "tag": "section",
+  "class": "sp-happy-pets-section",
+  "blocks": [{ "type": "_sp-polaroid" }],
+  "settings": [
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "From your cameras" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Our happy pets" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Tag <strong>#sproutpets</strong> — one gets picked as pet of the week.</p>" },
+    { "type": "text", "id": "sticker", "label": "Sticker", "default": "Pet of the week: Milo" },
+    { "type": "text", "id": "button_text", "label": "Button", "default": "See the whole wall" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "header", "content": "Layout" },
+    { "type": "range", "id": "columns", "label": "Columns", "min": 3, "max": 6, "step": 1, "default": 5 },
+    { "type": "header", "content": "Style" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 24, "max": 64, "step": 2, "unit": "px", "default": 46 },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 48 }
+  ],
+  "presets": [
+    {
+      "name": "Happy pets wall",
+      "category": "t:categories.custom",
+      "blocks": [
+        { "type": "_sp-polaroid", "settings": { "handle": "@milo.the.beagle", "art": "dog", "rotate": -2, "tint": "#d8edcd", "tape": "#fbe9d2" } },
+        { "type": "_sp-polaroid", "settings": { "handle": "@noodle.cat", "art": "cat", "rotate": 2, "tint": "#fbe9d2", "tape": "#d8edcd" } },
+        { "type": "_sp-polaroid", "settings": { "handle": "@bun.and.co", "art": "bunny", "rotate": -1, "tint": "#ffd54a", "tape": "#d8edcd" } },
+        { "type": "_sp-polaroid", "settings": { "handle": "@twoofthem", "art": "duo", "rotate": 3, "tint": "#bfe3ef", "tape": "#fbe9d2" } },
+        { "type": "_sp-polaroid", "settings": { "handle": "@napsalot", "art": "bed", "rotate": -2, "tint": "#ffb784", "tape": "#d8edcd" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

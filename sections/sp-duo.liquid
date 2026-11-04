@@ -1,0 +1,81 @@
+{% comment %}
+  Section contract.
+  The pair of big colour cards that sit above the footer — subscribe on one
+  side, gifting on the other. Each card is a block, so a merchant can add a
+  third or re-colour them.
+  @example
+  <!-- Never run out · Gifts for pet people -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<section
+  class="sp-sec sp-duo-sec"
+  style="--sp-sec-bg: {{ s.background }}; --sp-duo-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;"
+>
+  <div class="sp-wrap">
+    <div class="sp-duo">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-duo { display: grid; grid-template-columns: repeat(var(--sp-duo-cols, 2), minmax(0, 1fr)); gap: 24px; }
+  @media (max-width: 989px) { .sp-duo { grid-template-columns: minmax(0, 1fr); } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Two big cards",
+  "tag": "section",
+  "class": "sp-duo-section",
+  "blocks": [{ "type": "_sp-duo-card" }],
+  "settings": [
+    { "type": "range", "id": "columns", "label": "Columns", "min": 1, "max": 3, "step": 1, "default": 2 },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 56 }
+  ],
+  "presets": [
+    {
+      "name": "Two big cards",
+      "category": "t:categories.custom",
+      "blocks": [
+        {
+          "type": "_sp-duo-card",
+          "settings": {
+            "eyebrow": "Subscribe",
+            "heading": "Never run out",
+            "text": "Subscribe and save 10% on every delivery. We nudge you a few days before the next one — skip, swap or cancel any time.",
+            "button_text": "Set up a delivery",
+            "art": "pouch",
+            "art_position": "bottom-right",
+            "background": "#2f7a46",
+            "text_color": "#fdfaf2",
+            "button_background": "#ffd54a",
+            "button_text_color": "#27372b"
+          }
+        },
+        {
+          "type": "_sp-duo-card",
+          "settings": {
+            "eyebrow": "Gifting",
+            "heading": "Gifts for pet people",
+            "text": "Ready-made boxes with a hand-written note. Add the message at checkout and we keep the price off the slip.",
+            "button_text": "Shop gifts",
+            "art": "blanket",
+            "art_position": "top-right",
+            "background": "#ffb784",
+            "text_color": "#27372b",
+            "button_background": "#27372b",
+            "button_text_color": "#fdfaf2"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

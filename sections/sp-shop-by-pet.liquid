@@ -1,0 +1,125 @@
+{% comment %}
+  Section contract.
+  The shop-by-pet row: a centred heading and a line of big pet tiles. Picking
+  one writes the pet into the profile that the grid, the collection bar and
+  the product page all read, then follows its link.
+  @example
+  <!-- Shop by pet — Dog · Puppy · Cat · Small pets -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<section
+  class="sp-sec sp-pets-sec"
+  style="--sp-sec-bg: {{ s.background }}; --sp-h2-size: {{ s.heading_size }}px; --sp-pets-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;"
+>
+  <div class="sp-wrap">
+    <sp-pet-picker class="sp-pets">
+      <div class="sp-pets__head">
+        {%- if s.eyebrow != blank -%}
+          <p class="sp-eyebrow sp-pets__eyebrow">
+            {% render 'sp-icon', name: 'paw', size: 18 %}
+            {{ s.eyebrow | escape }}
+          </p>
+        {%- endif -%}
+        {%- if s.heading != blank -%}<h2 class="sp-h2">{{ s.heading | escape }}</h2>{%- endif -%}
+        {%- if s.text != blank -%}<p class="sp-lede sp-pets__lede">{{ s.text | escape }}</p>{%- endif -%}
+      </div>
+
+      <div class="sp-pets__row">
+        {% content_for 'blocks' %}
+      </div>
+
+      {%- if s.note != blank -%}
+        <p class="sp-pets__note">{{ s.note | escape }}</p>
+      {%- endif -%}
+    </sp-pet-picker>
+  </div>
+</section>
+
+<script type="module">
+  if (!customElements.get('sp-pet-picker')) {
+    customElements.define('sp-pet-picker', class extends HTMLElement {
+      connectedCallback() {
+        this.cards = [...this.querySelectorAll('[data-sp-pet]')];
+        this.mark(this.read());
+        this.cards.forEach((card) => {
+          card.addEventListener('click', () => this.save(card.dataset.spPet));
+        });
+        this.onChange = (e) => this.mark(e.detail);
+        document.addEventListener('sprout:pet-change', this.onChange);
+      }
+
+      disconnectedCallback() {
+        document.removeEventListener('sprout:pet-change', this.onChange);
+      }
+
+      read() {
+        try { return JSON.parse(localStorage.getItem('sprout:pet')) || null; } catch (e) { return null; }
+      }
+
+      save(pet) {
+        const current = this.read() || {};
+        const next = { pet: pet, weight: current.weight || 0 };
+        try { localStorage.setItem('sprout:pet', JSON.stringify(next)); } catch (e) { /* private mode */ }
+        document.dispatchEvent(new CustomEvent('sprout:pet-change', { detail: next }));
+      }
+
+      mark(profile) {
+        const pet = profile && profile.pet;
+        this.cards.forEach((card) => {
+          card.classList.toggle('is-picked', !!pet && card.dataset.spPet === pet);
+        });
+      }
+    });
+  }
+</script>
+
+{% stylesheet %}
+  .sp-pets__head { text-align: center; margin-bottom: 32px; }
+  .sp-pets__eyebrow { display: inline-flex; align-items: center; gap: 8px; }
+  .sp-pets__eyebrow svg { color: var(--sp-leaf, #6cb359); }
+  .sp-pets__lede { margin-top: 8px; }
+  .sp-pets__row { display: grid; grid-template-columns: repeat(var(--sp-pets-cols, 4), minmax(0, 1fr)); gap: 20px; }
+  .sp-pets__note { margin: 18px 0 0; text-align: center; font-size: 13px; color: var(--sp-muted, #566358); }
+
+  @media (max-width: 989px) { .sp-pets__row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 749px) { .sp-pets__row { gap: 12px; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Shop by pet",
+  "tag": "section",
+  "class": "sp-shop-by-pet-section",
+  "blocks": [{ "type": "_sp-pet-card" }],
+  "settings": [
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Who are we feeding?" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop by pet" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Tell us once and the whole shop stays filtered to them." },
+    { "type": "text", "id": "note", "label": "Note", "default": "Your choice is remembered on this device, so collections stay filtered next time." },
+    { "type": "header", "content": "Layout" },
+    { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 5, "step": 1, "default": 4 },
+    { "type": "header", "content": "Style" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 24, "max": 64, "step": 2, "unit": "px", "default": 46 },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 56 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 40 }
+  ],
+  "presets": [
+    {
+      "name": "Shop by pet",
+      "category": "t:categories.custom",
+      "blocks": [
+        { "type": "_sp-pet-card", "settings": { "title": "Dog", "pet": "Dog", "count": "24 things", "art": "dog", "tint": "#d8edcd", "sticker": "Most loved" } },
+        { "type": "_sp-pet-card", "settings": { "title": "Puppy", "pet": "Puppy", "count": "12 things", "art": "duo", "tint": "#fbe9d2" } },
+        { "type": "_sp-pet-card", "settings": { "title": "Cat", "pet": "Cat", "count": "18 things", "art": "cat", "tint": "#bfe3ef" } },
+        { "type": "_sp-pet-card", "settings": { "title": "Small pets", "pet": "Small pet", "count": "9 things", "art": "bunny", "tint": "#ffb784" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
