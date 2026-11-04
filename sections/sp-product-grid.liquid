@@ -87,14 +87,14 @@
   .sp-card { display: flex; flex-direction: column; gap: 12px; }
   .sp-card__media { position: relative; aspect-ratio: 4 / 5; border-radius: var(--sp-r-card, 28px); overflow: hidden; background: var(--sp-mint, #e7f0e2); display: grid; place-items: center; transition: transform 0.32s var(--sp-ease); }
   .sp-card__media--1 { background: var(--sp-peach); }
-  .sp-card:hover .sp-card__media { transform: translateY(-6px); }
+  .sp-card:hover .sp-card__media { transform: translateY(-8px) rotate(-1.2deg); }
   .sp-card__link { position: absolute; inset: 0; display: block; }
   .sp-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s ease, transform 0.4s var(--sp-ease); }
   .sp-card__img--alt { opacity: 0; }
   .sp-card:hover .sp-card__img--alt { opacity: 1; }
   .sp-card:hover .sp-card__img--main { opacity: 0; }
   .sp-card__art { display: grid; place-items: center; }
-  .sp-card__art .sp-art { max-width: 74%; height: auto; }
+  .sp-card__art .sp-art { max-width: 84%; height: auto; }
   .sp-card:nth-child(3n) .sp-card__media { background: var(--sp-sun); }
   .sp-card:nth-child(4n) .sp-card__media { background: var(--sp-sky); }
 
