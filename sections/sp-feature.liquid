@@ -112,15 +112,15 @@
   .sp-feat__btn:hover svg { transform: translateX(4px); }
 
   /* the two halves arrive from their own sides */
-  .sp-feat__media.sp-reveal { transform: translateY(26px) translateX(-22px); }
-  .sp-feat--right .sp-feat__media.sp-reveal { transform: translateY(26px) translateX(22px); }
-  .sp-feat__copy.sp-reveal { transform: translateY(26px) translateX(22px); }
-  .sp-feat--right .sp-feat__copy.sp-reveal { transform: translateY(26px) translateX(-22px); }
+  .sp-feat__media.sp-reveal { translate: -22px 26px; }
+  .sp-feat--right .sp-feat__media.sp-reveal { translate: 22px 26px; }
+  .sp-feat__copy.sp-reveal { translate: 22px 26px; }
+  .sp-feat--right .sp-feat__copy.sp-reveal { translate: -22px 26px; }
   .sp-feat__media.sp-reveal.is-in, .sp-feat__copy.sp-reveal.is-in { animation: sp-slide-in 0.72s var(--sp-ease) both; }
   .sp-feat__copy.sp-reveal.is-in { animation-delay: 0.1s; }
-  @keyframes sp-slide-in { to { opacity: 1; transform: translate(0, 0); } }
+  @keyframes sp-slide-in { to { opacity: 1; translate: 0 0; } }
   /* the halves move as one piece, so the shared child stagger is off here */
-  .sp-feat__media.sp-reveal.is-in > *, .sp-feat__copy.sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }
+  .sp-feat__media.sp-reveal.is-in > *, .sp-feat__copy.sp-reveal.is-in > * { animation: none; opacity: 1; translate: none; }
 
   @media (max-width: 989px) {
     .sp-feat { grid-template-columns: minmax(0, 1fr); }
@@ -131,7 +131,7 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .sp-feat__frame { transition: none; }
-    .sp-feat__media.sp-reveal, .sp-feat__copy.sp-reveal { transform: none; }
+    .sp-feat__media.sp-reveal, .sp-feat__copy.sp-reveal { translate: none; }
   }
 {% endstylesheet %}
 

@@ -100,7 +100,7 @@
   .sp-icon-btn:hover { background: rgb(var(--sp-ink-rgb) / 0.07); }
 
   /* ---- motion ---- */
-  @keyframes sp-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes sp-rise { from { opacity: 0; translate: 0 24px; } to { opacity: 1; translate: 0 0; } }
   @keyframes sp-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
   @keyframes sp-float { 0%, 100% { transform: translateY(0) rotate(var(--sp-r, 0deg)); } 50% { transform: translateY(-18px) rotate(var(--sp-r, 0deg)); } }
   @keyframes sp-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
@@ -118,10 +118,10 @@
 
   /* Entrance: hidden until the observer marks it in view, so it plays in
      every browser, not only the ones with scroll-driven animations. */
-  .sp-reveal { opacity: 0; transform: translateY(26px); }
+  .sp-reveal { opacity: 0; translate: 0 26px; }
   .sp-reveal.is-in { animation: sp-rise 0.7s var(--sp-ease) both; }
   .sp-reveal.is-in > * { animation: sp-rise 0.7s var(--sp-ease) both; }
-  html.no-js .sp-reveal, .sp-reveal.is-in { opacity: 1; transform: none; }
+  html.no-js .sp-reveal, .sp-reveal.is-in { opacity: 1; translate: none; }
 
   /* a little stagger for children of a revealed row */
   .sp-reveal.is-in > *:nth-child(2) { animation-delay: 0.08s; }
@@ -137,7 +137,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .sp-bob, .sp-float, .sp-heart:hover svg, .sp-wag, .sp-blob, .sp-wiggle { animation: none; }
-    .sp-reveal, .sp-reveal.is-in, .sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }
+    .sp-reveal, .sp-reveal.is-in, .sp-reveal.is-in > * { animation: none; opacity: 1; translate: none; }
     .sp-btn { transition: none; }
   }
 
