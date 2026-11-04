@@ -1,0 +1,194 @@
+{% comment %}
+  Section contract.
+  Image with text, Sprout-style: the picture sits in an arch inside a tilted
+  colour frame, with a stat chip overlapping one corner and a sticker the
+  other. The copy sits beside it with tick points. The image side can flip,
+  and the whole thing slides in from its own side on scroll.
+  @example
+  <!-- Cooked like you would at home · 48 hours from pot to post -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<section
+  class="sp-sec sp-feat-sec sp-feat--{{ s.media_side }}"
+  style="
+    --sp-sec-bg: {{ s.background }};
+    --sp-feat-frame: {{ s.frame_color }};
+    --sp-feat-tilt: {{ s.tilt }}deg;
+    --sp-h2-size: {{ s.heading_size }}px;
+    padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;
+  "
+>
+  <div class="sp-wrap">
+    <div class="sp-feat">
+
+      <div class="sp-feat__media sp-reveal">
+        <div class="sp-feat__frame">
+          <div class="sp-feat__arch">
+            {%- if s.image != blank -%}
+              <img
+                src="{{ s.image | image_url: width: 1200 }}"
+                srcset="{{ s.image | image_url: width: 600 }} 600w, {{ s.image | image_url: width: 1200 }} 1200w"
+                sizes="(min-width: 990px) 520px, 90vw"
+                alt="{{ s.image.alt | escape }}"
+                width="{{ s.image.width }}"
+                height="{{ s.image.height }}"
+                loading="lazy"
+                style="object-position: {{ s.focal_x }}% {{ s.focal_y }}%;"
+              >
+            {%- else -%}
+              <span class="sp-feat__art sp-bob">
+                {% render 'sp-art', name: s.art, size: 260, label: s.heading %}
+              </span>
+            {%- endif -%}
+          </div>
+
+          {%- if s.sticker != blank -%}
+            <span class="sp-feat__sticker">{{ s.sticker | escape }}</span>
+          {%- endif -%}
+        </div>
+
+        {%- if s.stat_value != blank -%}
+          <span class="sp-feat__stat">
+            <strong>{{ s.stat_value | escape }}</strong>
+            {%- if s.stat_label != blank -%}<span>{{ s.stat_label | escape }}</span>{%- endif -%}
+          </span>
+        {%- endif -%}
+      </div>
+
+      <div class="sp-feat__copy sp-reveal">
+        {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+        {%- if s.heading != blank -%}<h2 class="sp-h2 sp-feat__title">{{ s.heading | escape }}</h2>{%- endif -%}
+        {%- if s.text != blank -%}<div class="sp-lede sp-feat__text">{{ s.text }}</div>{%- endif -%}
+
+        {%- if section.blocks.size > 0 -%}
+          <ul class="sp-feat__points" role="list">{% content_for 'blocks' %}</ul>
+        {%- endif -%}
+
+        {%- if s.button_text != blank -%}
+          <a class="sp-btn sp-btn--primary sp-feat__btn" href="{{ s.button_link | default: '#' }}">
+            {{ s.button_text | escape }}
+            {% render 'sp-icon', name: 'arrow', size: 18 %}
+          </a>
+        {%- endif -%}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sp-feat { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(32px, 5vw, 72px); }
+  .sp-feat--right .sp-feat__media { order: 2; }
+
+  /* media */
+  .sp-feat__media { position: relative; }
+  .sp-feat__frame { position: relative; padding: 18px; border-radius: 40px; background: var(--sp-feat-frame, #d8edcd); transform: rotate(var(--sp-feat-tilt, -2deg)); transition: transform 0.4s var(--sp-ease); }
+  .sp-feat__media:hover .sp-feat__frame { transform: rotate(0deg); }
+  .sp-feat__arch { position: relative; aspect-ratio: 4 / 5; display: grid; place-items: center; overflow: hidden; background: var(--sp-cream, #fdfaf2); border-radius: 999px 999px 28px 28px; }
+  .sp-feat__arch img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .sp-feat__art .sp-art { width: 62%; height: auto; max-width: none; }
+
+  .sp-feat__sticker { position: absolute; z-index: 2; top: -14px; right: 22px; padding: 9px 18px; border-radius: 999px; background: var(--sp-sun, #ffd54a); color: var(--sp-ink, #27372b); font-size: 13px; font-weight: 700; transform: rotate(5deg); box-shadow: 0 6px 16px rgb(39 55 43 / 0.14); }
+
+  .sp-feat__stat { position: absolute; z-index: 3; bottom: 18px; left: -14px; display: grid; gap: 1px; padding: 16px 22px; border-radius: 24px; background: var(--sp-cream, #fdfaf2); box-shadow: 0 14px 30px rgb(39 55 43 / 0.14); }
+  .sp-feat__stat strong { font-family: var(--sp-font-head); font-size: 30px; font-weight: 500; line-height: 1; color: var(--sp-moss, #2f7a46); }
+  .sp-feat__stat span { font-size: 13px; color: var(--sp-muted, #566358); }
+  .sp-feat--right .sp-feat__stat { left: auto; right: -14px; }
+
+  /* copy */
+  .sp-feat__title { margin: 0 0 16px; max-width: 16ch; }
+  .sp-feat__text { margin: 0 0 24px; max-width: 46ch; }
+  .sp-feat__text > :first-child { margin-top: 0; }
+  .sp-feat__text > :last-child { margin-bottom: 0; }
+  .sp-feat__points { display: grid; gap: 16px; margin: 0 0 28px; padding: 0; list-style: none; }
+  .sp-feat__btn svg { transition: transform 0.26s var(--sp-ease-back); }
+  .sp-feat__btn:hover svg { transform: translateX(4px); }
+
+  /* the two halves arrive from their own sides */
+  .sp-feat__media.sp-reveal { transform: translateY(26px) translateX(-22px); }
+  .sp-feat--right .sp-feat__media.sp-reveal { transform: translateY(26px) translateX(22px); }
+  .sp-feat__copy.sp-reveal { transform: translateY(26px) translateX(22px); }
+  .sp-feat--right .sp-feat__copy.sp-reveal { transform: translateY(26px) translateX(-22px); }
+  .sp-feat__media.sp-reveal.is-in, .sp-feat__copy.sp-reveal.is-in { animation: sp-slide-in 0.72s var(--sp-ease) both; }
+  .sp-feat__copy.sp-reveal.is-in { animation-delay: 0.1s; }
+  @keyframes sp-slide-in { to { opacity: 1; transform: translate(0, 0); } }
+
+  @media (max-width: 989px) {
+    .sp-feat { grid-template-columns: minmax(0, 1fr); }
+    .sp-feat--right .sp-feat__media { order: 0; }
+    .sp-feat__title, .sp-feat__text { max-width: none; }
+    .sp-feat__stat { left: 10px; }
+    .sp-feat--right .sp-feat__stat { right: auto; left: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sp-feat__frame { transition: none; }
+    .sp-feat__media.sp-reveal, .sp-feat__copy.sp-reveal { transform: none; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Image with text",
+  "tag": "section",
+  "class": "sp-feature-section",
+  "blocks": [{ "type": "_sp-feature-point" }],
+  "settings": [
+    { "type": "header", "content": "Text" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "In our kitchen" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Cooked like you would at home" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Whole ingredients, gently cooked and portioned the same week they are posted. No kibble dust, no mystery meal — just food you would recognise in a pan.</p>" },
+    { "type": "text", "id": "button_text", "label": "Button", "default": "See how we cook" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "header", "content": "Image" },
+    { "type": "image_picker", "id": "image", "label": "Image", "info": "Leave empty to use an illustration." },
+    { "type": "range", "id": "focal_x", "label": "Focus across", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
+    { "type": "range", "id": "focal_y", "label": "Focus down", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
+    {
+      "type": "select", "id": "art", "label": "Illustration", "default": "bowl",
+      "options": [
+        { "value": "bowl", "label": "Bowl" },
+        { "value": "pouch", "label": "Pouch" },
+        { "value": "tin", "label": "Tin" },
+        { "value": "jar", "label": "Jar" },
+        { "value": "duo", "label": "Dog and cat" },
+        { "value": "dog", "label": "Dog" },
+        { "value": "cat", "label": "Cat" },
+        { "value": "bed", "label": "Bed" }
+      ]
+    },
+    {
+      "type": "select", "id": "media_side", "label": "Image side", "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    { "type": "range", "id": "tilt", "label": "Frame tilt", "min": -6, "max": 6, "step": 1, "unit": "deg", "default": -2 },
+    { "type": "header", "content": "Overlays" },
+    { "type": "text", "id": "sticker", "label": "Sticker", "default": "Made this week" },
+    { "type": "text", "id": "stat_value", "label": "Stat", "default": "48 hrs" },
+    { "type": "text", "id": "stat_label", "label": "Stat label", "default": "from pot to post" },
+    { "type": "header", "content": "Style" },
+    { "type": "color", "id": "frame_color", "label": "Frame", "default": "#d8edcd" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "heading_size", "label": "Heading size", "min": 24, "max": 64, "step": 2, "unit": "px", "default": 46 },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 64 }
+  ],
+  "presets": [
+    {
+      "name": "Image with text",
+      "category": "t:categories.custom",
+      "blocks": [
+        { "type": "_sp-feature-point", "settings": { "title": "Six ingredients", "text": "Everything fits on the front of the pack.", "icon": "check" } },
+        { "type": "_sp-feature-point", "settings": { "title": "Vet-formulated", "text": "Written with a veterinary nutritionist.", "icon": "shield" } },
+        { "type": "_sp-feature-point", "settings": { "title": "Posted chilled", "text": "In a pack that goes in the food caddy.", "icon": "leaf" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

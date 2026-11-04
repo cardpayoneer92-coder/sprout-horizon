@@ -1,0 +1,52 @@
+{% doc %}
+  One bullet beside the feature image: a tick, a short title and a line.
+
+  @example
+  Six ingredients — everything fits on the front of the pack
+{% enddoc %}
+
+{%- liquid
+  assign b = block.settings
+-%}
+
+{%- if b.title != blank -%}
+  <li class="sp-feat__point" {{ block.shopify_attributes }}>
+    <span class="sp-feat__tick">{% render 'sp-icon', name: b.icon, size: 16 %}</span>
+    <span>
+      <strong>{{ b.title | escape }}</strong>
+      {%- if b.text != blank -%}<span class="sp-feat__point-text">{{ b.text | escape }}</span>{%- endif -%}
+    </span>
+  </li>
+{%- endif -%}
+
+{% stylesheet %}
+  .sp-feat__point { display: flex; align-items: flex-start; gap: 12px; }
+  .sp-feat__point strong { display: block; font-size: 16px; }
+  .sp-feat__point-text { display: block; margin-top: 2px; font-size: 15px; color: var(--sp-muted, #566358); }
+  .sp-feat__tick { flex: 0 0 auto; display: grid; place-items: center; width: 30px; height: 30px; margin-top: 1px; border-radius: 999px; background: var(--sp-cream, #fdfaf2); color: var(--sp-moss, #2f7a46); }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Feature point",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "title", "label": "Title", "default": "Six ingredients" },
+    { "type": "text", "id": "text", "label": "Text", "default": "Everything fits on the front of the pack." },
+    {
+      "type": "select", "id": "icon", "label": "Icon", "default": "check",
+      "options": [
+        { "value": "check", "label": "Tick" },
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "bowl", "label": "Bowl" },
+        { "value": "clock", "label": "Clock" },
+        { "value": "truck", "label": "Delivery" },
+        { "value": "paw", "label": "Paw" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Feature point", "category": "t:categories.custom" }]
+}
+{% endschema %}
