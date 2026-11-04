@@ -21,12 +21,31 @@
 </section>
 
 {% stylesheet %}
-  .sp-trustrow__heading { margin-bottom: 18px; }
-  .sp-trustrow { display: grid; grid-template-columns: repeat(var(--sp-trust-cols, 4), minmax(0, 1fr)); gap: 26px; }
+  .sp-trustrow__heading { margin-bottom: 20px; }
+
+  /* Each point gets equal width and a hairline between, so the four read as
+     one row rather than four blocks drifting in a slab. */
+  .sp-trustrow { display: grid; grid-template-columns: repeat(var(--sp-trust-cols, 4), minmax(0, 1fr)); gap: 0; }
+  .sp-trustrow > * { padding-inline: clamp(16px, 2vw, 26px); }
+  .sp-trustrow > * + * { border-left: 1px solid var(--sp-line-mint, #c6dcb9); }
+  .sp-trustrow > :first-child { padding-inline-start: 0; }
+  .sp-trustrow > :last-child { padding-inline-end: 0; }
+
   .sp-trustrow--lines { padding-block: 30px; border-top: 1px solid var(--sp-line, #e3dccd); border-bottom: 1px solid var(--sp-line, #e3dccd); }
-  .sp-trustrow--band { padding: 34px 30px; border-radius: var(--sp-r-band, 36px); background: var(--sp-mint, #e7f0e2); }
-  @media (max-width: 989px) { .sp-trustrow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 749px) { .sp-trustrow { grid-template-columns: minmax(0, 1fr); gap: 18px; } }
+  .sp-trustrow--band { padding: 32px clamp(24px, 3vw, 38px); border-radius: var(--sp-r-band, 36px); background: var(--sp-mint, #d8edcd); }
+  .sp-trustrow--band > * + * { border-left-color: rgb(47 122 70 / 0.16); }
+
+  @media (max-width: 1099px) {
+    .sp-trustrow { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 26px; }
+    .sp-trustrow > * { padding-inline: 0; border-left: 0; }
+    .sp-trustrow > :nth-child(odd) { padding-inline-end: clamp(16px, 2vw, 26px); }
+    .sp-trustrow > :nth-child(even) { padding-inline-start: clamp(16px, 2vw, 26px); border-left: 1px solid var(--sp-line-mint, #c6dcb9); }
+    .sp-trustrow--band > :nth-child(even) { border-left-color: rgb(47 122 70 / 0.16); }
+  }
+  @media (max-width: 599px) {
+    .sp-trustrow { grid-template-columns: minmax(0, 1fr); row-gap: 20px; }
+    .sp-trustrow > * { padding-inline: 0 !important; border-left: 0 !important; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .sp-reveal, .sp-reveal.is-in, .sp-reveal.is-in > * { animation: none; opacity: 1; transform: none; }

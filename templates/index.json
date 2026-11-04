@@ -228,7 +228,7 @@
           "type": "_sp-trust-line",
           "settings": {
             "title": "Vet-formulated",
-            "text": "Written with a veterinary nutritionist",
+            "text": "Written with a vet nutritionist",
             "icon": "shield"
           }
         },
@@ -236,7 +236,7 @@
           "type": "_sp-trust-line",
           "settings": {
             "title": "Six ingredients",
-            "text": "Everything fits on the front of the pack",
+            "text": "All of them on the front of the pack",
             "icon": "leaf"
           }
         },
@@ -244,7 +244,7 @@
           "type": "_sp-trust-line",
           "settings": {
             "title": "Compostable packs",
-            "text": "Plant film and paper outers, no plastic",
+            "text": "Plant film and paper, no plastic",
             "icon": "bowl"
           }
         },
@@ -252,7 +252,7 @@
           "type": "_sp-trust-line",
           "settings": {
             "title": "Fussy-eater promise",
-            "text": "They turn their nose up, we refund it",
+            "text": "They turn their nose up, we refund",
             "icon": "refresh"
           }
         }

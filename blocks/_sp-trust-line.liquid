@@ -1,5 +1,7 @@
 {% doc %}
-  One line in the trust row: an icon, a short title and a sentence.
+  One card in the trust row: an icon in a circle, a short title and one
+  sentence. Kept to a narrow measure so the sentence does not leave a single
+  word stranded on its own line.
 
   @example
   Vet-formulated — written with a veterinary nutritionist
@@ -10,18 +12,23 @@
 -%}
 
 <div class="sp-trustrow__item" {{ block.shopify_attributes }}>
-  {% render 'sp-icon', name: b.icon, size: 22 %}
-  <div>
+  <span class="sp-trustrow__badge">{% render 'sp-icon', name: b.icon, size: 20 %}</span>
+  <div class="sp-trustrow__copy">
     {%- if b.title != blank -%}<h3 class="sp-trustrow__title">{{ b.title | escape }}</h3>{%- endif -%}
     {%- if b.text != blank -%}<p class="sp-trustrow__text">{{ b.text | escape }}</p>{%- endif -%}
   </div>
 </div>
 
 {% stylesheet %}
-  .sp-trustrow__item { display: flex; gap: 12px; align-items: flex-start; }
-  .sp-trustrow__item > svg { flex: 0 0 auto; margin-top: 2px; color: var(--sp-moss, #3f6b4a); }
-  .sp-trustrow__title { margin: 0 0 2px; font-size: 15px; font-weight: 700; }
-  .sp-trustrow__text { margin: 0; font-size: 14px; color: var(--sp-muted, #566358); }
+  .sp-trustrow__item { display: flex; align-items: flex-start; gap: 14px; min-width: 0; }
+  .sp-trustrow__badge {
+    flex: 0 0 auto; display: grid; place-items: center; width: 46px; height: 46px;
+    border-radius: 999px; background: var(--sp-cream, #fdfaf2); color: var(--sp-moss, #2f7a46);
+    box-shadow: 0 3px 10px rgb(39 55 43 / 0.07);
+  }
+  .sp-trustrow__copy { min-width: 0; padding-top: 3px; }
+  .sp-trustrow__title { margin: 0 0 3px; font-size: 16px; font-weight: 700; line-height: 1.25; }
+  .sp-trustrow__text { margin: 0; font-size: 14px; line-height: 1.5; color: var(--sp-muted, #566358); text-wrap: pretty; }
 {% endstylesheet %}
 
 {% schema %}
@@ -41,6 +48,7 @@
         { "value": "truck", "label": "Delivery" },
         { "value": "refresh", "label": "Refresh" },
         { "value": "heart", "label": "Heart" },
+        { "value": "clock", "label": "Clock" },
         { "value": "paw", "label": "Paw" }
       ]
     }
