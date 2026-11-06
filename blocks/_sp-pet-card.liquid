@@ -24,7 +24,11 @@
       assign pet_href = pet_coll.url
     endif
     assign raw_count = pet_coll.products_count
-    assign pet_count = raw_count | append: ' things'
+    if raw_count == 1
+      assign pet_count = '1 thing'
+    else
+      assign pet_count = raw_count | append: ' things'
+    endif
   endif
   if pet_href == blank
     assign pet_href = '/collections/all'
