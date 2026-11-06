@@ -29,9 +29,11 @@
         const h = this.querySelector('[data-heading]');
         const sub = this.querySelector('[data-sub]');
         if (h && this.dataset.headingTemplate) h.textContent = this.dataset.headingTemplate.replace('[pet]', subject);
-        if (sub && this.dataset.subTemplate) sub.textContent = this.dataset.subTemplate.replace('[weight]', p.weight + ' kg');
-        if (p.weight) this.querySelectorAll('[data-fit]').forEach((n) => {
-          const size = p.weight < 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large');
+        // No weight yet (a pet picked from a tile): drop the [weight] token
+        // rather than print "0 kg".
+        if (sub && this.dataset.subTemplate) sub.textContent = this.dataset.subTemplate.replace('[weight]', p.weight > 0 ? p.weight + ' kg' : '').replace(/\s+([.,·])/g, '$1').trim();
+        const size = p.size || (p.weight > 0 ? (p.weight <= 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large')) : '');
+        if (size) this.querySelectorAll('[data-fit]').forEach((n) => {
           n.textContent = size + ' fits';
           n.hidden = false;
         });
@@ -42,8 +44,14 @@
         const key = pet.replace(/\s+/g, '-');
         const wanted = { puppy: ['puppy', 'dog'], kitten: ['kitten', 'cat'] }[key] || [key];
         const known = ['dog', 'puppy', 'cat', 'kitten', 'small-pet'];
+        // A pet the merchant added themselves (e.g. "Bird") has no tag rule
+        // here — show everything rather than hide every card.
+        if (!wanted.some((w) => known.includes(w))) {
+          this.querySelectorAll('[data-pet-tags]').forEach((card) => { card.hidden = false; });
+          return;
+        }
         this.querySelectorAll('[data-pet-tags]').forEach((card) => {
-          const tags = (card.dataset.petTags || '').split(',').map((t) => t.trim()).filter(Boolean);
+          const tags = (card.dataset.petTags || '').split(',').map((t) => t.trim().toLowerCase().replace(/\s+/g, '-')).filter(Boolean);
           const petTags = tags.filter((t) => known.includes(t));
           // No pet tag at all = universal product, always shown.
           if (!petTags.length || tags.includes('all-pets')) { card.hidden = false; return; }

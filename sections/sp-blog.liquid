@@ -43,13 +43,7 @@
           {%- endfor -%}
         </div>
 
-        {%- if paginate.pages > 1 -%}
-          <nav class="sp-pager" aria-label="Pagination">
-            {%- if paginate.previous -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.previous.url }}">Back</a>{%- endif -%}
-            <span class="sp-pager__at">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
-            {%- if paginate.next -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.next.url }}">Next</a>{%- endif -%}
-          </nav>
-        {%- endif -%}
+        {% render 'sp-pager', paginate: paginate %}
       {% endpaginate %}
     {%- else -%}
       <p class="sp-blog__none">No posts yet. The first one will appear here.</p>
@@ -90,7 +84,7 @@
   "enabled_on": { "templates": ["blog"] },
   "settings": [
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Reading corner" },
-    { "type": "text", "id": "fallback_title", "label": "Fallback title", "default": "The Sprout journal" },
+    { "type": "text", "id": "fallback_title", "label": "Fallback title", "default": "The journal" },
     { "type": "text", "id": "text", "label": "Text", "default": "Feeding, training and the odd thing we learned from a vet." },
     { "type": "text", "id": "read_text", "label": "Read link", "default": "Read it" },
     { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 4, "step": 1, "default": 3 },

@@ -17,19 +17,24 @@
     <div class="sp-search__head sp-reveal">
       <h1 class="sp-h2">{{ s.heading | escape }}</h1>
       <form class="sp-search__form" action="{{ routes.search_url }}" method="get" role="search">
-        <label class="sp-visually-hidden" for="sp-search-{{ section.id }}">Search</label>
+        <label class="sp-visually-hidden" for="sp-search-{{ section.id }}">{{ settings.sp_t_search | escape }}</label>
         {% render 'sp-icon', name: 'search', size: 20 %}
         <input id="sp-search-{{ section.id }}" type="search" name="q" value="{{ search.terms | escape }}" placeholder="{{ s.placeholder | escape }}">
-        <button type="submit" class="sp-btn sp-btn--primary sp-btn--sm">Search</button>
+        <button type="submit" class="sp-btn sp-btn--primary sp-btn--sm">{{ settings.sp_t_search | escape }}</button>
       </form>
     </div>
 
     {%- if search.performed -%}
+      {%- assign safe_terms = search.terms | escape -%}
       <p class="sp-search__count">
         {%- if search.results_count == 0 -%}
-          Nothing matched <strong>{{ search.terms }}</strong>.
+          {%- assign terms_html = '<strong>' | append: safe_terms | append: '</strong>' -%}
+          {{ s.none_text | escape | replace: '[TERMS]', terms_html }}
         {%- else -%}
-          <strong>{{ search.results_count }}</strong> {% if search.results_count == 1 %}result{% else %}results{% endif %} for <strong>{{ search.terms }}</strong>
+          {%- assign terms_html = '<strong>' | append: safe_terms | append: '</strong>' -%}
+          {%- assign count_html = '<strong>' | append: search.results_count | append: '</strong>' -%}
+          {%- if search.results_count == 1 -%}{%- assign line = s.count_one -%}{%- else -%}{%- assign line = s.count_many -%}{%- endif -%}
+          {{ line | escape | replace: '[COUNT]', count_html | replace: '[TERMS]', terms_html }}
         {%- endif -%}
       </p>
 
@@ -48,7 +53,7 @@
                 {% render 'sp-product-card', product: item, index: forloop.index0, show_quick_add: true %}
               {%- else -%}
                 <a class="sp-search__page" href="{{ item.url }}">
-                  <span class="sp-search__kind">{{ item.object_type }}</span>
+                  <span class="sp-search__kind">{% if item.object_type == 'article' %}{{ s.kind_article | escape }}{% else %}{{ s.kind_page | escape }}{% endif %}</span>
                   <h2 class="sp-search__name">{{ item.title }}</h2>
                   <p class="sp-search__excerpt">{{ item.content | strip_html | truncatewords: 26 }}</p>
                 </a>
@@ -56,13 +61,7 @@
             {%- endfor -%}
           </div>
 
-          {%- if paginate.pages > 1 -%}
-            <nav class="sp-pager" aria-label="Pagination">
-              {%- if paginate.previous -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.previous.url }}">Back</a>{%- endif -%}
-              <span class="sp-pager__at">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
-              {%- if paginate.next -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.next.url }}">Next</a>{%- endif -%}
-            </nav>
-          {%- endif -%}
+          {% render 'sp-pager', paginate: paginate %}
         {% endpaginate %}
       {%- endif -%}
     {%- else -%}
@@ -95,8 +94,6 @@
   .sp-search__empty .sp-art { width: 170px; height: auto; max-width: none; }
   .sp-search__empty p { margin: 0 0 10px; color: var(--sp-muted, #566358); max-width: 40ch; }
 
-  .sp-pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 36px; }
-  .sp-pager__at { font-size: 14px; color: var(--sp-muted, #566358); }
 
   @media (max-width: 989px) { .sp-search__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 {% endstylesheet %}
@@ -117,6 +114,11 @@
     { "type": "text", "id": "heading", "label": "Heading", "default": "Search" },
     { "type": "text", "id": "placeholder", "label": "Placeholder", "default": "Try \"salmon\" or \"slow bowl\"" },
     { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 5, "step": 1, "default": 4 },
+    { "type": "text", "id": "none_text", "label": "No results line", "default": "Nothing matched [TERMS].", "info": "[TERMS] is what the shopper typed." },
+    { "type": "text", "id": "count_one", "label": "One result", "default": "[COUNT] result for [TERMS]" },
+    { "type": "text", "id": "count_many", "label": "Several results", "default": "[COUNT] results for [TERMS]" },
+    { "type": "text", "id": "kind_article", "label": "Tag on blog posts", "default": "Journal" },
+    { "type": "text", "id": "kind_page", "label": "Tag on pages", "default": "Page" },
     { "type": "range", "id": "results_per_page", "label": "Results per page", "min": 8, "max": 48, "step": 4, "default": 16 },
     { "type": "header", "content": "Before searching" },
     { "type": "text", "id": "idle_heading", "label": "Heading", "default": "What are we looking for?" },

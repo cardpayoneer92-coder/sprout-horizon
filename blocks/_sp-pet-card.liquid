@@ -16,7 +16,7 @@
     Resolve destination: prefer the linked collection (gives us products_count)
     and fall back to the plain URL setting.
   endcomment
-  assign pet_coll = collections[b.collection]
+  assign pet_coll = b.collection
   assign pet_href = b.link
   assign pet_count = b.count
   if pet_coll != blank
@@ -25,9 +25,9 @@
     endif
     assign raw_count = pet_coll.products_count
     if raw_count == 1
-      assign pet_count = '1 thing'
+      assign pet_count = b.count_one | replace: '[COUNT]', raw_count
     else
-      assign pet_count = raw_count | append: ' things'
+      assign pet_count = b.count_many | replace: '[COUNT]', raw_count
     endif
   endif
   if pet_href == blank
@@ -112,19 +112,15 @@
       "label": "Collection",
       "info": "When set, the product count is read automatically and the link defaults to this collection."
     },
-    { "type": "text", "id": "count", "label": "Count (fallback)", "info": "Shown only when no collection is selected above.", "default": "24 things" },
+    { "type": "text", "id": "count_one", "label": "Count, one product", "default": "[COUNT] thing", "info": "Used when a collection is picked. [COUNT] is its number of products." },
+    { "type": "text", "id": "count_many", "label": "Count, several products", "default": "[COUNT] things" },
+    { "type": "text", "id": "count", "label": "Count (fallback)", "info": "Shown only when no collection is selected above. Leave empty to hide." },
     { "type": "url", "id": "link", "label": "Link override", "info": "Overrides the collection URL. Leave blank to use the collection's URL." },
     { "type": "text", "id": "sticker", "label": "Sticker", "info": "Leave empty for no sticker." },
     {
       "type": "select", "id": "art", "label": "Illustration", "default": "dog",
       "options": [
-        { "value": "dog", "label": "Dog" },
-        { "value": "puppy", "label": "Puppy" },
-        { "value": "cat", "label": "Cat" },
-        { "value": "bunny", "label": "Small pet" },
-        { "value": "duo", "label": "Dog and cat" },
-        { "value": "bowl", "label": "Bowl" },
-        { "value": "pouch", "label": "Pouch" }
+        { "value": "bed", "label": "Bed" }, { "value": "blanket", "label": "Blanket" }, { "value": "bone", "label": "Rope bone" }, { "value": "bowl", "label": "Bowl" }, { "value": "bunny", "label": "Bunny" }, { "value": "cat", "label": "Cat" }, { "value": "dog", "label": "Dog" }, { "value": "duo", "label": "Dog and cat" }, { "value": "jar", "label": "Treat jar" }, { "value": "pouch", "label": "Food pouch" }, { "value": "puppy", "label": "Puppy" }, { "value": "tin", "label": "Tin" }
       ]
     },
     { "type": "color", "id": "tint", "label": "Tile colour", "default": "#d8edcd" }

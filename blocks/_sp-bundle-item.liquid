@@ -8,14 +8,25 @@
 {%- liquid
   assign b = block.settings
   assign p = b.product
+  assign v = p.selected_or_first_available_variant
+  comment
+    No product picked: shoppers never see the tile (it could not be added);
+    the merchant still does, in the editor. Sold out: shown, but cannot be
+    picked, so the set never fails at the bag.
+  endcomment
+  assign usable = false
+  if p != blank and v.available
+    assign usable = true
+  endif
 -%}
 
+{%- if p != blank or request.design_mode -%}
 <button
   type="button"
-  class="sp-bundle__item{% if b.selected %} is-on{% endif %}"
+  class="sp-bundle__item{% if b.selected and usable %} is-on{% endif %}{% unless usable %} is-off{% endunless %}"
   data-bundle-item
-  {%- if p != blank and p.selected_or_first_available_variant %} data-variant="{{ p.selected_or_first_available_variant.id }}"{% endif %}
-  aria-pressed="{% if b.selected %}true{% else %}false{% endif %}"
+  {%- if usable %} data-variant="{{ v.id }}"{% else %} disabled{% endif %}
+  aria-pressed="{% if b.selected and usable %}true{% else %}false{% endif %}"
   {{ block.shopify_attributes }}
 >
   <span class="sp-bundle__tick" aria-hidden="true">{% render 'sp-icon', name: 'check', size: 15 %}</span>
@@ -33,13 +44,20 @@
       {%- endif -%}
     {%- endif -%}
   </span>
-  <span class="sp-bundle__name">{% if b.title != blank %}{{ b.title | escape }}{% elsif p != blank %}{{ p.title }}{% else %}Add a product{% endif %}</span>
-  <span class="sp-bundle__price">{% if p != blank %}{{ p.price | money }}{% else %}[PRICE]{% endif %}</span>
+  <span class="sp-bundle__name">{% if b.title != blank %}{{ b.title | escape }}{% elsif p != blank %}{{ p.title }}{% endif %}</span>
+  <span class="sp-bundle__price">
+    {%- if p == blank -%}{{ 'Pick a product' }}
+    {%- elsif usable -%}{{ v.price | money }}
+    {%- else -%}{{ settings.sp_t_sold_out | escape }}{%- endif -%}
+  </span>
 </button>
+{%- endif -%}
 
 {% stylesheet %}
   .sp-bundle__item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 14px; border: 2px solid var(--sp-line, #e3dccd); border-radius: var(--sp-r-card, 28px); background: var(--sp-cream, #fbf7ef); color: inherit; font-family: inherit; cursor: pointer; transition: transform 0.3s var(--sp-ease), border-color 0.2s ease, box-shadow 0.2s ease; }
   .sp-bundle__item:hover { transform: translateY(-4px); }
+  .sp-bundle__item.is-off { cursor: not-allowed; opacity: 0.6; }
+  .sp-bundle__item.is-off:hover { transform: none; }
   .sp-bundle__item.is-on { border-color: var(--sp-moss, #3f6b4a); box-shadow: 0 0 0 4px var(--sp-mint, #e7f0e2); }
   .sp-bundle__tick { position: absolute; top: 10px; right: 10px; z-index: 2; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 999px; background: #ece6d9; color: #ece6d9; transition: background-color 0.2s ease, color 0.2s ease; }
   .sp-bundle__item.is-on .sp-bundle__tick { background: var(--sp-moss, #3f6b4a); color: var(--sp-cream, #fbf7ef); }
@@ -69,10 +87,7 @@
       "type": "select", "id": "art", "label": "Illustration", "default": "bed",
       "info": "Shown when the product has no photo.",
       "options": [
-        { "value": "bed", "label": "Bed" }, { "value": "blanket", "label": "Blanket" },
-        { "value": "bone", "label": "Rope bone" }, { "value": "bowl", "label": "Bowl" },
-        { "value": "pouch", "label": "Food pouch" }, { "value": "jar", "label": "Treat jar" },
-        { "value": "tin", "label": "Tin" }
+        { "value": "bed", "label": "Bed" }, { "value": "blanket", "label": "Blanket" }, { "value": "bone", "label": "Rope bone" }, { "value": "bowl", "label": "Bowl" }, { "value": "bunny", "label": "Bunny" }, { "value": "cat", "label": "Cat" }, { "value": "dog", "label": "Dog" }, { "value": "duo", "label": "Dog and cat" }, { "value": "jar", "label": "Treat jar" }, { "value": "pouch", "label": "Food pouch" }, { "value": "puppy", "label": "Puppy" }, { "value": "tin", "label": "Tin" }
       ]
     }
   ],

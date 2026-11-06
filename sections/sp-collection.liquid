@@ -10,28 +10,28 @@
 {%- liquid
   assign s = section.settings
   assign items_per_page = s.items_per_page
+  comment
+    Filters in use, so an empty grid can say "nothing matches" (with a way
+    out) rather than "this collection is empty".
+  endcomment
+  assign filtering = false
+  for filter in collection.filters
+    if filter.active_values.size > 0 or filter.min_value.value != blank or filter.max_value.value != blank
+      assign filtering = true
+    endif
+  endfor
 -%}
 
 <section class="sp-coll-sec" style="--sp-sec-bg: {{ s.background }}; --sp-h1-size: {{ s.heading_size }}px; --sp-coll-cols: {{ s.columns }}; padding-bottom: {{ s.padding_bottom }}px;">
 
-  {%- if s.show_bar -%}
-    <sp-pet-bar class="sp-coll__bar">
-      <div class="sp-wrap sp-coll__bar-inner">
-        <span class="sp-coll__for">
-          {% render 'sp-icon', name: 'paw', size: 20 %}
-          <span>{{ s.bar_label | escape }} <strong data-pet-out>your pet</strong><span data-size-wrap hidden> · <strong data-size-out></strong></span></span>
-        </span>
-        <a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ s.bar_link | default: '/' }}">{{ s.bar_button | escape }}</a>
-      </div>
-    </sp-pet-bar>
-  {%- endif -%}
+  {% render 'sp-pet-bar', show_bar: s.show_bar, bar_label: s.bar_label, bar_button: s.bar_button, bar_link: s.bar_link %}
 
   <div class="sp-wrap">
     <header class="sp-coll__head">
       <nav class="sp-coll__crumbs" aria-label="Breadcrumb">
-        <a href="{{ routes.root_url }}">Home</a><span>/</span><span>{{ collection.title | default: 'Products' }}</span>
+        <a href="{{ routes.root_url }}">{{ settings.sp_t_home | escape }}</a><span>/</span><span>{{ collection.title }}</span>
       </nav>
-      <h1 class="sp-h1">{{ collection.title | default: 'Everything' }}</h1>
+      <h1 class="sp-h1">{{ collection.title }}</h1>
       {%- if collection.description != blank -%}
         <div class="sp-lede sp-coll__desc">{{ collection.description }}</div>
       {%- endif -%}
@@ -42,8 +42,9 @@
 
         {%- if s.show_filters -%}
           <aside class="sp-coll__filters">
-            <h2 class="sp-coll__filters-title">Refine</h2>
-            <form id="sp-filters-{{ section.id }}">
+            {%- if collection.filters.size > 0 and s.filters_title != blank -%}<h2 class="sp-coll__filters-title">{{ s.filters_title | escape }}</h2>{%- endif -%}
+            <form id="sp-filters-{{ section.id }}" action="{{ collection.url }}" method="get">
+              {%- if collection.sort_by != blank -%}<input type="hidden" name="sort_by" value="{{ collection.sort_by | escape }}">{%- endif -%}
               {%- for filter in collection.filters -%}
                 <fieldset class="sp-coll__filter">
                   <legend>{{ filter.label }}</legend>
@@ -61,23 +62,25 @@
                     {%- when 'price_range' -%}
                       <div class="sp-coll__price">
                         <label>
-                          <span class="sp-visually-hidden">Lowest price</span>
-                          <input type="number" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value }}" placeholder="0" min="0" max="{{ filter.range_max | money_without_currency | replace: ',', '' }}">
+                          <span class="sp-visually-hidden">{{ filter.min_value.param_name | split: '.' | last | escape }}</span>
+                          <input type="number" name="{{ filter.min_value.param_name }}" value="{%- if filter.min_value.value != blank -%}{{ filter.min_value.value | money_without_currency | replace: ',', '' }}{%- endif -%}" placeholder="0" step="any" min="0" max="{{ filter.range_max | money_without_currency | replace: ',', '' }}">
                         </label>
                         <span aria-hidden="true">–</span>
                         <label>
-                          <span class="sp-visually-hidden">Highest price</span>
-                          <input type="number" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value }}" placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}" min="0" max="{{ filter.range_max | money_without_currency | replace: ',', '' }}">
+                          <span class="sp-visually-hidden">{{ filter.max_value.param_name | split: '.' | last | escape }}</span>
+                          <input type="number" name="{{ filter.max_value.param_name }}" value="{%- if filter.max_value.value != blank -%}{{ filter.max_value.value | money_without_currency | replace: ',', '' }}{%- endif -%}" step="any" placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}" min="0" max="{{ filter.range_max | money_without_currency | replace: ',', '' }}">
                         </label>
                       </div>
                   {%- endcase -%}
                 </fieldset>
               {%- else -%}
-                <p class="sp-coll__nofilters">Add filters to this collection in Shopify search &amp; discovery.</p>
+                {%- if request.design_mode -%}
+                  <p class="sp-coll__nofilters">{{ 'Only you see this: add filters in Shopify admin → Apps → Search & Discovery → Filters.' | escape }}</p>
+                {%- endif -%}
               {%- endfor -%}
               {%- if collection.filters.size > 0 -%}
-                <button type="submit" class="sp-btn sp-btn--primary sp-btn--sm">Apply</button>
-                <a class="sp-coll__clear" href="{{ collection.url }}">Clear all</a>
+                <button type="submit" class="sp-btn sp-btn--primary sp-btn--sm">{{ s.apply_text | escape }}</button>
+                {%- if filtering -%}<a class="sp-coll__clear" href="{{ collection.url }}{% if collection.sort_by != blank %}?sort_by={{ collection.sort_by | url_encode }}{% endif %}">{{ s.clear_text | escape }}</a>{%- endif -%}
               {%- endif -%}
             </form>
 
@@ -85,7 +88,9 @@
               <div class="sp-coll__help">
                 <h3 class="sp-coll__help-title">{{ s.finder_title | escape }}</h3>
                 <p>{{ s.finder_text | escape }}</p>
-                <a class="sp-btn sp-btn--primary sp-btn--sm" href="{{ s.finder_link | default: '/' }}">{{ s.finder_button | escape }}</a>
+                {%- if s.finder_link != blank and s.finder_button != blank -%}
+                  <a class="sp-btn sp-btn--primary sp-btn--sm" href="{{ s.finder_link }}">{{ s.finder_button | escape }}</a>
+                {%- endif -%}
               </div>
             {%- endif -%}
           </aside>
@@ -93,28 +98,33 @@
 
         <div class="sp-coll__main">
           <div class="sp-coll__toolbar">
-            <p class="sp-coll__count-line"><span data-visible-count>{{ collection.products_count }}</span> {% if collection.products_count == 1 %}product{% else %}products{% endif %}</p>
+            {%- if collection.products_count == 1 -%}{%- assign count_tpl = settings.sp_t_items_one -%}{%- else -%}{%- assign count_tpl = settings.sp_t_items_many -%}{%- endif -%}
+            {%- assign count_html = '<span data-visible-count>' | append: collection.products_count | append: '</span>' -%}
+            <p class="sp-coll__count-line">{{ count_tpl | default: '[COUNT] products' | escape | replace: '[COUNT]', count_html }}</p>
             {%- if collection.sort_options.size > 0 -%}
-              <label class="sp-coll__sort">
-                <span>Sort</span>
-                <select name="sort_by" form="sp-filters-{{ section.id }}">
+              {%- comment -%}
+                Sorting is its own form so it works with or without filters,
+                and carries the active filters along. It submits on change.
+              {%- endcomment -%}
+              <form class="sp-coll__sort" action="{{ collection.url }}" method="get">
+                {%- for filter in collection.filters -%}
+                  {%- for value in filter.active_values -%}
+                    <input type="hidden" name="{{ value.param_name }}" value="{{ value.value | escape }}">
+                  {%- endfor -%}
+                  {%- if filter.min_value.value != blank -%}<input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}">{%- endif -%}
+                  {%- if filter.max_value.value != blank -%}<input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}">{%- endif -%}
+                {%- endfor -%}
+                <label for="sp-sort-{{ section.id }}">{{ s.sort_label | escape }}</label>
+                <select id="sp-sort-{{ section.id }}" name="sort_by" onchange="this.form.submit()">
                   {%- for option in collection.sort_options -%}
-                    <option value="{{ option.value }}"{% if option.value == collection.sort_by %} selected{% endif %}>{{ option.name }}</option>
+                    <option value="{{ option.value | escape }}"{% if option.value == collection.sort_by %} selected{% endif %}>{{ option.name | escape }}</option>
                   {%- endfor -%}
                 </select>
-              </label>
+                <noscript><button type="submit" class="sp-btn sp-btn--soft sp-btn--sm">{{ s.apply_text | escape }}</button></noscript>
+              </form>
             {%- endif -%}
           </div>
 
-          {%- if s.show_pet_chips -%}
-            <div class="sp-coll__petchips" role="group" aria-label="Filter by pet">
-              <button class="sp-coll__petchip is-on" data-petchip="all">All pets</button>
-              {%- assign raw_pet_chips = s.pet_chips | newline_to_br | split: '<br />' -%}
-              {%- for item in raw_pet_chips -%}
-                {%- assign pc = item | strip -%}
-                {%- if pc != blank -%}
-                  <button class="sp-coll__petchip" data-petchip="{{ pc | downcase | escape }}">{{ pc | escape }}</button>
-                {%- endif -%}
               {%- endfor -%}
             </div>
           {%- endif -%}
@@ -124,21 +134,21 @@
               {% render 'sp-product-card', product: product, index: forloop.index0, show_quick_add: s.quick_add %}
             {%- else -%}
               <div class="sp-coll__empty">
-                <span class="sp-bob">{% render 'sp-art', name: 'bowl', size: 200, label: 'An empty bowl' %}</span>
-                <h3>An empty bowl</h3>
-                <p>Nothing in this collection yet. Try another shelf while we fill it.</p>
-                <a class="sp-btn sp-btn--primary" href="/collections/all">Browse everything</a>
+                <span class="sp-bob">{% render 'sp-art', name: 'bowl', size: 200 %}</span>
+                {%- if filtering -%}
+                  <h3>{{ s.filtered_heading | escape }}</h3>
+                  <p>{{ s.filtered_text | escape }}</p>
+                  <a class="sp-btn sp-btn--primary" href="{{ collection.url }}">{{ s.clear_text | escape }}</a>
+                {%- else -%}
+                  <h3>{{ s.empty_heading | escape }}</h3>
+                  <p>{{ s.empty_text | escape }}</p>
+                  <a class="sp-btn sp-btn--primary" href="{{ routes.all_products_collection_url }}">{{ s.empty_button | escape }}</a>
+                {%- endif -%}
               </div>
             {%- endfor -%}
           </sp-pet-aware>
 
-          {%- if paginate.pages > 1 -%}
-            <nav class="sp-coll__pages" aria-label="Pagination">
-              {%- if paginate.previous -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.previous.url }}">Back</a>{%- endif -%}
-              <span class="sp-coll__page-of">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
-              {%- if paginate.next -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.next.url }}">More</a>{%- endif -%}
-            </nav>
-          {%- endif -%}
+          {% render 'sp-pager', paginate: paginate %}
         </div>
       </div>
     {% endpaginate %}
@@ -148,32 +158,6 @@
 {%- comment -%} Pet filter for the grid above. {%- endcomment -%}
 {% render 'sp-pet-aware' %}
 
-<script type="module">
-  if (!customElements.get('sp-pet-bar')) {
-    customElements.define('sp-pet-bar', class extends HTMLElement {
-      connectedCallback() {
-        this.apply(this.read());
-        this.onPet = (e) => this.apply(e.detail);
-        document.addEventListener('sprout:pet-change', this.onPet);
-      }
-      disconnectedCallback() { document.removeEventListener('sprout:pet-change', this.onPet); }
-      read() {
-        try { return JSON.parse(localStorage.getItem('sprout:pet')) || null; } catch (e) { return null; }
-      }
-      apply(p) {
-        if (!p || !p.pet) return;
-        const petOut = this.querySelector('[data-pet-out]');
-        const sizeOut = this.querySelector('[data-size-out]');
-        const wrap = this.querySelector('[data-size-wrap]');
-        if (petOut) petOut.textContent = p.pet;
-        if (sizeOut && p.weight) {
-          sizeOut.textContent = p.weight < 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large');
-          if (wrap) wrap.hidden = false;
-        }
-      }
-    });
-  }
-</script>
 
 {% stylesheet %}
   .sp-coll-sec { background: var(--sp-sec-bg, #fbf7ef); }
@@ -210,15 +194,13 @@
   .sp-coll__toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
   .sp-coll__count-line { margin: 0; font-size: 15px; color: var(--sp-muted, #5e6e60); }
   .sp-coll__sort { display: flex; align-items: center; gap: 10px; font-size: 15px; }
-  .sp-coll__sort > span { font-weight: 700; }
+  .sp-coll__sort > label { font-weight: 700; }
   .sp-coll__sort select { min-height: 44px; padding: 0 16px; border: 2px solid #ddd5c6; border-radius: 999px; background: var(--sp-cream, #fbf7ef); font-family: inherit; font-size: 15px; color: inherit; }
   .sp-coll__grid { grid-template-columns: repeat(var(--sp-coll-cols, 3), minmax(0, 1fr)); }
   .sp-coll__empty { grid-column: 1 / -1; margin: 0; display: grid; justify-items: center; gap: 10px; text-align: center; padding: 48px 16px 56px; border-radius: var(--sp-r-card, 28px); background: var(--sp-mint, #d8edcd); }
   .sp-coll__empty .sp-art { width: 160px; height: auto; }
   .sp-coll__empty h3 { margin: 0; font-family: var(--sp-font-head); font-size: 26px; }
   .sp-coll__empty p { margin: 0 0 8px; color: var(--sp-muted, #566358); max-width: 34ch; }
-  .sp-coll__pages { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 36px; }
-  .sp-coll__page-of { font-size: 14px; color: var(--sp-muted, #5e6e60); }
 
   @media (max-width: 989px) { .sp-coll__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sp-coll__filters { flex: 1 1 100%; } }
   @media (max-width: 749px) { .sp-coll__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } }
@@ -242,11 +224,21 @@
     { "type": "range", "id": "items_per_page", "label": "Products per page", "min": 8, "max": 48, "step": 4, "default": 24 },
     { "type": "checkbox", "id": "quick_add", "label": "Quick add on hover", "default": true },
     { "type": "checkbox", "id": "show_filters", "label": "Show filters", "default": true },
+    { "type": "text", "id": "filters_title", "label": "Filters heading", "default": "Refine" },
+    { "type": "text", "id": "apply_text", "label": "Apply button", "default": "Apply" },
+    { "type": "text", "id": "clear_text", "label": "Clear filters", "default": "Clear all" },
+    { "type": "text", "id": "sort_label", "label": "Sort label", "default": "Sort" },
+    { "type": "header", "content": "Empty grid" },
+    { "type": "text", "id": "empty_heading", "label": "Empty collection heading", "default": "An empty bowl" },
+    { "type": "text", "id": "empty_text", "label": "Empty collection text", "default": "Nothing in this collection yet. Try another shelf while we fill it." },
+    { "type": "text", "id": "empty_button", "label": "Empty collection button", "default": "Browse everything" },
+    { "type": "text", "id": "filtered_heading", "label": "No match heading", "default": "Nothing matches that" },
+    { "type": "text", "id": "filtered_text", "label": "No match text", "default": "Try fewer filters — or clear them and start again." },
     { "type": "header", "content": "Size finder card" },
     { "type": "text", "id": "finder_title", "label": "Title", "default": "Not sure on size?" },
     { "type": "text", "id": "finder_text", "label": "Text", "default": "Pop in a weight and we will point at the right one." },
     { "type": "text", "id": "finder_button", "label": "Button", "default": "Size finder" },
-    { "type": "url", "id": "finder_link", "label": "Link" },
+    { "type": "url", "id": "finder_link", "label": "Link", "info": "Your size finder page. The button hides until a link is set." },
     { "type": "header", "content": "Style" },
     { "type": "color", "id": "background", "label": "Background", "default": "#fbf7ef" },
     { "type": "range", "id": "heading_size", "label": "Heading size", "min": 28, "max": 80, "step": 2, "unit": "px", "default": 52 },

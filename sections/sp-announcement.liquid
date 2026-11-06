@@ -10,19 +10,25 @@
 {%- liquid
   assign s = section.settings
   assign sp_amount = settings.free_shipping_threshold | times: 100 | money
+  comment
+    A line with [AMOUNT] only makes sense when there is a threshold, and only
+    in the store currency (the amount is not converted) — otherwise skip it.
+  endcomment
+  assign amount_ok = true
+  if settings.free_shipping_threshold == blank or settings.free_shipping_threshold <= 0 or cart.currency.iso_code != shop.currency
+    assign amount_ok = false
+  endif
   assign lines = ''
-  if s.msg1 != blank
-    assign lines = lines | append: s.msg1 | append: '~~'
-  endif
-  if s.msg2 != blank
-    assign lines = lines | append: s.msg2 | append: '~~'
-  endif
-  if s.msg3 != blank
-    assign lines = lines | append: s.msg3 | append: '~~'
-  endif
-  if s.msg4 != blank
-    assign lines = lines | append: s.msg4 | append: '~~'
-  endif
+  assign msgs = s.msg1 | append: '~~' | append: s.msg2 | append: '~~' | append: s.msg3 | append: '~~' | append: s.msg4 | split: '~~'
+  for m in msgs
+    if m == blank
+      continue
+    endif
+    if m contains '[AMOUNT]' and amount_ok == false
+      continue
+    endif
+    assign lines = lines | append: m | append: '~~'
+  endfor
   assign items = lines | split: '~~'
 -%}
 

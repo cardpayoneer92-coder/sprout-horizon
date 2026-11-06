@@ -19,8 +19,6 @@
         {%- if p.featured_media -%}
           <img src="{{ p.featured_media | image_url: width: 120 }}" alt="{{ p.featured_media.alt | default: p.title | escape }}" width="60" height="60" loading="lazy">
         {%- else -%}
-          {%- assign shot = 'sp-' | append: p.handle | append: '-1.png' -%}
-          <img data-sp-fallback src="{{ shot | asset_url }}" alt="{{ p.title | escape }}" width="60" height="60" loading="lazy">
           {% render 'sp-icon', name: 'bag', size: 22 %}
         {%- endif -%}
       </span>
@@ -36,8 +34,9 @@
 
       {%- form 'product', p, class: 'sp-sticky__form', id: null -%}
         <input type="hidden" name="id" value="{{ v.id }}" data-sticky-id>
-        <button type="submit" class="sp-btn sp-btn--primary sp-btn--sm"{% unless p.available %} disabled{% endunless %}>
-          {%- if p.available -%}{{ s.button_text | escape }}{%- else -%}Sold out{%- endif -%}
+        <input type="hidden" name="quantity" value="1" data-sticky-qty>
+        <button type="submit" class="sp-btn sp-btn--primary sp-btn--sm" data-sticky-btn data-label="{{ s.button_text | escape }}" data-sold-out="{{ settings.sp_t_sold_out | escape }}" data-unavailable="{{ settings.sp_t_unavailable | escape }}"{% unless v.available %} disabled{% endunless %}>
+          {%- if v.available -%}{{ s.button_text | escape }}{%- else -%}{{ settings.sp_t_sold_out | escape }}{%- endif -%}
         </button>
       {%- endform -%}
     </div>
@@ -47,30 +46,51 @@
     if (!customElements.get('sp-sticky-buy')) {
       customElements.define('sp-sticky-buy', class extends HTMLElement {
         connectedCallback() {
-          // follow whatever the buy box has selected
+          this.btn = this.querySelector('[data-sticky-btn]');
+          // follow whatever the buy box has selected — price, variant,
+          // availability — so the bar never adds something the box would not
           this.onVariant = (e) => {
+            const d = e.detail || {};
             const price = this.querySelector('[data-sticky-price]');
             const id = this.querySelector('[data-sticky-id]');
-            if (price) price.textContent = e.detail.priceText;
-            if (id) id.value = e.detail.id;
+            if (price && d.priceText) price.textContent = d.priceText;
+            if (id && d.id) id.value = d.id;
             const sub = this.querySelector('.sp-sticky__copy span');
-            if (sub) sub.textContent = e.detail.title;
+            if (sub && d.title) sub.textContent = d.title;
+            if (this.btn) {
+              this.btn.disabled = !d.available;
+              this.btn.textContent = d.available ? this.btn.dataset.label
+                : (d.unavailable ? this.btn.dataset.unavailable : this.btn.dataset.soldOut);
+            }
           };
           document.addEventListener('sprout:variant-change', this.onVariant);
 
+          // carry the buy box's quantity across
+          this.onQty = (e) => {
+            if (!e.target.matches || !e.target.matches('.sp-pdp .sp-qty__input')) return;
+            const q = this.querySelector('[data-sticky-qty]');
+            if (q) q.value = Math.max(1, parseInt(e.target.value, 10) || 1);
+          };
+          document.addEventListener('change', this.onQty);
+          document.addEventListener('input', this.onQty);
+
           const anchor = document.querySelector('.sp-pdp__add');
           if (!anchor) return;
+          this.hidden = false;
+          this.setAttribute('inert', '');
           this.observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
               const show = !entry.isIntersecting && entry.boundingClientRect.top < 0;
-              this.hidden = !show;
               this.classList.toggle('is-in', show);
+              this.toggleAttribute('inert', !show);
             });
           }, { threshold: 0 });
           this.observer.observe(anchor);
         }
         disconnectedCallback() {
           document.removeEventListener('sprout:variant-change', this.onVariant);
+          document.removeEventListener('change', this.onQty);
+          document.removeEventListener('input', this.onQty);
           if (this.observer) this.observer.disconnect();
         }
       });

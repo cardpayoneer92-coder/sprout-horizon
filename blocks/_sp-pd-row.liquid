@@ -19,9 +19,13 @@
     if mf_parts.size == 2
       assign mf_ns = mf_parts[0]
       assign mf_key = mf_parts[1]
-      assign mf_value = product.metafields[mf_ns][mf_key].value
-      if mf_value != blank
-        assign row_content = mf_value | newline_to_br
+      assign mf = product.metafields[mf_ns][mf_key]
+      if mf.value != blank
+        if mf.type == 'rich_text_field'
+          assign row_content = mf | metafield_tag
+        else
+          assign row_content = mf.value | escape | newline_to_br
+        endif
       endif
     endif
   endif
@@ -34,14 +38,6 @@
       <span class="sp-pdrow__mark" aria-hidden="true">{% render 'sp-icon', name: 'chevron', size: 18 %}</span>
     </summary>
     <div class="sp-pdrow__body">{{ row_content }}</div>
-  </details>
-{%- elsif b.title != blank and b.metafield_key == blank -%}
-  <details class="sp-pdrow"{% if b.open %} open{% endif %} {{ block.shopify_attributes }}>
-    <summary class="sp-pdrow__head">
-      <span>{{ b.title | escape }}</span>
-      <span class="sp-pdrow__mark" aria-hidden="true">{% render 'sp-icon', name: 'chevron', size: 18 %}</span>
-    </summary>
-    <div class="sp-pdrow__body">{{ b.text }}</div>
   </details>
 {%- endif -%}
 

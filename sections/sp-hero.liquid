@@ -263,7 +263,6 @@
       border-radius: var(--sp-r-card, 28px); overflow: hidden;
       box-shadow: 0 16px 36px rgb(39 55 43 / 0.16);
     }
-    .sp-hero--banner .sp-hero__bg img { object-position: 50% 100% !important; }
     .sp-hero--banner .sp-hero__veil { display: none; }
     .sp-hero--banner .sp-hero__strip { order: 3; }
     .sp-hero--banner .sp-hero__stage { display: none; }
@@ -302,7 +301,7 @@
         { "value": "banner", "label": "Full banner behind the text" }
       ]
     },
-    { "type": "image_picker", "id": "mobile_image", "label": "Mobile photo", "info": "Full banner only. Keep the top of the photo calm — the text sits there on phones." },
+    { "type": "image_picker", "id": "mobile_image", "label": "Mobile photo", "info": "Full banner only. On phones the photo sits under the text as a square card; a square photo fits best. Focus across / down applies here too." },
     { "type": "range", "id": "banner_height", "label": "Banner height", "min": 440, "max": 880, "step": 20, "unit": "px", "default": 660 },
     { "type": "range", "id": "veil_opacity", "label": "Text-side fade", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 0, "info": "Fades the background colour in behind the text if the photo is busy." },
     { "type": "range", "id": "focal_x", "label": "Focus across", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },

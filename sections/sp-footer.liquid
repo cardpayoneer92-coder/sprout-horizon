@@ -69,6 +69,8 @@
             <button type="submit" class="sp-btn sp-btn--primary">{{ s.news_button | escape }}</button>
             {%- if form.posted_successfully? -%}
               <p class="sp-footer__ok" role="status">{{ s.news_success | escape }}</p>
+            {%- elsif form.errors -%}
+              <p class="sp-footer__ok sp-footer__err" role="alert">{{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}</p>
             {%- endif -%}
           {%- endform -%}
         </div>
@@ -131,7 +133,15 @@
                 assign col_links = s.col3_links
             endcase
           -%}
-          {%- if col_title != blank -%}
+          {%- liquid
+            assign has_links = false
+            if col_menu != blank and linklists[col_menu].links.size > 0
+              assign has_links = true
+            elsif col_menu == blank and col_links != blank
+              assign has_links = true
+            endif
+          -%}
+          {%- if col_title != blank and has_links -%}
             <div class="sp-footer__col">
               <h3 class="sp-footer__col-title">{{ col_title | escape }}</h3>
               <ul class="sp-footer__list" role="list">
@@ -198,6 +208,7 @@
   .sp-footer__form { flex: 1 1 320px; min-width: 0; display: flex; flex-wrap: wrap; gap: 10px; margin: 0; }
   .sp-footer__input { flex: 1 1 180px; min-width: 0; min-height: 52px; padding: 0 20px; border: 2px solid #ddd5c6; border-radius: 999px; background: var(--sp-cream, #fbf7ef); font-family: inherit; font-size: 16px; color: inherit; }
   .sp-footer__ok { flex: 1 1 100%; margin: 0; font-size: 14px; font-weight: 700; color: var(--sp-moss, #3f6b4a); }
+  .sp-footer__err { color: #8a2b14; }
 
   .sp-footer__cols { display: flex; flex-wrap: wrap; gap: 36px; padding-bottom: 30px; }
   .sp-footer__brand { flex: 1 1 260px; min-width: 0; }

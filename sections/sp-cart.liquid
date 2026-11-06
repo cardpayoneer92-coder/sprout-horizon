@@ -9,8 +9,21 @@
 
 {%- liquid
   assign s = section.settings
-  assign goal = s.free_shipping_goal | times: 100
+  comment
+    One threshold for the whole theme (Theme settings → Cart), in the store
+    currency. When the shopper pays in another currency the maths would be
+    wrong, so the meter stays hidden.
+  endcomment
+  assign goal = settings.free_shipping_threshold | times: 100
+  if cart.currency.iso_code != shop.currency
+    assign goal = 0
+  endif
   assign left = goal | minus: cart.total_price
+  assign left_money = left | money
+  assign show_meter = false
+  if s.show_meter and goal > 0
+    assign show_meter = true
+  endif
   assign pct = 0
   if goal > 0
     assign pct = cart.total_price | times: 100 | divided_by: goal
@@ -33,14 +46,15 @@
       </div>
     {%- else -%}
 
-      {%- if s.show_meter and goal > 0 -%}
+      {%- if show_meter -%}
         <div class="sp-meter sp-reveal">
           <p class="sp-meter__line">
             {% render 'sp-icon', name: 'truck', size: 18 %}
             {%- if left > 0 -%}
-              <span><strong>{{ left | money }}</strong> to go for free delivery</span>
+              {%- assign amount_html = '<strong>' | append: left_money | append: '</strong>' -%}
+              <span>{{ s.meter_text | escape | replace: '[AMOUNT]', amount_html }}</span>
             {%- else -%}
-              <span><strong>Free delivery unlocked</strong> — nice one.</span>
+              <span><strong>{{ s.meter_done | escape }}</strong></span>
             {%- endif -%}
           </p>
           <span class="sp-meter__track"><span class="sp-meter__fill" style="width: {{ pct }}%;"></span></span>
@@ -55,8 +69,6 @@
                 {%- if line.image -%}
                   <img src="{{ line.image | image_url: width: 220 }}" alt="{{ line.title | escape }}" width="110" height="110" loading="lazy">
                 {%- else -%}
-                  {%- assign shot = 'sp-' | append: line.product.handle | append: '-1.png' -%}
-                  <img data-sp-fallback src="{{ shot | asset_url }}" alt="{{ line.title | escape }}" width="110" height="110" loading="lazy">
                   {% render 'sp-art', name: 'pouch', size: 70 %}
                 {%- endif -%}
               </a>
@@ -66,26 +78,48 @@
                 {%- unless line.product.has_only_default_variant -%}
                   <p class="sp-cart__variant">{{ line.variant.title }}</p>
                 {%- endunless -%}
-                <p class="sp-cart__each">{{ line.original_price | money }} each</p>
+                {%- for p in line.properties -%}
+                  {%- assign first_char = p.first | slice: 0 -%}
+                  {%- if p.last != blank and first_char != '_' -%}
+                    <p class="sp-cart__variant">{{ p.first | escape }}: {% if p.last contains '/uploads/' %}<a href="{{ p.last }}">{{ p.last | split: '/' | last }}</a>{% else %}{{ p.last | escape }}{% endif %}</p>
+                  {%- endif -%}
+                {%- endfor -%}
+                <p class="sp-cart__each">
+                  {%- if line.original_price > line.final_price -%}
+                    <s>{{ line.original_price | money }}</s> {{ line.final_price | money }}
+                  {%- else -%}
+                    {{ line.original_price | money }}
+                  {%- endif %} {{ s.each_label | escape }}
+                </p>
+                {%- for d in line.line_level_discount_allocations -%}
+                  <p class="sp-cart__disc">{% render 'sp-icon', name: 'check', size: 13 %} {{ d.discount_application.title | escape }} (&minus;{{ d.amount | money }})</p>
+                {%- endfor -%}
               </div>
 
               <div class="sp-cart__qty">
-                <a class="sp-qty__btn" href="{{ line.url_to_remove }}" aria-label="Remove {{ line.title | escape }}">&minus;</a>
+                {%- comment -%} Steppers are plain links to /cart/change, so they work without JS. {%- endcomment -%}
+                <a class="sp-qty__btn" href="{{ routes.cart_change_url }}?line={{ forloop.index }}&quantity={{ line.quantity | minus: 1 }}" aria-label="{{ s.less_label | escape }}: {{ line.title | escape }}">&minus;</a>
                 <input class="sp-qty__input" type="number" name="updates[]" value="{{ line.quantity }}" min="0" inputmode="numeric" aria-label="Quantity for {{ line.title | escape }}">
-                <a class="sp-qty__btn" href="{{ line.url_to_add | default: line.url }}" aria-label="Add one more {{ line.title | escape }}">+</a>
+                <a class="sp-qty__btn" href="{{ routes.cart_change_url }}?line={{ forloop.index }}&quantity={{ line.quantity | plus: 1 }}" aria-label="{{ s.more_label | escape }}: {{ line.title | escape }}">+</a>
               </div>
 
               <span class="sp-cart__total">{{ line.final_line_price | money }}</span>
             </div>
           {%- endfor -%}
 
-          <button type="submit" name="update" class="sp-btn sp-btn--soft sp-btn--sm sp-cart__update">Update quantities</button>
+          <button type="submit" name="update" class="sp-btn sp-btn--soft sp-btn--sm sp-cart__update">{{ s.update_text | escape }}</button>
         </div>
 
         <aside class="sp-cart__summary sp-reveal">
-          <h2 class="sp-h3">Summary</h2>
-          <p class="sp-cart__row"><span>Subtotal</span><strong>{{ cart.total_price | money }}</strong></p>
-          <p class="sp-cart__row sp-cart__row--muted"><span>Delivery</span><span>{% if left > 0 %}Worked out at checkout{% else %}Free{% endif %}</span></p>
+          <h2 class="sp-h3">{{ s.summary_heading | escape }}</h2>
+          {%- if cart.cart_level_discount_applications.size > 0 -%}
+            <p class="sp-cart__row sp-cart__row--muted"><span>{{ s.items_label | escape }}</span><span>{{ cart.items_subtotal_price | money }}</span></p>
+            {%- for d in cart.cart_level_discount_applications -%}
+              <p class="sp-cart__row sp-cart__row--muted"><span>{{ d.title | escape }}</span><span>&minus;{{ d.total_allocated_amount | money }}</span></p>
+            {%- endfor -%}
+          {%- endif -%}
+          <p class="sp-cart__row"><span>{{ s.subtotal_label | escape }}</span><strong>{{ cart.total_price | money }}</strong></p>
+          <p class="sp-cart__row sp-cart__row--muted"><span>{{ s.delivery_label | escape }}</span><span>{% if show_meter and left <= 0 %}{{ s.delivery_free | escape }}{% else %}{{ s.delivery_later | escape }}{% endif %}</span></p>
 
           {%- if s.show_note -%}
             <label class="sp-cart__note">
@@ -122,6 +156,7 @@
   .sp-cart__thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .sp-cart__name { margin: 0; font-size: 16px; font-weight: 700; }
   .sp-cart__name a { color: inherit; text-decoration: none; }
+  .sp-cart__disc { display: flex; align-items: center; gap: 5px; margin: 4px 0 0; font-size: 13px; font-weight: 700; color: var(--sp-moss, #2f7a46); }
   .sp-cart__variant, .sp-cart__each { margin: 2px 0 0; font-size: 14px; color: var(--sp-muted, #566358); }
   .sp-cart__qty { display: flex; align-items: center; border: 2px solid var(--sp-line-mint, #d6e2d0); border-radius: 999px; }
   .sp-cart__qty .sp-qty__btn { display: grid; place-items: center; width: 40px; height: 44px; text-decoration: none; color: inherit; }
@@ -158,8 +193,21 @@
     { "type": "text", "id": "checkout_text", "label": "Checkout button", "default": "Checkout" },
     { "type": "text", "id": "fine_print", "label": "Fine print", "default": "Taxes and delivery worked out at checkout." },
     { "type": "header", "content": "Free delivery meter" },
+    { "type": "paragraph", "content": "The amount comes from Theme settings → Cart → Free shipping threshold, the same one the cart drawer and announcement bar use. Hidden when a shopper pays in another currency." },
     { "type": "checkbox", "id": "show_meter", "label": "Show the meter", "default": true },
-    { "type": "range", "id": "free_shipping_goal", "label": "Free delivery over", "min": 0, "max": 200, "step": 5, "default": 40 },
+    { "type": "text", "id": "meter_text", "label": "Still to go", "default": "[AMOUNT] to go for free delivery", "info": "[AMOUNT] becomes the amount left." },
+    { "type": "text", "id": "meter_done", "label": "Unlocked", "default": "Free delivery unlocked — nice one." },
+    { "type": "header", "content": "Labels" },
+    { "type": "text", "id": "each_label", "label": "Price each", "default": "each" },
+    { "type": "text", "id": "update_text", "label": "Update button", "default": "Update quantities" },
+    { "type": "text", "id": "summary_heading", "label": "Summary heading", "default": "Summary" },
+    { "type": "text", "id": "items_label", "label": "Items total (shown with a discount)", "default": "Items" },
+    { "type": "text", "id": "subtotal_label", "label": "Subtotal", "default": "Subtotal" },
+    { "type": "text", "id": "delivery_label", "label": "Delivery", "default": "Delivery" },
+    { "type": "text", "id": "delivery_free", "label": "Delivery when free", "default": "Free" },
+    { "type": "text", "id": "delivery_later", "label": "Delivery otherwise", "default": "Worked out at checkout" },
+    { "type": "text", "id": "less_label", "label": "Minus button (screen readers)", "default": "One fewer" },
+    { "type": "text", "id": "more_label", "label": "Plus button (screen readers)", "default": "One more" },
     { "type": "header", "content": "Note" },
     { "type": "checkbox", "id": "show_note", "label": "Ask for a note", "default": true },
     { "type": "text", "id": "note_label", "label": "Note label", "default": "Anything we should know?" },

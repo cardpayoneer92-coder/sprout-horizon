@@ -5,12 +5,18 @@
 
   @example
   {% render 'sp-finder-card', heading: 'Which size?', small_max: 10 %}
+
+  Optional text: weight_label, empty_text, size_text ([SIZE]), note_text
+  ([GRAMS], [DAYS]), small_label / medium_label / large_label. Optional
+  numbers: weight_default, pack_small / pack_medium / pack_large (grams).
+  attrs: extra attributes for the element, e.g. block.shopify_attributes.
 {% endcomment %}
 
 {%- liquid
   assign sm = small_max | default: 10
   assign md = medium_max | default: 25
   assign gpk = grams_per_kg | default: 22
+  assign start = weight_default | default: 12
 -%}
 
 <sp-size-finder
@@ -18,28 +24,37 @@
   data-small-max="{{ sm }}"
   data-medium-max="{{ md }}"
   data-grams-per-kg="{{ gpk }}"
+  data-pack-small="{{ pack_small | default: 1200 }}"
+  data-pack-medium="{{ pack_medium | default: 2400 }}"
+  data-pack-large="{{ pack_large | default: 4000 }}"
+  data-size-text="{{ size_text | default: 'We would go with the [SIZE] pack' | escape }}"
+  data-note-text="{{ note_text | default: 'About [GRAMS]g a day — one pack lasts around [DAYS] days.' | escape }}"
+  data-empty-text="{{ empty_text | default: 'Pop in a weight and we will size it.' | escape }}"
+  data-small="{{ small_label | default: 'Small' | escape }}"
+  data-medium="{{ medium_label | default: 'Medium' | escape }}"
+  data-large="{{ large_label | default: 'Large' | escape }}"
+  {{ attrs }}
 >
   {%- if heading != blank -%}<h2 class="sp-finder__title">{{ heading | escape }}</h2>{%- endif -%}
   {%- if text != blank -%}<p class="sp-finder__text">{{ text | escape }}</p>{%- endif -%}
 
   <div class="sp-finder__row">
     <label class="sp-finder__field">
-      <span>Weight (kg)</span>
-      <input type="number" min="1" max="90" value="12" data-weight inputmode="numeric">
-    </label>
-    <label class="sp-finder__field">
-      <span>Chest (cm, optional)</span>
-      <input type="number" min="10" max="140" placeholder="e.g. 54" data-chest inputmode="numeric">
+      <span>{{ weight_label | default: 'Weight (kg)' | escape }}</span>
+      <input type="number" min="1" max="90" value="{{ start }}" data-weight inputmode="numeric">
     </label>
   </div>
 
-  <p class="sp-finder__out" aria-live="polite" data-out>Pop in a weight and we will size it.</p>
+  <p class="sp-finder__out" aria-live="polite">
+    <strong data-size-out></strong><br>
+    <span data-note-out></span>
+  </p>
 
   {%- unless hide_chips -%}
-  <div class="sp-finder__sizes" role="group" aria-label="Pack size">
-    <button type="button" class="sp-finder__size" data-size="Small">Small</button>
-    <button type="button" class="sp-finder__size" data-size="Medium">Medium</button>
-    <button type="button" class="sp-finder__size" data-size="Large">Large</button>
+  <div class="sp-finder__sizes" role="group" aria-label="{{ weight_label | default: 'Pack size' | escape }}">
+    <button type="button" class="sp-finder__size" data-size="Small">{{ small_label | default: 'Small' | escape }}</button>
+    <button type="button" class="sp-finder__size" data-size="Medium">{{ medium_label | default: 'Medium' | escape }}</button>
+    <button type="button" class="sp-finder__size" data-size="Large">{{ large_label | default: 'Large' | escape }}</button>
   </div>
   {%- endunless -%}
 </sp-size-finder>
@@ -49,8 +64,8 @@
     customElements.define('sp-size-finder', class extends HTMLElement {
       connectedCallback() {
         this.weight = this.querySelector('[data-weight]');
-        this.out = this.querySelector('[data-out]');
         this.sizes = [...this.querySelectorAll('[data-size]')];
+        if (!this.weight) return;
 
         const saved = this.read();
         if (saved && saved.weight) this.weight.value = saved.weight;
@@ -64,29 +79,38 @@
         try { return JSON.parse(localStorage.getItem('sprout:pet')) || null; } catch (e) { return null; }
       }
 
+      num(attr, fallback) {
+        const v = Number(this.dataset[attr]);
+        return Number.isFinite(v) && v > 0 ? v : fallback;
+      }
+
+      // Small is up to small_max, Medium up to medium_max — the same rule the
+      // pet profile uses, and the size is saved so every section agrees.
       size(kg) {
-        const sm = Number(this.dataset.smallMax) || 10;
-        const md = Number(this.dataset.mediumMax) || 25;
-        return kg <= sm ? 'Small' : (kg <= md ? 'Medium' : 'Large');
+        return kg <= this.num('smallMax', 10) ? 'Small' : (kg <= this.num('mediumMax', 25) ? 'Medium' : 'Large');
       }
 
       run(save) {
         const kg = Number(this.weight.value);
-        if (!kg || kg < 1) { this.out.textContent = 'Pop in a weight and we will size it.'; return; }
-
+        const sizeOut = this.querySelector('[data-size-out]');
+        const noteOut = this.querySelector('[data-note-out]');
+        if (!Number.isFinite(kg) || kg < 1) {
+          if (sizeOut) sizeOut.textContent = '';
+          if (noteOut) noteOut.textContent = this.dataset.emptyText || '';
+          return;
+        }
         const size = this.size(kg);
-        const grams = Math.round((kg * (Number(this.dataset.gramsPerKg) || 22)) / 5) * 5;
-        const pack = size === 'Small' ? 1200 : (size === 'Medium' ? 2400 : 4000);
-        const days = Math.max(1, Math.round(pack / grams));
-
-        this.out.innerHTML =
-          '<strong>' + size + ' pack</strong> — about <strong>' + grams + 'g</strong> a day, ' +
-          'so one pack lasts around <strong>' + days + ' days</strong>.';
+        const grams = Math.max(5, Math.round((kg * this.num('gramsPerKg', 22)) / 5) * 5);
+        const packs = { Small: this.num('packSmall', 1200), Medium: this.num('packMedium', 2400), Large: this.num('packLarge', 4000) };
+        const days = Math.max(1, Math.round(packs[size] / grams));
+        const label = this.dataset[size.toLowerCase()] || size;
+        if (sizeOut) sizeOut.textContent = (this.dataset.sizeText || '').replace('[SIZE]', label);
+        if (noteOut) noteOut.textContent = (this.dataset.noteText || '').replace('[GRAMS]', grams).replace('[DAYS]', days);
         this.mark(size);
 
         if (save) {
-          const current = this.read() || {};
-          const next = { pet: current.pet || 'Dog', weight: kg };
+          // Keep the saved pet as it is — never guess one.
+          const next = Object.assign({}, this.read() || {}, { weight: kg, size });
           try { localStorage.setItem('sprout:pet', JSON.stringify(next)); } catch (e) { /* private mode */ }
           document.dispatchEvent(new CustomEvent('sprout:pet-change', { detail: next }));
         }
@@ -94,8 +118,9 @@
 
       mark(size) {
         this.sizes.forEach((b) => b.classList.toggle('is-on', b.dataset.size === size));
-        // Tell the product page to pre-select this variant size.
-        document.dispatchEvent(new CustomEvent('sprout:size-suggest', { detail: { size } }));
+        // Tell the product page to pre-select the matching option value.
+        const label = this.dataset[size.toLowerCase()] || size;
+        document.dispatchEvent(new CustomEvent('sprout:size-suggest', { detail: { size: label, key: size } }));
       }
     });
   }
@@ -110,6 +135,7 @@
   .sp-finder__field span { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; }
   .sp-finder__field input { width: 100%; min-height: 48px; padding: 0 16px; border: 2px solid #c9dac2; border-radius: 999px; background: var(--sp-cream, #fdfaf2); font-family: inherit; font-size: 16px; color: inherit; box-sizing: border-box; }
   .sp-finder__field input:focus-visible { outline: 3px solid var(--sp-moss, #2f7a46); outline-offset: 1px; }
+  .sp-finder__out span { color: var(--sp-muted, #566358); }
   .sp-finder__out { margin: 16px 0 0; padding: 14px 18px; border-radius: 20px; background: var(--sp-cream, #fdfaf2); font-size: 15px; line-height: 1.5; }
   .sp-finder__sizes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
   .sp-finder__size { min-height: 42px; padding: 0 18px; border: 2px solid transparent; border-radius: 999px; background: var(--sp-cream, #fdfaf2); font-family: inherit; font-weight: 700; font-size: 14px; color: inherit; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }

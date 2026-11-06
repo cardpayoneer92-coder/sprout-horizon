@@ -5,7 +5,17 @@
   Free shipping over $40
 {% enddoc %}
 
-{%- if block.settings.text != blank -%}
+{%- liquid
+  assign show = true
+  if block.settings.text == blank
+    assign show = false
+  elsif block.settings.text contains '[AMOUNT]'
+    if settings.free_shipping_threshold == blank or settings.free_shipping_threshold <= 0 or cart.currency.iso_code != shop.currency
+      assign show = false
+    endif
+  endif
+-%}
+{%- if show -%}
   {%- assign sp_amount = settings.free_shipping_threshold | times: 100 | money -%}
   {%- assign marquee_text = block.settings.text | replace: '[AMOUNT]', sp_amount -%}
   <span class="sp-marquee__word" {{ block.shopify_attributes }}>{{ marquee_text | escape }}</span>

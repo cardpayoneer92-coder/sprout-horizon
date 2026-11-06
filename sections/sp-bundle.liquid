@@ -13,7 +13,10 @@
 
 <section class="sp-sec sp-bundle-sec" style="--sp-sec-bg: {{ s.background }}; --sp-h2-size: {{ s.heading_size }}px; --sp-bundle-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
   <div class="sp-wrap">
-    <sp-bundle class="sp-bundle" data-threshold="{{ s.threshold }}" data-discount="{{ s.discount }}" data-sub-template="{{ s.subheading | escape }}">
+    <sp-bundle class="sp-bundle" data-threshold="{{ s.threshold }}" data-discount="{{ s.discount }}" data-sub-template="{{ s.subheading | escape }}"
+      data-need="{{ s.note_need | escape }}" data-done="{{ s.note_done | escape }}"
+      data-pick-first="{{ settings.sp_t_pick_first | escape }}" data-adding="{{ settings.sp_t_adding | escape }}"
+      data-added="{{ settings.sp_t_added | escape }}" data-error="{{ settings.sp_t_add_error | escape }}">
       <div class="sp-bundle__head sp-reveal">
         <div>
           {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
@@ -39,7 +42,8 @@
   if (!customElements.get('sp-bundle')) {
     customElements.define('sp-bundle', class extends HTMLElement {
       connectedCallback() {
-        this.items = [...this.querySelectorAll('[data-bundle-item]')];
+        // Only pieces that can actually go in the bag count.
+        this.items = [...this.querySelectorAll('[data-bundle-item][data-variant]')];
         this.items.forEach((el) => el.addEventListener('click', () => {
           const on = el.classList.toggle('is-on');
           el.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -66,37 +70,39 @@
 
         const btn = this.addBtn;
         if (!picked.length) {
-          btn.textContent = 'Pick something first';
+          btn.textContent = this.dataset.pickFirst || 'Pick something first';
           setTimeout(() => { btn.textContent = btn.dataset.label; }, 1800);
           return;
         }
 
         btn.disabled = true;
-        btn.textContent = 'Adding…';
+        btn.textContent = this.dataset.adding || 'Adding…';
         try {
           const res = await fetch('/cart/add.js', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ items: picked })
           });
-          if (!res.ok) throw new Error('add failed');
-          btn.textContent = 'Added to bag';
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.description || data.message || '');
+          }
+          btn.textContent = this.dataset.added || 'Added to bag';
           document.dispatchEvent(new CustomEvent('sprout:cart-change'));
         } catch (e) {
-          btn.textContent = 'Could not add — try again';
+          btn.textContent = e.message || this.dataset.error || 'Could not add — try again';
         } finally {
-          setTimeout(() => { btn.disabled = false; btn.textContent = btn.dataset.label; }, 2000);
+          setTimeout(() => { btn.disabled = false; btn.textContent = btn.dataset.label; }, 2600);
         }
       }
       applyPet(p) {
         const sub = this.querySelector('[data-sub]');
         if (!sub || !this.dataset.subTemplate) return;
-        const subject = p && p.pet
-          ? (p.pet.toLowerCase() === 'small pet' ? 'your small pet' : 'your ' + p.pet.toLowerCase())
-          : 'your pet';
+        const subject = p && p.pet ? 'your ' + p.pet.toLowerCase() : 'your pet';
         sub.textContent = this.dataset.subTemplate
           .replace('[pet]', subject)
-          .replace('[weight]', p && p.weight ? p.weight + ' kg' : '');
+          .replace('[weight]', p && p.weight > 0 ? p.weight + ' kg' : '')
+          .replace(/\s+([.,·])/g, '$1').trim();
       }
       paint() {
         const n = this.items.filter((el) => el.classList.contains('is-on')).length;
@@ -105,9 +111,8 @@
         this.querySelectorAll('[data-count]').forEach((el) => { el.textContent = n; });
         const note = this.querySelector('[data-note]');
         if (note) {
-          note.textContent = need === 0
-            ? '· ' + pct + '% off applied at checkout'
-            : '· add ' + need + ' more for ' + pct + '% off';
+          note.textContent = (need === 0 ? this.dataset.done : this.dataset.need || '')
+            .replace('[N]', need).replace('[PCT]', pct);
         }
       }
     });
@@ -144,6 +149,8 @@
     { "type": "text", "id": "picked_label", "label": "Count label", "default": "picked" },
     { "type": "text", "id": "in_set_label", "label": "Set label", "default": "in the set" },
     { "type": "text", "id": "button_text", "label": "Button", "default": "Add the set" },
+    { "type": "text", "id": "note_need", "label": "Still to pick", "default": "· add [N] more for [PCT]% off", "info": "[N] is how many more, [PCT] the discount." },
+    { "type": "text", "id": "note_done", "label": "Discount reached", "default": "· [PCT]% off applied at checkout" },
     { "type": "header", "content": "Discount" },
     { "type": "paragraph", "content": "This shows the offer. Create the matching automatic discount in Shopify so it actually applies." },
     { "type": "range", "id": "threshold", "label": "Items needed", "min": 2, "max": 6, "step": 1, "default": 3 },

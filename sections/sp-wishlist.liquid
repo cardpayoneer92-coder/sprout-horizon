@@ -63,23 +63,32 @@
         if (!list.length) return;
         this.querySelector('[data-wish-loading]').hidden = false;
         const root = (window.Shopify && Shopify.routes && Shopify.routes.root) || '/';
-        const cards = await Promise.all(list.map(async (h) => {
-          try {
-            const res = await fetch(root + 'products/' + encodeURIComponent(h) + '?view=sp-card');
-            if (!res.ok) return null; // product deleted or unpublished
-            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
-            const card = doc.querySelector('.sp-card');
-            if (card) card.dataset.wishCard = h;
-            return card;
-          } catch (e) { return null; }
-        }));
+        // Fetch a few at a time so a long list does not trip rate limits.
+        const gone = new Set();
+        const cards = [];
+        for (let i = 0; i < list.length; i += 4) {
+          const batch = await Promise.all(list.slice(i, i + 4).map(async (h) => {
+            try {
+              const res = await fetch(root + 'products/' + encodeURIComponent(h) + '?view=sp-card');
+              // Only a 404 means the product is gone. A busy store (429), a
+              // server hiccup or being offline must never delete a saved item.
+              if (res.status === 404) { gone.add(h); return null; }
+              if (!res.ok) return null;
+              const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+              const card = doc.querySelector('.sp-card');
+              if (card) card.dataset.wishCard = h;
+              return card;
+            } catch (e) { return null; }
+          }));
+          cards.push(...batch);
+        }
         this.querySelector('[data-wish-loading]').hidden = true;
-        // Drop handles that no longer resolve so the count stays honest.
-        const alive = list.filter((h, i) => cards[i]);
-        if (alive.length !== list.length && window.SproutWishlist) window.SproutWishlist.write(alive);
+        // Drop handles that no longer exist so the count stays honest.
+        const alive = list.filter((h) => !gone.has(h));
+        if (gone.size && window.SproutWishlist) window.SproutWishlist.write(alive);
         cards.filter(Boolean).forEach((c) => this.grid.appendChild(c));
         window.SproutWishlist && window.SproutWishlist.paint(this);
-        this.state(alive.length);
+        this.state(cards.filter(Boolean).length || alive.length);
       }
 
       sync(list) {

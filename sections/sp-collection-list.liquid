@@ -10,8 +10,10 @@
   assign s = section.settings
   assign tints = '#d8edcd,#fbe9d2,#bfe3ef,#ffd54a,#ffb784,#d8edcd' | split: ','
   assign arts = 'pouch,tin,jar,bowl,bed,bone' | split: ','
+  assign use_menu = false
   assign list = collections
-  if s.only_menu != blank
+  if s.only_menu != blank and linklists[s.only_menu].links.size > 0
+    assign use_menu = true
     assign list = linklists[s.only_menu].links
   endif
 -%}
@@ -25,8 +27,23 @@
     </header>
 
     <div class="sp-grid sp-clist__grid">
-      {%- for coll in collections -%}
-        {%- assign n = forloop.index0 | modulo: 6 -%}
+      {%- for entry in list -%}
+        {%- liquid
+          if use_menu
+            if entry.type != 'collection_link'
+              continue
+            endif
+            assign coll = entry.object
+          else
+            assign coll = entry
+          endif
+          assign n = forloop.index0 | modulo: 6
+          if coll.products_count == 1
+            assign count_text = s.count_one | replace: '[COUNT]', coll.products_count
+          else
+            assign count_text = s.count_many | replace: '[COUNT]', coll.products_count
+          endif
+        -%}
         <a class="sp-ctile sp-reveal" href="{{ coll.url }}" style="--sp-ctile-tint: {{ tints[n] }};">
           <span class="sp-ctile__media">
             {%- if coll.featured_image -%}
@@ -37,11 +54,11 @@
           </span>
           <span class="sp-ctile__body">
             <span class="sp-ctile__name">{{ coll.title }}</span>
-            <span class="sp-ctile__count">{{ coll.products_count }} {% if coll.products_count == 1 %}thing{% else %}things{% endif %}</span>
+            {%- if count_text != blank -%}<span class="sp-ctile__count">{{ count_text | escape }}</span>{%- endif -%}
           </span>
         </a>
       {%- else -%}
-        <p class="sp-clist__none">No collections yet. Create one in the Shopify admin and it will appear here.</p>
+        {%- if request.design_mode -%}<p class="sp-clist__none">{{ 'Only you see this: create a collection in Shopify admin and it appears here.' | escape }}</p>{%- endif -%}
       {%- endfor -%}
     </div>
   </div>
@@ -75,7 +92,9 @@
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Everything we make" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Shop the shelves" },
     { "type": "text", "id": "text", "label": "Text", "default": "Food, treats and the comfy things — grouped the way a pet would." },
-    { "type": "link_list", "id": "only_menu", "label": "Order by menu", "info": "Optional." },
+    { "type": "link_list", "id": "only_menu", "label": "Order by menu", "info": "Optional. Shows only the collections in this menu, in its order." },
+    { "type": "text", "id": "count_one", "label": "Count, one product", "default": "[COUNT] thing", "info": "[COUNT] is the number of products. Leave empty to hide." },
+    { "type": "text", "id": "count_many", "label": "Count, several products", "default": "[COUNT] things" },
     { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 4, "step": 1, "default": 3 },
     { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
     { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 40 },

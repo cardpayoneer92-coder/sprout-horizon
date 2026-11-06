@@ -1,0 +1,19 @@
+{% doc %}
+  Back / Page x of y / Next, worded from Theme settings → Sprout — words.
+  Render inside a {% paginate %} block.
+
+  @param {object} paginate - The paginate object.
+{% enddoc %}
+{%- if paginate.pages > 1 -%}
+  {%- capture at -%}{{ settings.sp_t_page | default: 'Page [X] of [Y]' | escape | replace: '[X]', paginate.current_page | replace: '[Y]', paginate.pages }}{%- endcapture -%}
+  <nav class="sp-pager" aria-label="{{ at | strip }}">
+    {%- if paginate.previous -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.previous.url }}" rel="prev">{{ settings.sp_t_back | default: 'Back' | escape }}</a>{%- endif -%}
+    <span class="sp-pager__at">{{ at }}</span>
+    {%- if paginate.next -%}<a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ paginate.next.url }}" rel="next">{{ settings.sp_t_next | default: 'Next' | escape }}</a>{%- endif -%}
+  </nav>
+{%- endif -%}
+
+{% stylesheet %}
+  .sp-pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 36px; }
+  .sp-pager__at { font-size: 14px; color: var(--sp-muted, #566358); }
+{% endstylesheet %}

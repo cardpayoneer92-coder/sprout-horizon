@@ -20,7 +20,14 @@
         text: s.finder_text,
         small_max: s.small_max,
         medium_max: s.medium_max,
-        grams_per_kg: s.grams_per_kg %}
+        grams_per_kg: s.grams_per_kg,
+            size_text: s.finder_result,
+            note_text: s.finder_note,
+            weight_label: s.finder_weight_label,
+            empty_text: s.finder_empty,
+            pack_small: s.pack_small,
+            pack_medium: s.pack_medium,
+            pack_large: s.pack_large %}
     </div>
 
     {%- if s.packs != blank -%}
@@ -75,6 +82,13 @@
     { "type": "range", "id": "small_max", "label": "Small up to", "min": 2, "max": 20, "step": 1, "unit": "kg", "default": 10 },
     { "type": "range", "id": "medium_max", "label": "Medium up to", "min": 10, "max": 50, "step": 1, "unit": "kg", "default": 25 },
     { "type": "range", "id": "grams_per_kg", "label": "Grams per kg a day", "min": 10, "max": 40, "step": 1, "default": 22 },
+    { "type": "text", "id": "finder_result", "label": "Result line", "default": "We would go with the [SIZE] pack", "info": "[SIZE] is Small, Medium or Large." },
+    { "type": "text", "id": "finder_note", "label": "Portion line", "default": "About [GRAMS]g a day — one pack lasts around [DAYS] days." },
+    { "type": "text", "id": "finder_weight_label", "label": "Weight label", "default": "Weight (kg)" },
+    { "type": "text", "id": "finder_empty", "label": "Before a weight is entered", "default": "Pop in a weight and we will size it." },
+    { "type": "range", "id": "pack_small", "label": "Small pack", "min": 400, "max": 3000, "step": 100, "unit": "g", "default": 1200 },
+    { "type": "range", "id": "pack_medium", "label": "Medium pack", "min": 800, "max": 5000, "step": 100, "unit": "g", "default": 2400 },
+    { "type": "range", "id": "pack_large", "label": "Large pack", "min": 1500, "max": 8000, "step": 100, "unit": "g", "default": 4000 },
     { "type": "textarea", "id": "packs", "label": "Packs", "info": "One per line, as Name | Range | Note.", "default": "Small pack | Under 10 kg | 1.2 kg of food, about nine days for a little one.\nMedium pack | 10 to 25 kg | 2.4 kg of food, the one most dogs end up on.\nLarge pack | 25 kg and up | 4 kg of food, for the big eaters." },
     { "type": "text", "id": "button_text", "label": "Button", "default": "Shop the right size" },
     { "type": "url", "id": "button_link", "label": "Button link" },

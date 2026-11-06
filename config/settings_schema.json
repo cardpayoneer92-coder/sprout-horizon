@@ -2123,5 +2123,125 @@
         "default": "equal-width-buttons"
       }
     ]
+  },
+  {
+    "name": "Sprout — words",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Short words the Sprout sections share. Change them here once and every section follows."
+      },
+      {
+        "type": "text",
+        "id": "sp_t_home",
+        "label": "Breadcrumb home",
+        "default": "Home"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_back",
+        "label": "Pager: back",
+        "default": "Back"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_next",
+        "label": "Pager: next",
+        "default": "Next"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_page",
+        "label": "Pager: position",
+        "default": "Page [X] of [Y]",
+        "info": "[X] is the current page, [Y] the total."
+      },
+      {
+        "type": "text",
+        "id": "sp_t_search",
+        "label": "Search",
+        "default": "Search"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_sold_out",
+        "label": "Sold out",
+        "default": "Sold out"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_unavailable",
+        "label": "Not available",
+        "default": "Unavailable",
+        "info": "When a shopper picks an option combination that does not exist."
+      },
+      {
+        "type": "text",
+        "id": "sp_t_new",
+        "label": "New badge",
+        "default": "New"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_sale",
+        "label": "Sale badge",
+        "default": "Sale"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_quick_add",
+        "label": "Quick add",
+        "default": "Quick add"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_choose",
+        "label": "Quick add, several options",
+        "default": "Choose size",
+        "info": "On products with more than one variant the quick-add button opens the product instead."
+      },
+      {
+        "type": "text",
+        "id": "sp_t_wishlist_add",
+        "label": "Wishlist button (screen readers)",
+        "default": "Save to wishlist"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_add_error",
+        "label": "Add to cart failed",
+        "default": "Could not add that one — try again."
+      },
+      {
+        "type": "text",
+        "id": "sp_t_adding",
+        "label": "Adding",
+        "default": "Adding…"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_added",
+        "label": "Added",
+        "default": "Added to bag"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_pick_first",
+        "label": "Bundle: nothing picked",
+        "default": "Pick something first"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_items_one",
+        "label": "Product count (one)",
+        "default": "[COUNT] product"
+      },
+      {
+        "type": "text",
+        "id": "sp_t_items_many",
+        "label": "Product count (many)",
+        "default": "[COUNT] products"
+      }
+    ]
   }
 ]

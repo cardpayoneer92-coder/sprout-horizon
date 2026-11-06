@@ -62,7 +62,8 @@
 
       save(pet) {
         const current = this.read() || {};
-        const next = { pet: pet, weight: current.weight || 0 };
+        // Keep the weight and size already saved; only the pet changes.
+        const next = Object.assign({}, current, { pet: pet });
         try { localStorage.setItem('sprout:pet', JSON.stringify(next)); } catch (e) { /* private mode */ }
         document.dispatchEvent(new CustomEvent('sprout:pet-change', { detail: next }));
       }
@@ -118,10 +119,10 @@
       "name": "Shop by pet",
       "category": "t:categories.custom",
       "blocks": [
-        { "type": "_sp-pet-card", "settings": { "title": "Dog", "pet": "Dog", "count": "24 things", "art": "dog", "tint": "#d8edcd", "sticker": "Most loved", "link": "/collections/dog" } },
-        { "type": "_sp-pet-card", "settings": { "title": "Puppy", "pet": "Puppy", "count": "12 things", "art": "duo", "tint": "#fbe9d2", "link": "/collections/puppy" } },
-        { "type": "_sp-pet-card", "settings": { "title": "Cat", "pet": "Cat", "count": "18 things", "art": "cat", "tint": "#bfe3ef", "link": "/collections/cat" } },
-        { "type": "_sp-pet-card", "settings": { "title": "Small pets", "pet": "Small pet", "count": "9 things", "art": "bunny", "tint": "#ffb784", "link": "/collections/small-pets" } }
+        { "type": "_sp-pet-card", "settings": { "title": "Dog", "pet": "Dog", "art": "dog", "tint": "#d8edcd", "sticker": "Most loved" } },
+        { "type": "_sp-pet-card", "settings": { "title": "Puppy", "pet": "Puppy", "art": "duo", "tint": "#fbe9d2" } },
+        { "type": "_sp-pet-card", "settings": { "title": "Cat", "pet": "Cat", "art": "cat", "tint": "#bfe3ef" } },
+        { "type": "_sp-pet-card", "settings": { "title": "Small pets", "pet": "Small pet", "art": "bunny", "tint": "#ffb784" } }
       ]
     }
   ]

@@ -13,16 +13,37 @@
   assign menu = linklists[s.menu]
 -%}
 
+  {%- liquid
+    assign has_menu = false
+    if menu != blank and menu.links.size > 0
+      assign has_menu = true
+    endif
+    assign show_drawer_wish = false
+    if s.show_wishlist and s.drawer_wishlist
+      assign show_drawer_wish = true
+    endif
+    assign show_drawer_account = false
+    if s.show_account and s.drawer_account and shop.customer_accounts_enabled
+      assign show_drawer_account = true
+    endif
+    assign has_drawer = false
+    if has_menu or show_drawer_wish or show_drawer_account
+      assign has_drawer = true
+    endif
+  -%}
+
 <sp-header
   class="sp-head{% if s.sticky %} sp-head--sticky{% endif %}"
   style="--sp-head-bg: {{ s.background }}; --sp-head-fg: {{ s.text_color }}; --sp-head-accent: {{ s.accent }};"
 >
   <div class="sp-head__bar sp-wrap">
 
+    {%- if has_drawer -%}
     <button type="button" class="sp-head__burger sp-icon-btn" aria-label="Menu" aria-expanded="false" aria-controls="sp-drawer-{{ section.id }}" data-burger>
       <span class="sp-visually-hidden" aria-hidden="true">Menu</span>
       <span class="sp-head__burger-bars" aria-hidden="true"><span></span><span></span><span></span></span>
     </button>
+    {%- endif -%}
 
     <a class="sp-head__logo" href="{{ routes.root_url }}">
       {%- if s.logo != blank -%}
@@ -82,23 +103,15 @@
     </div>
   </div>
 
-  {%- if menu != blank and menu.links.size > 0 -%}
+  {%- if has_drawer -%}
     <div class="sp-head__drawer" id="sp-drawer-{{ section.id }}" hidden data-drawer>
-      <ul role="list">
-        {%- for link in menu.links -%}
-          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
-        {%- endfor -%}
-      </ul>
-      {%- liquid
-        assign show_drawer_wish = false
-        if s.show_wishlist and s.drawer_wishlist
-          assign show_drawer_wish = true
-        endif
-        assign show_drawer_account = false
-        if s.show_account and s.drawer_account and shop.customer_accounts_enabled
-          assign show_drawer_account = true
-        endif
-      -%}
+      {%- if has_menu -%}
+        <ul role="list">
+          {%- for link in menu.links -%}
+            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
       {%- if show_drawer_wish or show_drawer_account -%}
         <ul class="sp-head__drawer-extra" role="list">
           {%- if show_drawer_wish -%}
@@ -174,6 +187,10 @@
   /* The section tag wraps this element, so the wrapper is what sticks —
      a sticky child would only stick inside its own box. */
   .sp-header-section:has(.sp-head--sticky) { position: sticky; top: 0; z-index: 40; }
+  /* The section itself sits in layout's #header-group div, which is only as
+     tall as the header — so it has to stop being a box for the stick to last
+     the whole page (Horizon does the same for its own header). */
+  #header-group:has(.sp-head--sticky) { display: contents; }
   .sp-head { display: block; position: relative; z-index: 40; background: var(--sp-head-bg, #fdfaf2); color: var(--sp-head-fg, #27372b); transition: box-shadow 0.25s ease; }
   .sp-head.is-stuck { box-shadow: 0 6px 20px rgb(39 55 43 / 0.08); }
 
@@ -207,6 +224,7 @@
   .sp-head.is-open .sp-head__burger-bars span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
   .sp-head__drawer { border-top: 1px solid var(--sp-line-mint, #d6e2d0); background: var(--sp-head-bg, #fdfaf2); }
+  @media (min-width: 990px) { .sp-head__drawer { display: none !important; } }
   .sp-head__drawer ul { margin: 0; padding: 8px 24px 18px; list-style: none; display: grid; gap: 2px; }
   .sp-head__drawer a { display: block; padding: 13px 14px; border-radius: 18px; color: inherit; text-decoration: none; font-weight: 700; font-size: 17px; }
   .sp-head__drawer a:hover { background: var(--sp-mint, #d8edcd); }

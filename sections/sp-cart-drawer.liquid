@@ -17,6 +17,13 @@
 {%- liquid
   assign s = section.settings
   assign goal = settings.free_shipping_threshold | times: 100
+  comment
+    The threshold is in the store currency; a shopper paying in another
+    currency would get wrong maths, so the bar stays hidden for them.
+  endcomment
+  if cart.currency.iso_code != shop.currency
+    assign goal = 0
+  endif
   assign left = goal | minus: cart.total_price
   if goal > 0
     assign pct = cart.total_price | times: 100 | divided_by: goal
@@ -33,6 +40,8 @@
   class="sp-cd"
   data-enabled="{% if settings.cart_type == 'drawer' %}true{% else %}false{% endif %}"
   data-adding="{{ s.adding_label | escape }}"
+  data-error="{{ settings.sp_t_add_error | escape }}"
+  data-cart-url="{{ routes.cart_url }}"
   style="--sp-cd-bg: {{ s.background }};"
 >
   <div class="sp-cd__overlay" data-cd-close></div>
@@ -79,7 +88,8 @@
                   <span class="sp-cd__variant">{{ item.variant.title | escape }}</span>
                 {%- endunless -%}
                 {%- for p in item.properties -%}
-                  {%- unless p.first contains '_' or p.last == blank -%}
+                  {%- assign first_char = p.first | slice: 0 -%}
+                  {%- unless first_char == '_' or p.last == blank -%}
                     <span class="sp-cd__variant">{{ p.first | escape }}: {{ p.last | escape }}</span>
                   {%- endunless -%}
                 {%- endfor -%}
@@ -113,7 +123,7 @@
           <a class="sp-btn sp-btn--primary" href="{{ s.empty_link | default: routes.all_products_collection_url }}">{{ s.empty_button | escape }}</a>
         </div>
       {%- endif -%}
-      <p class="sp-cd__error" data-cd-error hidden></p>
+      <p class="sp-cd__error" data-cd-error role="alert" hidden></p>
     </div>
   </aside>
 </sp-cart-drawer>
@@ -122,20 +132,37 @@
   if (!customElements.get('sp-cart-drawer')) {
     customElements.define('sp-cart-drawer', class extends HTMLElement {
       connectedCallback() {
-        if (this.dataset.enabled !== 'true') return;
+        // Cart type "Page": no drawer, but adds still go over fetch so a stock
+        // error shows next to the button instead of Shopify's error page.
+        if (this.dataset.enabled !== 'true') {
+          this.onSubmit = (e) => {
+            const form = e.target;
+            if (!(form instanceof HTMLFormElement) || !/\/cart\/add/.test(form.getAttribute('action') || '')) return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            this.addThenGo(form, e.submitter);
+          };
+          document.addEventListener('submit', this.onSubmit, true);
+          return;
+        }
         this.panel = this.querySelector('.sp-cd__panel');
+        // Closed panel: out of the tab order and hidden from screen readers.
+        this.panel && this.panel.setAttribute('inert', '');
 
-        this.addEventListener('click', (e) => {
+        this.onClick = (e) => {
           if (e.target.closest('[data-cd-close]')) { this.close(); return; }
           const q = e.target.closest('[data-cd-qty]');
           if (q) this.change(q.closest('[data-line]').dataset.line, Number(q.dataset.cdQty));
-        });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.classList.contains('is-open')) this.close(); });
-
+        };
+        this.onKey = (e) => {
+          if (!this.classList.contains('is-open')) return;
+          if (e.key === 'Escape') { this.close(); return; }
+          if (e.key === 'Tab') this.trap(e);
+        };
         // Every product form that posts to /cart/add goes through here instead
         // of redirecting to the cart page. Capture phase so it runs before
         // Horizon's own product-form handler.
-        document.addEventListener('submit', (e) => {
+        this.onSubmit = (e) => {
           const form = e.target;
           if (!(form instanceof HTMLFormElement)) return;
           const action = form.getAttribute('action') || '';
@@ -143,24 +170,80 @@
           e.preventDefault();
           e.stopImmediatePropagation();
           this.add(form, e.submitter);
-        }, true);
-
-        // The bundle builder (and anything else) can ask for a refresh.
-        document.addEventListener('sprout:cart-change', () => this.refresh(true));
-
+        };
+        // The bundle builder (and apps using Shopify's cart event) ask for a refresh.
+        this.onCartChange = () => this.refresh(true);
+        this.onLinesUpdate = () => this.refresh(false);
         // The header bag opens the drawer — except on the cart page itself.
-        document.addEventListener('click', (e) => {
+        this.onBag = (e) => {
           const bag = e.target.closest('.sp-head__cart');
           if (!bag || location.pathname === bag.getAttribute('href')) return;
           e.preventDefault();
           this.open();
-        });
+        };
+
+        this.addEventListener('click', this.onClick);
+        document.addEventListener('keydown', this.onKey);
+        document.addEventListener('submit', this.onSubmit, true);
+        document.addEventListener('sprout:cart-change', this.onCartChange);
+        document.addEventListener('shopify:cart:lines-update', this.onLinesUpdate);
+        document.addEventListener('click', this.onBag);
+      }
+
+      // The theme editor re-renders sections; without this every re-render
+      // would stack another submit handler and the old one would swallow adds.
+      disconnectedCallback() {
+        if (!this.onSubmit) return;
+        document.removeEventListener('submit', this.onSubmit, true);
+        if (this.dataset.enabled !== 'true') return;
+        this.removeEventListener('click', this.onClick);
+        document.removeEventListener('keydown', this.onKey);
+        document.removeEventListener('sprout:cart-change', this.onCartChange);
+        document.removeEventListener('shopify:cart:lines-update', this.onLinesUpdate);
+        document.removeEventListener('click', this.onBag);
+        document.documentElement.classList.remove('sp-cd-lock');
+      }
+
+      trap(e) {
+        const f = [...this.panel.querySelectorAll('a[href], button:not([disabled]), input, textarea, select, [tabindex]:not([tabindex="-1"])')]
+          .filter((n) => n.offsetParent !== null);
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && (document.activeElement === first || document.activeElement === this.panel)) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+
+      formError(form, msg) {
+        const n = form.querySelector('[data-form-error]') || form.closest('section, .shopify-section')?.querySelector('[data-form-error]');
+        if (!n) return false;
+        n.textContent = msg;
+        n.hidden = !msg;
+        return true;
+      }
+
+      async addThenGo(form, submitter) {
+        const btn = submitter || form.querySelector('[type="submit"]');
+        const label = btn ? btn.innerHTML : '';
+        if (btn) { btn.disabled = true; btn.textContent = this.dataset.adding || 'Adding…'; }
+        this.formError(form, '');
+        try {
+          const res = await fetch((window.Shopify?.routes?.root || '/') + 'cart/add.js', {
+            method: 'POST', headers: { Accept: 'application/json' }, body: new FormData(form)
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.description || data.message || this.dataset.error);
+          location.href = this.dataset.cartUrl || '/cart';
+        } catch (err) {
+          if (!this.formError(form, err.message || this.dataset.error)) window.alert(err.message || this.dataset.error);
+          if (btn) { btn.disabled = false; btn.innerHTML = label; }
+        }
       }
 
       async add(form, submitter) {
         const btn = submitter || form.querySelector('[type="submit"]');
         const label = btn ? btn.innerHTML : '';
         if (btn) { btn.disabled = true; btn.textContent = this.dataset.adding || 'Adding…'; }
+        this.formError(form, '');
         try {
           const body = new FormData(form);
           // Ask Shopify to hand back the freshly rendered drawer with the add,
@@ -173,7 +256,7 @@
             body
           });
           const data = await res.json().catch(() => ({}));
-          if (!res.ok) throw new Error(data.description || data.message || 'Could not add that one.');
+          if (!res.ok) throw new Error(data.description || data.message || this.dataset.error);
           if (data.sections && data.sections['sp-cart-drawer']) {
             this.paint(data.sections['sp-cart-drawer']);
             this.open();
@@ -181,8 +264,9 @@
             await this.refresh(true);
           }
         } catch (err) {
-          await this.refresh(true);
-          this.showError(err.message);
+          const msg = err.message || this.dataset.error;
+          // Prefer the message right under the button the shopper pressed.
+          if (!this.formError(form, msg)) { await this.refresh(true); this.showError(msg); }
         } finally {
           if (btn) { btn.disabled = false; btn.innerHTML = label; }
         }
@@ -191,7 +275,7 @@
       async change(line, quantity) {
         this.classList.add('is-busy');
         try {
-          const res = await fetch('/cart/change.js', {
+          const res = await fetch((window.Shopify?.routes?.root || '/') + 'cart/change.js', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
             body: JSON.stringify({ line: Number(line), quantity: Math.max(0, quantity), sections: 'sp-cart-drawer', sections_url: location.pathname })
@@ -199,7 +283,9 @@
           const data = await res.json().catch(() => ({}));
           if (data.sections && data.sections['sp-cart-drawer']) this.paint(data.sections['sp-cart-drawer']);
           else await this.refresh(false);
-          if (!res.ok) this.showError(data.description || data.message);
+          if (!res.ok) this.showError(data.description || data.message || this.dataset.error);
+        } catch (e) {
+          this.showError(this.dataset.error);
         } finally {
           this.classList.remove('is-busy');
         }
@@ -236,7 +322,9 @@
       }
 
       open() {
+        if (this.classList.contains('is-open')) return;
         this.lastFocus = document.activeElement;
+        this.panel && this.panel.removeAttribute('inert');
         this.classList.add('is-open');
         document.documentElement.classList.add('sp-cd-lock');
         requestAnimationFrame(() => this.panel && this.panel.focus());
@@ -244,6 +332,7 @@
 
       close() {
         this.classList.remove('is-open');
+        this.panel && this.panel.setAttribute('inert', '');
         document.documentElement.classList.remove('sp-cd-lock');
         if (this.lastFocus && this.lastFocus.focus) this.lastFocus.focus();
       }

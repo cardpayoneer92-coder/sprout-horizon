@@ -38,7 +38,7 @@
 
     {%- if s.show_breadcrumb -%}
       <nav class="sp-pdp__crumb" aria-label="Breadcrumb">
-        <a href="{{ routes.root_url }}">Home</a>
+        <a href="{{ routes.root_url }}">{{ settings.sp_t_home | escape }}</a>
         <span aria-hidden="true">/</span>
         {%- if collection -%}
           <a href="{{ collection.url }}">{{ collection.title }}</a>
@@ -53,7 +53,7 @@
       <div class="sp-pdp__gallery sp-reveal">
         <div class="sp-pdp__stage">
           {%- if s.flag != blank -%}<span class="sp-pdp__flag">{{ s.flag | escape }}</span>{%- endif -%}
-          <button type="button" class="sp-pdp__heart sp-heart" data-wish-handle="{{ p.handle }}" aria-pressed="false" aria-label="Save {{ p.title | escape }} to wishlist">
+          <button type="button" class="sp-pdp__heart sp-heart" data-wish-handle="{{ p.handle }}" aria-pressed="false" aria-label="{{ settings.sp_t_wishlist_add | escape }}: {{ p.title | escape }}">
             {% render 'sp-icon', name: 'heart', size: 20 %}
           </button>
 
@@ -157,19 +157,13 @@
             small_max: s.small_max,
             medium_max: s.medium_max,
             grams_per_kg: s.grams_per_kg,
+            size_text: s.finder_result,
+            note_text: s.finder_note,
             hide_chips: true %}
         {%- endif -%}
 
         {%- if p != blank -%}
           {%- assign sp_form_id = 'sp-pdp-form-' | append: section.id -%}
-          <product-form-component
-            data-section-id="{{ section.id }}"
-            data-product-id="{{ p.id }}"
-            data-product-url="{{ p.url }}"
-            on:submit="/handleSubmit"
-            data-quantity-default="1"
-          >
-          <div class="sp-visually-hidden" aria-live="assertive" role="status" aria-atomic="true"></div>
           {%- form 'product', p, class: 'sp-pdp__form', id: sp_form_id, data-type: 'add-to-cart-form' -%}
             {%- if p.has_only_default_variant == false -%}
               <div class="sp-pdp__options">
@@ -197,7 +191,9 @@
                       "price": {{ variant.price | json }},
                       "priceText": {{ variant.price | money | json }},
                       "compareText": {%- if variant.compare_at_price > variant.price -%}{{ variant.compare_at_price | money | json }}{%- else -%}null{%- endif -%},
-                      "title": {{ variant.title | json }}
+                      "title": {{ variant.title | json }},
+                      "options": {{ variant.options | json }},
+                      "image": {%- if variant.featured_media -%}{{ variant.featured_media | image_url: width: 1200 | json }}{%- else -%}null{%- endif -%}
                     }{% unless forloop.last %},{% endunless %}
                   {%- endfor -%}
                 ]
@@ -216,25 +212,43 @@
 
             <div class="sp-pdp__actions">
               <div class="sp-qty">
-                <button type="button" class="sp-qty__btn" data-qty="-1" aria-label="Decrease quantity">&minus;</button>
-                <input class="sp-qty__input" type="number" name="quantity" value="1" min="1" inputmode="numeric" aria-label="Quantity">
-                <button type="button" class="sp-qty__btn" data-qty="1" aria-label="Increase quantity">+</button>
+                <button type="button" class="sp-qty__btn" data-qty="-1" aria-label="{{ s.qty_less_label | escape }}">&minus;</button>
+                <input class="sp-qty__input" type="number" name="quantity" value="1" min="1" inputmode="numeric" aria-label="{{ s.qty_label | escape }}">
+                <button type="button" class="sp-qty__btn" data-qty="1" aria-label="{{ s.qty_more_label | escape }}">+</button>
               </div>
-              <button type="submit" class="sp-btn sp-btn--primary sp-pdp__add" data-label="{{ s.button_text | escape }}"{% unless p.available %} disabled{% endunless %}>
-                {%- if p.available -%}{{ s.button_text | escape }}{%- else -%}{{ s.sold_out_text | escape }}{%- endif -%}
+              <button type="submit" class="sp-btn sp-btn--primary sp-pdp__add" data-label="{{ s.button_text | escape }}" data-sold-out="{{ s.sold_out_text | escape }}" data-unavailable="{{ settings.sp_t_unavailable | escape }}"{% unless v.available %} disabled{% endunless %}>
+                {%- if v.available -%}{{ s.button_text | escape }}{%- else -%}{{ s.sold_out_text | escape }}{%- endif -%}
               </button>
             </div>
+            <p class="sp-form-error" data-form-error role="alert" hidden></p>
           {%- endform -%}
-          </product-form-component>
         {%- else -%}
           <div class="sp-pdp__actions">
             <span class="sp-btn sp-btn--primary sp-pdp__add">{{ s.button_text | escape }}</span>
           </div>
         {%- endif -%}
 
-        {%- if s.show_subscribe -%}
+        {%- liquid
+          assign sp_plan = blank
+          for group in p.selling_plan_groups
+            for plan in group.selling_plans
+              if sp_plan == blank
+                assign sp_plan = plan
+              endif
+            endfor
+          endfor
+        -%}
+        {%- if s.show_subscribe and sp_plan == blank and request.design_mode -%}
+          <p class="sp-pdp__subscribe-note">{{ 'Subscribe toggle: this product has no subscription plan yet. Add one with a subscriptions app and the toggle appears here.' }}</p>
+        {%- endif -%}
+        {%- if s.show_subscribe and sp_plan != blank -%}
+          {%- comment -%}
+            Ticking it sends the product's first selling plan with the add,
+            so the plan's discount really applies at checkout. Products
+            without a plan never show the toggle.
+          {%- endcomment -%}
           <label class="sp-pdp__subscribe">
-            <input type="checkbox" data-subscribe>
+            <input type="checkbox" name="selling_plan" value="{{ sp_plan.id }}" form="{{ sp_form_id }}"{% if p.requires_selling_plan %} checked onclick="return false"{% endif %} data-subscribe>
             <span class="sp-pdp__subscribe-label">{{ s.subscribe_text | escape }}</span>
             {%- if s.subscribe_note != blank -%}
               <span class="sp-pdp__subscribe-note">{{ s.subscribe_note | escape }}</span>
@@ -242,7 +256,17 @@
           </label>
         {%- endif -%}
 
-        {%- if s.reassurance != blank -%}
+        {%- liquid
+          assign show_reassure = true
+          if s.reassurance == blank
+            assign show_reassure = false
+          elsif s.reassurance contains '[AMOUNT]'
+            if settings.free_shipping_threshold == blank or settings.free_shipping_threshold <= 0 or cart.currency.iso_code != shop.currency
+              assign show_reassure = false
+            endif
+          endif
+        -%}
+        {%- if show_reassure -%}
           {%- assign sp_amount = settings.free_shipping_threshold | times: 100 | money -%}
           {%- assign reassurance_text = s.reassurance | replace: '[AMOUNT]', sp_amount -%}
           <p class="sp-pdp__reassure">
@@ -260,146 +284,149 @@
 </section>
 
 <script type="module">
-  if (!customElements.get('sp-pdp')) {
-    customElements.define('sp-pdp', class extends HTMLElement {});
-  }
-
-  (function () {
-    const root = document.currentScript ? document.currentScript.parentNode : document;
-    const scope = document.querySelector('.sp-pdp');
-    if (!scope) return;
+  // Wires one product section. Runs for every .sp-pdp on the page and again
+  // when the theme editor re-renders the section (shopify:section:load).
+  const wire = (scope) => {
+    if (!scope || scope.dataset.wired) return;
+    scope.dataset.wired = '';
 
     // quantity stepper
     scope.querySelectorAll('[data-qty]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const field = scope.querySelector('.sp-qty__input');
         if (!field) return;
-        const next = Math.max(1, (parseInt(field.value, 10) || 1) + Number(btn.dataset.qty));
-        field.value = next;
+        field.value = Math.max(1, (parseInt(field.value, 10) || 1) + Number(btn.dataset.qty));
+        field.dispatchEvent(new Event('change', { bubbles: true }));
       });
     });
 
     // thumbnails swap the main photo
-    const main = scope.querySelector('.sp-pdp__photo');
+    const main = scope.querySelector('.sp-pdp__photo:not([data-sp-fallback])');
+    const show = (url) => {
+      if (!main || !url) return;
+      main.src = url;
+      main.removeAttribute('srcset');
+    };
     scope.querySelectorAll('[data-thumb]').forEach((thumb) => {
       thumb.addEventListener('click', () => {
-        if (!main) return;
-        main.src = thumb.dataset.full;
-        main.removeAttribute('srcset');
+        show(thumb.dataset.full);
         scope.querySelectorAll('[data-thumb]').forEach((t) => t.classList.remove('is-on'));
         thumb.classList.add('is-on');
       });
     });
 
+    // Pet mismatch notice — shown when the saved pet is not one the product is
+    // tagged for. Tags and the saved pet are both normalised ("small pet" →
+    // "small-pet") so they compare like for like.
+    const notice = scope.querySelector('[data-sp-mismatch]');
+    const norm = (t) => String(t || '').toLowerCase().trim().replace(/\s+/g, '-');
+    const rawPets = (scope.dataset.productPets || '').split(',').map(norm).filter(Boolean);
+    if (notice && rawPets.length) {
+      const checkMismatch = (profile) => {
+        if (!profile || !profile.pet) { notice.hidden = true; return; }
+        const saved = String(profile.pet).toLowerCase().trim();
+        const key = norm(saved);
+        const fits = { puppy: ['puppy', 'dog'], kitten: ['kitten', 'cat'] }[key] || [key];
+        if (rawPets.some((t) => fits.includes(t))) { notice.hidden = true; return; }
+        const productPet = rawPets[0].replace(/-/g, ' ');
+        const text = (notice.dataset.template || '').replace('[product_pet]', productPet).replace('[pet]', saved);
+        if (!text.trim()) { notice.hidden = true; return; }
+        const textNode = notice.querySelector('[data-sp-mismatch-text]');
+        const linkTmpl = notice.dataset.link || '';
+        if (textNode) {
+          textNode.textContent = '';
+          if (linkTmpl) {
+            const a = document.createElement('a');
+            a.href = linkTmpl.replace('[pet]', key).replace('[product_pet]', rawPets[0]);
+            a.textContent = text;
+            textNode.appendChild(a);
+          } else {
+            textNode.textContent = text;
+          }
+        }
+        notice.hidden = false;
+      };
+      try { checkMismatch(JSON.parse(localStorage.getItem('sprout:pet'))); } catch (e) {}
+      document.addEventListener('sprout:pet-change', (e) => { if (scope.isConnected) checkMismatch(e.detail); });
+    }
+
     // option pills drive the hidden variant select
     const select = scope.querySelector('[data-variant-select]');
-    if (select) {
-      const pick = () => {
-        const chosen = [...scope.querySelectorAll('[data-opt]:checked')].map((i) => i.value);
-        const match = [...select.options].find((o) =>
-          chosen.every((val) => o.textContent.split(' / ').map((s) => s.trim()).includes(val))
-        );
-        if (match) {
-          select.value = match.value;
-          select.dispatchEvent(new Event('change', { bubbles: true }));
+    if (!select) return;
+    let variants = [];
+    const data = scope.querySelector('[data-variants]');
+    if (data) { try { variants = JSON.parse(data.textContent); } catch (e) { variants = []; } }
+    const add = scope.querySelector('.sp-pdp__add');
+
+    const paint = () => {
+      const chosen = [...scope.querySelectorAll('[data-opt]:checked')]
+        .sort((a, b) => Number(a.dataset.opt) - Number(b.dataset.opt))
+        .map((i) => i.value);
+      const match = variants.find((v) => (v.options || []).every((val, i) => val === chosen[i]));
+
+      const price = scope.querySelector('[data-price]');
+      const compare = scope.querySelector('[data-compare]');
+
+      if (!match) {
+        // A combination that does not exist: never leave the old variant
+        // silently selected.
+        if (add) { add.disabled = true; add.textContent = add.dataset.unavailable || 'Unavailable'; }
+        document.dispatchEvent(new CustomEvent('sprout:variant-change', { detail: { id: null, available: false, unavailable: true } }));
+        return;
+      }
+
+      select.value = String(match.id);
+      if (price) price.textContent = match.priceText;
+      if (compare) {
+        compare.hidden = !match.compareText;
+        if (match.compareText) compare.textContent = match.compareText;
+      }
+      if (add) {
+        add.disabled = !match.available;
+        add.textContent = match.available ? add.dataset.label : (add.dataset.soldOut || 'Sold out');
+      }
+      if (match.image) show(match.image);
+
+      // Keep ?variant= in the address bar so a shared link opens this choice.
+      try {
+        const url = new URL(location.href);
+        if (url.searchParams.get('variant') !== String(match.id)) {
+          url.searchParams.set('variant', match.id);
+          history.replaceState(history.state, '', url);
         }
-      };
-      let variants = [];
-      const data = scope.querySelector('[data-variants]');
-      if (data) { try { variants = JSON.parse(data.textContent); } catch (e) { variants = []; } }
+      } catch (e) {}
 
-      // The price is rendered for the first variant, so it has to follow the
-      // choice — otherwise a shopper picks Large and still reads Small's price.
-      const paint = () => {
-        const chosen = variants.find((variant) => String(variant.id) === String(select.value));
-        if (!chosen) return;
+      document.dispatchEvent(new CustomEvent('sprout:variant-change', { detail: match }));
+    };
 
-        const price = scope.querySelector('[data-price]');
-        const compare = scope.querySelector('[data-compare]');
-        if (price) price.textContent = chosen.priceText;
-        if (compare) {
-          compare.hidden = !chosen.compareText;
-          if (chosen.compareText) compare.textContent = chosen.compareText;
-        }
-
-        const add = scope.querySelector('.sp-pdp__add');
-        if (add) {
-          add.disabled = !chosen.available;
-          add.textContent = chosen.available ? add.dataset.label : 'Sold out';
-        }
-
-        document.dispatchEvent(new CustomEvent('sprout:variant-change', { detail: chosen }));
-      };
-
-      scope.querySelectorAll('[data-opt]').forEach((input) => {
-        input.addEventListener('change', () => {
-          const group = input.closest('.sp-pdp__swatches');
-          group.querySelectorAll('.sp-pdp__swatch').forEach((l) => l.classList.remove('is-on'));
-          input.closest('.sp-pdp__swatch').classList.add('is-on');
-          pick();
-          paint();
-        });
+    scope.querySelectorAll('[data-opt]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const group = input.closest('.sp-pdp__swatches');
+        group.querySelectorAll('.sp-pdp__swatch').forEach((l) => l.classList.remove('is-on'));
+        input.closest('.sp-pdp__swatch').classList.add('is-on');
+        paint();
       });
-      paint();
+    });
 
-      // Pet mismatch notice — shown when saved pet ≠ product's tagged pet.
-      (function () {
-        const notice = scope.querySelector('[data-sp-mismatch]');
-        if (!notice) return;
-        const rawPets = (scope.dataset.productPets || '').split(',').map((s) => s.trim()).filter(Boolean);
-        if (!rawPets.length) return; // universal product — no mismatch possible
-
-        function checkMismatch(profile) {
-          if (!profile || !profile.pet) { notice.hidden = true; return; }
-          const saved = profile.pet.toLowerCase();
-          const key = saved.replace(/\s+/g, '-');
-          const fits = { puppy: ['puppy', 'dog'], kitten: ['kitten', 'cat'] }[key] || [key];
-          if (rawPets.some((t) => fits.includes(t))) { notice.hidden = true; return; }
-
-          // Build notice text — replace [product_pet] and [pet] tokens.
-          const productPet = rawPets[0];
-          const tmpl = notice.dataset.template || 'This one is for [product_pet]s — see [pet] picks →';
-          const text = tmpl.replace('[product_pet]', productPet).replace('[pet]', saved);
-          const textNode = notice.querySelector('[data-sp-mismatch-text]');
-          // The whole sentence is the link — no second arrow tacked on.
-          const linkTmpl = notice.dataset.link || '';
-          if (textNode) {
-            textNode.textContent = '';
-            if (linkTmpl) {
-              const a = document.createElement('a');
-              a.href = linkTmpl.replace('[pet]', key).replace('[product_pet]', productPet);
-              a.textContent = text;
-              textNode.appendChild(a);
-            } else {
-              textNode.textContent = text;
-            }
-          }
-          notice.hidden = false;
-        }
-
-        try { checkMismatch(JSON.parse(localStorage.getItem('sprout:pet'))); } catch (e) {}
-        document.addEventListener('sprout:pet-change', (e) => checkMismatch(e.detail));
-      })();
-
-      // When the size finder recommends a size, pre-select the matching variant.
-      document.addEventListener('sprout:size-suggest', (e) => {
-        const size = e.detail && e.detail.size;
-        if (!size) return;
-        // Find a [data-opt] radio whose value matches the suggested size (case-insensitive).
-        const target = [...scope.querySelectorAll('[data-opt]')].find(
-          (i) => {
-            const v = i.value.toLowerCase().trim();
-            const want = size.toLowerCase();
-            return v === want || v.startsWith(want + ' ') || v.startsWith(want + '(');
-          }
-        );
-        if (target && !target.checked) {
-          target.checked = true;
-          target.dispatchEvent(new Event('change', { bubbles: true }));
-        }
+    // When the size finder recommends a size, pre-select the matching value.
+    document.addEventListener('sprout:size-suggest', (e) => {
+      if (!scope.isConnected) return;
+      const size = e.detail && e.detail.size;
+      if (!size) return;
+      const want = String(size).toLowerCase();
+      const target = [...scope.querySelectorAll('[data-opt]')].find((i) => {
+        const v = i.value.toLowerCase().trim();
+        return v === want || v.startsWith(want + ' ') || v.startsWith(want + '(');
       });
-    }
-  })();
+      if (target && !target.checked) {
+        target.checked = true;
+        target.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  };
+
+  document.querySelectorAll('.sp-pdp').forEach(wire);
+  document.addEventListener('shopify:section:load', (e) => e.target.querySelectorAll('.sp-pdp').forEach(wire));
 </script>
 
 {% stylesheet %}
@@ -469,6 +496,7 @@
   .sp-qty__input::-webkit-outer-spin-button, .sp-qty__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .sp-pdp__add { flex: 1 1 220px; min-height: 56px; font-size: 17px; }
   .sp-pdp__add[disabled] { opacity: 0.55; cursor: not-allowed; }
+  .sp-form-error { flex-basis: 100%; margin: 12px 0 0; padding: 10px 16px; border-radius: 16px; background: #fde4dc; color: #8a2b14; font-size: 14px; font-weight: 700; }
 
   .sp-pdp__reassure { display: flex; align-items: center; gap: 8px; margin: 0 0 26px; font-size: 14px; color: var(--sp-muted, #566358); }
   .sp-pdp__reassure svg { color: var(--sp-moss, #2f7a46); }
@@ -505,10 +533,13 @@
     { "type": "text", "id": "price_note", "label": "Price note", "default": "per pack" },
     { "type": "text", "id": "button_text", "label": "Button", "default": "Add to bag" },
     { "type": "text", "id": "sold_out_text", "label": "Sold out label", "default": "Sold out" },
-    { "type": "text", "id": "reassurance", "label": "Reassurance", "default": "Free delivery over [AMOUNT] · skip or cancel any time" },
+    { "type": "text", "id": "qty_label", "label": "Quantity (screen readers)", "default": "Quantity" },
+    { "type": "text", "id": "qty_less_label", "label": "Minus button (screen readers)", "default": "One fewer" },
+    { "type": "text", "id": "qty_more_label", "label": "Plus button (screen readers)", "default": "One more" },
+    { "type": "text", "id": "reassurance", "label": "Reassurance", "default": "Free delivery over [AMOUNT] · skip or cancel any time", "info": "[AMOUNT] is Theme settings → Cart → Free shipping threshold. A line with [AMOUNT] hides when that is 0 or the shopper pays in another currency." },
     { "type": "textarea", "id": "delivery_chips", "label": "Delivery info chips", "default": "48 hrs\nPosted chilled\nCooked this week", "info": "One chip per line. Leave empty to hide." },
     { "type": "header", "content": "Subscribe & save" },
-    { "type": "paragraph", "content": "Shows a checkbox toggle in the buy box. Wire up Shopify Selling Plans so the discount actually applies at checkout." },
+    { "type": "paragraph", "content": "Shows a checkbox in the buy box on products that have a subscription (selling) plan, from a subscriptions app. Ticking it adds the product on its first plan, so that plan's discount applies at checkout. Products without a plan never show it." },
     { "type": "checkbox", "id": "show_subscribe", "label": "Show subscribe toggle", "default": false },
     { "type": "text", "id": "subscribe_text", "label": "Toggle label", "default": "Subscribe and save" },
     { "type": "text", "id": "subscribe_note", "label": "Note below toggle", "default": "10% off every order · skip or cancel any time" },
@@ -517,13 +548,7 @@
     {
       "type": "select", "id": "art", "label": "Stand-in illustration", "default": "pouch",
       "options": [
-        { "value": "pouch", "label": "Pouch" },
-        { "value": "tin", "label": "Tin" },
-        { "value": "jar", "label": "Jar" },
-        { "value": "bowl", "label": "Bowl" },
-        { "value": "bed", "label": "Bed" },
-        { "value": "bone", "label": "Bone" },
-        { "value": "blanket", "label": "Blanket" }
+        { "value": "bed", "label": "Bed" }, { "value": "blanket", "label": "Blanket" }, { "value": "bone", "label": "Rope bone" }, { "value": "bowl", "label": "Bowl" }, { "value": "bunny", "label": "Bunny" }, { "value": "cat", "label": "Cat" }, { "value": "dog", "label": "Dog" }, { "value": "duo", "label": "Dog and cat" }, { "value": "jar", "label": "Treat jar" }, { "value": "pouch", "label": "Food pouch" }, { "value": "puppy", "label": "Puppy" }, { "value": "tin", "label": "Tin" }
       ]
     },
     { "type": "checkbox", "id": "show_breadcrumb", "label": "Breadcrumb", "default": true },
@@ -534,6 +559,8 @@
     { "type": "range", "id": "small_max", "label": "Small up to", "min": 2, "max": 20, "step": 1, "unit": "kg", "default": 10 },
     { "type": "range", "id": "medium_max", "label": "Medium up to", "min": 10, "max": 50, "step": 1, "unit": "kg", "default": 25 },
     { "type": "range", "id": "grams_per_kg", "label": "Grams per kg a day", "min": 10, "max": 40, "step": 1, "default": 22 },
+    { "type": "text", "id": "finder_result", "label": "Result line", "default": "We would go with the [SIZE] pack", "info": "[SIZE] is Small, Medium or Large." },
+    { "type": "text", "id": "finder_note", "label": "Portion line", "default": "About [GRAMS]g a day — one pack lasts around [DAYS] days." },
     { "type": "header", "content": "Style" },
     { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
     { "type": "range", "id": "sticky_top", "label": "Gallery sticky offset", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 80, "info": "Space from the top of the viewport where the image column sticks. Increase if your header is taller than 80 px." },

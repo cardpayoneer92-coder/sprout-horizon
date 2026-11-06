@@ -15,8 +15,9 @@
   endif
 -%}
 
+{%- if list.links.size > 0 or request.design_mode -%}
 <div class="sp-fcol" {{ block.shopify_attributes }}>
-  <h3 class="sp-fcol__title">{{ title }}</h3>
+  {%- if title != blank -%}<h3 class="sp-fcol__title">{{ title }}</h3>{%- endif -%}
   {%- if list.links.size > 0 -%}
     <ul class="sp-fcol__list" role="list">
       {%- for link in list.links -%}
@@ -24,9 +25,10 @@
       {%- endfor -%}
     </ul>
   {%- else -%}
-    <p class="sp-fcol__empty">Pick a menu for this column.</p>
+    <p class="sp-fcol__empty">{{ 'Only you see this: pick a menu for this column.' | escape }}</p>
   {%- endif -%}
 </div>
+{%- endif -%}
 
 {% stylesheet %}
   .sp-fcol { flex: 1 1 150px; }

@@ -29,20 +29,22 @@
           {%- endif -%}
 
           <label class="sp-field">
-            <span>Your name</span>
-            <input type="text" name="contact[name]" value="{{ form.name }}" autocomplete="name" required>
+            <span>{{ s.label_name | escape }}</span>
+            <input type="text" name="contact[name]" value="{{ form.name | escape }}" autocomplete="name" required>
           </label>
           <label class="sp-field">
-            <span>Email</span>
-            <input type="email" name="contact[email]" value="{{ form.email }}" autocomplete="email" required>
+            <span>{{ s.label_email | escape }}</span>
+            <input type="email" name="contact[email]" value="{{ form.email | escape }}" autocomplete="email" required>
           </label>
+          {%- if s.label_pet != blank -%}
+            <label class="sp-field">
+              <span>{{ s.label_pet | escape }}</span>
+              <input type="text" name="contact[Pet]" value="{{ form['Pet'] | escape }}">
+            </label>
+          {%- endif -%}
           <label class="sp-field">
-            <span>Your pet's name (optional)</span>
-            <input type="text" name="contact[Pet]" value="">
-          </label>
-          <label class="sp-field">
-            <span>How can we help?</span>
-            <textarea name="contact[body]" rows="5" required>{{ form.body }}</textarea>
+            <span>{{ s.label_message | escape }}</span>
+            <textarea name="contact[body]" rows="5" required>{{ form.body | escape }}</textarea>
           </label>
 
           <button type="submit" class="sp-btn sp-btn--primary">{{ s.button_text | escape }}</button>
@@ -126,6 +128,10 @@
     { "type": "text", "id": "fallback_title", "label": "Fallback title", "default": "Say hello" },
     { "type": "text", "id": "text", "label": "Text", "default": "Feeding questions, a late parcel, or a photo of your dog — all welcome." },
     { "type": "text", "id": "button_text", "label": "Button", "default": "Send it" },
+    { "type": "text", "id": "label_name", "label": "Name field", "default": "Your name" },
+    { "type": "text", "id": "label_email", "label": "Email field", "default": "Email" },
+    { "type": "text", "id": "label_pet", "label": "Pet name field", "default": "Your pet's name (optional)", "info": "Leave empty to hide this field." },
+    { "type": "text", "id": "label_message", "label": "Message field", "default": "How can we help?" },
     { "type": "text", "id": "success", "label": "Success message", "default": "Got it — we will come back to you within a day." },
     { "type": "header", "content": "Cards" },
     { "type": "text", "id": "card1_title", "label": "Card 1 title", "default": "We answer within a day" },

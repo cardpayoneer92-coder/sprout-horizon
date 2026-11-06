@@ -65,6 +65,65 @@ def check(path, schema, is_section):
             problems.append(f'{path}: {sid} has Liquid in its default — move it to a Liquid fallback')
 
 
+_schemas = {}
+
+
+def schema_for(kind, name):
+    """Schema of sections/<name>.liquid or blocks/<name>.liquid, or None."""
+    key = (kind, name)
+    if key not in _schemas:
+        _schemas[key] = None
+        try:
+            src = open(f'{kind}/{name}.liquid', encoding='utf-8').read()
+            m = re.search(r'\{%-?\s*schema\s*-?%\}(.*?)\{%-?\s*endschema\s*-?%\}', src, re.S)
+            if m:
+                _schemas[key] = json.loads(m.group(1))
+        except (OSError, json.JSONDecodeError):
+            pass
+    return _schemas[key]
+
+
+def check_values(where, defs, values):
+    """A template value outside a select's options or a range's grid rejects
+    the whole template file, silently (page.gifting.json, art: blanket)."""
+    by_id = {d['id']: d for d in defs if isinstance(d, dict) and 'id' in d}
+    for sid, val in (values or {}).items():
+        d = by_id.get(sid)
+        if d is None:
+            continue
+        if d.get('type') == 'select' and val not in [o.get('value') for o in d.get('options', [])]:
+            problems.append(f'{where}: {sid} = {val!r} is not one of the select options')
+        if d.get('type') == 'range' and isinstance(val, (int, float)):
+            lo, hi, step = d.get('min'), d.get('max'), d.get('step', 1)
+            if lo is not None and hi is not None and (not lo <= val <= hi or (val - lo) % step):
+                problems.append(f'{where}: {sid} = {val} is outside {lo}..{hi} step {step}')
+
+
+def check_blocks(where, parent_schema, blocks):
+    local = {b.get('type'): b for b in (parent_schema or {}).get('blocks', []) or [] if isinstance(b, dict)}
+    for bid, blk in (blocks or {}).items():
+        btype = blk.get('type', '')
+        if btype.startswith('@'):
+            continue
+        sch = local.get(btype) if btype in local and local[btype].get('settings') else schema_for('blocks', btype)
+        if sch is None:
+            continue
+        check_values(f'{where} › {btype}', sch.get('settings') or [], blk.get('settings'))
+        check_blocks(f'{where} › {btype}', sch, blk.get('blocks'))
+
+
+def check_template_values(path, tpl):
+    for sid, sec in (tpl.get('sections') or {}).items():
+        stype = sec.get('type', '')
+        if stype.startswith('_') or stype in ('apps',):
+            continue
+        sch = schema_for('sections', stype)
+        if sch is None:
+            continue
+        check_values(f'{path} › {stype}', sch.get('settings') or [], sec.get('settings'))
+        check_blocks(f'{path} › {stype}', sch, sec.get('blocks'))
+
+
 def main():
     files = (glob.glob('sections/*.liquid') + glob.glob('blocks/*.liquid')
              + glob.glob('snippets/*.liquid'))
@@ -109,9 +168,11 @@ def main():
     for t in glob.glob('templates/*.json') + glob.glob('sections/*-group.json'):
         raw = re.sub(r'/\*.*?\*/', '', open(t, encoding='utf-8').read(), flags=re.S)
         try:
-            json.loads(raw)
+            tpl = json.loads(raw)
         except json.JSONDecodeError as e:
             problems.append(f'{t}: not valid JSON — {e}')
+            continue
+        check_template_values(t, tpl)
 
     for p in problems:
         print(p)

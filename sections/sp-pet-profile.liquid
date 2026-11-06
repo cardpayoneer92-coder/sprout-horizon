@@ -22,6 +22,10 @@
       data-pack-small="{{ s.pack_small }}"
       data-pack-medium="{{ s.pack_medium }}"
       data-pack-large="{{ s.pack_large }}"
+      data-unit="{{ s.weight_unit | escape }}"
+      data-size-template="{{ s.size_template | escape }}"
+      data-days-template="{{ s.days_template | escape }}"
+      data-cadence="{{ s.cadence_long | escape }}|{{ s.cadence_mid | escape }}|{{ s.cadence_short | escape }}"
       style="--sp-profile-card: {{ s.card_background }};"
     >
       <div class="sp-profile__head sp-reveal">
@@ -95,36 +99,43 @@
       connectedCallback() {
         this.range = this.querySelector('[data-weight]');
         this.petButtons = [...this.querySelectorAll('[data-pet]')];
-        this.state = Object.assign(
-          { pet: this.petButtons[0]?.dataset.pet || 'Dog', weight: Number(this.range?.value || 14) },
-          this.read()
-        );
+        // The merchant's Lightest / Heaviest settings are the outer limits;
+        // per-pet presets only ever narrow them.
+        this.lo = Number(this.range?.min) || 1;
+        this.hi = Number(this.range?.max) || 90;
+        // Weight is shown in the merchant's unit but every rule (and what is
+        // saved for other sections) works in kilos.
+        this.lb = /^lb/i.test((this.dataset.unit || '').trim());
+        const saved = this.read();
+        this.state = Object.assign({ pet: this.petButtons[0]?.dataset.pet || '', weight: this.toKg(Number(this.range?.value || 14)) }, saved);
         if (this.range) {
-          this.range.value = this.state.weight;
+          this.range.value = Math.round(this.fromKg(this.state.weight));
           this.range.addEventListener('input', () => {
-            this.state.weight = Number(this.range.value);
+            this.state.weight = this.toKg(Number(this.range.value));
             this.paint();
             this.save();
           });
         }
-        // Per-pet slider range presets (min / max / default weight in kg).
-        // Keys are lowercase pet names matching data-pet values.
+        // Per-pet slider presets in kg (min / max / start).
         this._petRanges = {
           dog:       { min: 2,  max: 60, def: 14 },
           puppy:     { min: 1,  max: 15, def: 5  },
           cat:       { min: 1,  max: 12, def: 5  },
+          kitten:    { min: 1,  max: 6,  def: 2  },
           'small pet': { min: 1, max: 5, def: 2  }
         };
         this.petButtons.forEach((b) => b.addEventListener('click', () => {
           this.state.pet = b.dataset.pet;
-          this._applyPetRange(b.dataset.pet);
+          this._applyPetRange(b.dataset.pet, true);
           this.paint();
           this.save();
         }));
-        // Apply range for the initially selected pet on load.
-        this._applyPetRange(this.state.pet);
+        this._applyPetRange(this.state.pet, false);
         this.paint();
       }
+
+      toKg(v) { return this.lb ? Math.round(v * 0.4536 * 10) / 10 : v; }
+      fromKg(kg) { return this.lb ? kg / 0.4536 : kg; }
 
       read() {
         try {
@@ -135,6 +146,7 @@
       }
 
       save() {
+        this.state.size = this.sizeFor(this.state.weight);
         try {
           localStorage.setItem(this.constructor.KEY, JSON.stringify(this.state));
         } catch (e) { /* private window — the page still works */ }
@@ -146,23 +158,32 @@
         return Number.isFinite(v) && v > 0 ? v : fallback;
       }
 
-      _applyPetRange(petName) {
+      _applyPetRange(petName, reset) {
         if (!this.range) return;
         const r = this._petRanges[(petName || '').toLowerCase()];
-        if (!r) return;
-        this.range.min = r.min;
-        this.range.max = r.max;
-        // Keep the current weight only when it still fits the new range;
-        // otherwise reset to the per-pet default.
+        let min = this.lo, max = this.hi, def = null;
+        if (r) {
+          min = Math.max(this.lo, Math.round(this.fromKg(r.min)));
+          max = Math.min(this.hi, Math.round(this.fromKg(r.max)));
+          if (min >= max) { min = this.lo; max = this.hi; }
+          def = Math.min(max, Math.max(min, Math.round(this.fromKg(r.def))));
+        }
+        this.range.min = min;
+        this.range.max = max;
+        // Keep the weight when it still fits; otherwise use the pet's start.
         const current = Number(this.range.value);
-        const clamped = Math.min(r.max, Math.max(r.min, current));
-        const next = (current === clamped) ? current : r.def;
-        this.range.value = next;
-        this.state.weight = next;
+        const fits = current >= min && current <= max;
+        const next = fits ? current : (def ?? Math.min(max, Math.max(min, current)));
+        if (reset || !fits) {
+          this.range.value = next;
+          this.state.weight = this.toKg(next);
+        }
       }
 
+      // Small is up to small_max, Medium up to medium_max — the same rule as
+      // the size finder, and the result is saved so every section agrees.
       sizeFor(kg) {
-        if (kg < this.num('smallMax', 10)) return 'Small';
+        if (kg <= this.num('smallMax', 10)) return 'Small';
         if (kg <= this.num('mediumMax', 25)) return 'Medium';
         return 'Large';
       }
@@ -177,7 +198,8 @@
           Large: this.num('packLarge', 4000)
         };
         const days = Math.max(1, Math.round(packs[size] / grams));
-        const cadence = days >= 12 ? '2 weeks' : (days >= 6 ? '10 days' : 'week');
+        const [long, mid, short] = (this.dataset.cadence || '2 weeks|10 days|week').split('|');
+        const cadence = days >= 12 ? long : (days >= 6 ? mid : short);
 
         this.petButtons.forEach((b) => {
           const on = b.dataset.pet === this.state.pet;
@@ -185,10 +207,10 @@
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
         const set = (sel, val) => { const n = this.querySelector(sel); if (n) n.textContent = val; };
-        set('[data-weight-out]', kg);
-        set('[data-size-out]', size + ' pack');
+        set('[data-weight-out]', this.range ? this.range.value : kg);
+        set('[data-size-out]', (this.dataset.sizeTemplate || '[SIZE] pack').replace('[SIZE]', size));
         set('[data-portion-out]', grams + 'g');
-        set('[data-lasts-out]', days + (days === 1 ? ' day' : ' days'));
+        set('[data-lasts-out]', (this.dataset.daysTemplate || '[DAYS] days').replace('[DAYS]', days));
         set('[data-cadence-out]', cadence);
       }
     });
@@ -241,13 +263,13 @@
     { "type": "header", "content": "Weight" },
     { "type": "text", "id": "weight_label", "label": "Slider label", "default": "Roughly how heavy are they?" },
     { "type": "text", "id": "weight_hint", "label": "Hint", "default": "Drag it — no need to be exact." },
-    { "type": "text", "id": "weight_unit", "label": "Unit", "default": "kg" },
+    { "type": "text", "id": "weight_unit", "label": "Unit", "default": "kg", "info": "kg or lb. The slider shows this unit; portions are worked out in kilos either way." },
     { "type": "range", "id": "weight_min", "label": "Lightest", "min": 1, "max": 10, "step": 1, "default": 1 },
-    { "type": "range", "id": "weight_max", "label": "Heaviest", "min": 20, "max": 90, "step": 5, "default": 45 },
+    { "type": "range", "id": "weight_max", "label": "Heaviest", "info": "The slider never goes past Lightest / Heaviest; each pet narrows it to a sensible range inside them", "min": 20, "max": 90, "step": 5, "default": 45 },
     { "type": "range", "id": "weight_default", "label": "Starting weight", "min": 1, "max": 60, "step": 1, "default": 14 },
     { "type": "header", "content": "Sizing rules" },
     { "type": "paragraph", "content": "Where one pack size stops and the next begins, and how much food a pet eats per kilo." },
-    { "type": "range", "id": "small_max", "label": "Small is under", "min": 4, "max": 20, "step": 1, "unit": "kg", "default": 10 },
+    { "type": "range", "id": "small_max", "label": "Small is up to", "min": 4, "max": 20, "step": 1, "unit": "kg", "default": 10 },
     { "type": "range", "id": "medium_max", "label": "Medium is up to", "min": 12, "max": 45, "step": 1, "unit": "kg", "default": 25 },
     { "type": "range", "id": "grams_per_kg", "label": "Food per kilo", "min": 10, "max": 40, "step": 1, "unit": "g", "default": 22 },
     { "type": "range", "id": "pack_small", "label": "Small pack", "min": 400, "max": 3000, "step": 100, "unit": "g", "default": 1200 },
@@ -258,6 +280,11 @@
     { "type": "text", "id": "fact_portion", "label": "Portion line", "default": "About" },
     { "type": "text", "id": "fact_lasts", "label": "Lasts line", "default": "One pack lasts" },
     { "type": "text", "id": "fact_cadence", "label": "Delivery line", "default": "Delivery every" },
+    { "type": "text", "id": "size_template", "label": "Pack result", "default": "[SIZE] pack", "info": "[SIZE] is Small, Medium or Large." },
+    { "type": "text", "id": "days_template", "label": "Lasts result", "default": "[DAYS] days" },
+    { "type": "text", "id": "cadence_long", "label": "Delivery: big packs", "default": "2 weeks" },
+    { "type": "text", "id": "cadence_mid", "label": "Delivery: middle", "default": "10 days" },
+    { "type": "text", "id": "cadence_short", "label": "Delivery: small packs", "default": "week" },
     { "type": "text", "id": "button_text", "label": "Button", "default": "Show me what fits" },
     { "type": "url", "id": "button_link", "label": "Button link" },
     { "type": "header", "content": "Style" },

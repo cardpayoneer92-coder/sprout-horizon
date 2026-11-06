@@ -40,8 +40,10 @@
         const sizeOut = this.querySelector('[data-size-out]');
         const wrap = this.querySelector('[data-size-wrap]');
         if (petOut) petOut.textContent = p.pet;
-        if (sizeOut && p.weight) {
-          sizeOut.textContent = p.weight < 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large');
+        if (sizeOut && (p.size || p.weight > 0)) {
+          // The finder and pet profile save the size with their own cut-offs;
+          // only work it out here for older saved profiles without one.
+          sizeOut.textContent = p.size || (p.weight <= 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large'));
           if (wrap) wrap.hidden = false;
         }
       }

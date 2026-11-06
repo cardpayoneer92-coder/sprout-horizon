@@ -11,6 +11,7 @@
   assign s = section.settings
 -%}
 
+{%- if section.blocks.size > 0 or request.design_mode -%}
 <section class="sp-sec sp-trustrow-sec" style="--sp-sec-bg: {{ s.background }}; --sp-trust-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
   <div class="sp-wrap">
     {%- if s.heading != blank -%}
@@ -19,6 +20,7 @@
     <div class="sp-trustrow sp-reveal sp-trustrow--{{ s.style }}">{% content_for 'blocks' %}</div>
   </div>
 </section>
+{%- endif -%}
 
 {% stylesheet %}
   .sp-trustrow__heading { margin-bottom: 20px; }

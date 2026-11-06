@@ -1,6 +1,7 @@
 {% comment %}
   Illustrated artwork, used wherever a photo has not been added yet so the
-  page is never a grey box. Pass a name and an optional size.
+  page is never a grey box. Pass a name and an optional size. Pass a label only when the drawing
+  means something on its own; without one it is hidden from screen readers.
   Names: duo, dog, puppy, cat, bunny, pouch, tin, jar, bowl, bed, bone, blanket.
 
   @example
@@ -10,7 +11,7 @@
 {%- liquid
   assign sz = size | default: 200
 -%}
-<svg class="sp-art sp-art--{{ name }}" width="{{ sz }}" height="{{ sz }}" viewBox="0 0 200 200" role="img" aria-label="{{ label | default: 'Illustration' | escape }}" focusable="false">
+<svg class="sp-art sp-art--{{ name }}" width="{{ sz }}" height="{{ sz }}" viewBox="0 0 200 200" {% if label != blank %}role="img" aria-label="{{ label | escape }}"{% else %}aria-hidden="true"{% endif %} focusable="false">
   {%- case name -%}
 
     {%- when 'duo' -%}
