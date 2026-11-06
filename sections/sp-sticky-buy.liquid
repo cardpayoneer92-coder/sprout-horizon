@@ -17,10 +17,10 @@
     <div class="sp-wrap sp-sticky__bar">
       <span class="sp-sticky__thumb">
         {%- if p.featured_media -%}
-          <img src="{{ p.featured_media | image_url: width: 120 }}" alt="" width="60" height="60" loading="lazy">
+          <img src="{{ p.featured_media | image_url: width: 120 }}" alt="{{ p.featured_media.alt | default: p.title | escape }}" width="60" height="60" loading="lazy">
         {%- else -%}
           {%- assign shot = 'sp-' | append: p.handle | append: '-1.png' -%}
-          <img data-sp-fallback src="{{ shot | asset_url }}" alt="" width="60" height="60" loading="lazy">
+          <img data-sp-fallback src="{{ shot | asset_url }}" alt="{{ p.title | escape }}" width="60" height="60" loading="lazy">
           {% render 'sp-icon', name: 'bag', size: 22 %}
         {%- endif -%}
       </span>

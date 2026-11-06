@@ -1,11 +1,11 @@
 [
   {
     "name": "theme_info",
-    "theme_name": "Horizon",
-    "theme_version": "4.3.0",
-    "theme_author": "Shopify",
-    "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
-    "theme_support_url": "https://support.shopify.com/"
+    "theme_name": "Sprout",
+    "theme_version": "1.0.0",
+    "theme_author": "TheMeTrek",
+    "theme_documentation_url": "https://themetrek.com/docs/sprout",
+    "theme_support_url": "https://themetrek.com/support"
   },
   {
     "name": "t:names.logo_and_favicon",

@@ -36,7 +36,7 @@
             src="{{ p.featured_media | image_url: width: 800 }}"
             srcset="{{ p.featured_media | image_url: width: 400 }} 400w, {{ p.featured_media | image_url: width: 800 }} 800w"
             sizes="(min-width: 990px) 280px, 46vw"
-            alt="{{ p.featured_media.alt | escape }}"
+            alt="{{ p.featured_media.alt | default: p.title | escape }}"
             width="{{ p.featured_media.width }}"
             height="{{ p.featured_media.height }}"
             loading="lazy"

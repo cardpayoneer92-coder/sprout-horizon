@@ -64,7 +64,7 @@
               src="{{ p.featured_media | image_url: width: 1200 }}"
               srcset="{{ p.featured_media | image_url: width: 600 }} 600w, {{ p.featured_media | image_url: width: 1200 }} 1200w"
               sizes="(min-width: 990px) 520px, 92vw"
-              alt="{{ p.featured_media.alt | escape }}"
+              alt="{{ p.featured_media.alt | default: p.title | escape }}"
               width="{{ p.featured_media.width }}"
               height="{{ p.featured_media.height }}"
               loading="eager"
@@ -91,7 +91,7 @@
                 data-full="{{ media | image_url: width: 1200 }}"
                 aria-label="{{ media.alt | default: p.title | escape }}"
               >
-                <img src="{{ media | image_url: width: 300 }}" alt="" width="150" height="150" loading="lazy">
+                <img src="{{ media | image_url: width: 300 }}" alt="{{ media.alt | default: p.title | escape }}" width="150" height="150" loading="lazy" aria-hidden="true">
               </button>
             {%- endfor -%}
           </div>
@@ -471,6 +471,7 @@
 
   @media (max-width: 989px) {
     .sp-pdp__grid { grid-template-columns: minmax(0, 1fr); }
+    .sp-pdp__gallery { position: static; }
   }
 {% endstylesheet %}
 
