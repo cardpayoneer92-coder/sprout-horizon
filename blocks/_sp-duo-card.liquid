@@ -11,13 +11,28 @@
 -%}
 
 <div
-  class="sp-duo__card sp-reveal"
+  class="sp-duo__card sp-reveal{% if b.image != blank %} sp-duo__card--photo{% endif %}"
   style="--sp-duo-bg: {{ b.background }}; --sp-duo-fg: {{ b.text_color }}; --sp-duo-btn: {{ b.button_background }}; --sp-duo-btn-fg: {{ b.button_text_color }};"
   {{ block.shopify_attributes }}
 >
-  <span class="sp-duo__art sp-bob sp-duo__art--{{ b.art_position }}" aria-hidden="true">
-    {% render 'sp-art', name: b.art, size: 200 %}
-  </span>
+  {%- if b.image != blank -%}
+    <div class="sp-duo__photo">
+      <img
+        src="{{ b.image | image_url: width: 900 }}"
+        srcset="{{ b.image | image_url: width: 500 }} 500w, {{ b.image | image_url: width: 900 }} 900w, {{ b.image | image_url: width: 1300 }} 1300w"
+        sizes="(min-width: 990px) 25vw, 90vw"
+        alt="{{ b.image.alt | escape }}"
+        width="{{ b.image.width }}"
+        height="{{ b.image.height }}"
+        loading="lazy"
+        style="object-position: {{ b.focal_x }}% {{ b.focal_y }}%;"
+      >
+    </div>
+  {%- else -%}
+    <span class="sp-duo__art sp-bob sp-duo__art--{{ b.art_position }}" aria-hidden="true">
+      {% render 'sp-art', name: b.art, size: 200 %}
+    </span>
+  {%- endif -%}
 
   <div class="sp-duo__body">
     {%- if b.eyebrow != blank -%}<p class="sp-duo__eyebrow">{{ b.eyebrow | escape }}</p>{%- endif -%}
@@ -45,6 +60,12 @@
   .sp-duo__art--top-right { right: 14px; top: 14px; }
   .sp-duo__art--bottom-left { left: -22px; bottom: -26px; }
 
+  .sp-duo__card--photo { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(18px, 2.4vw, 30px); align-items: stretch; }
+  .sp-duo__card--photo .sp-duo__body { align-self: center; order: 0; }
+  .sp-duo__photo { order: 1; position: relative; min-height: 220px; border-radius: calc(var(--sp-r-band, 36px) - 12px); overflow: hidden; box-shadow: 0 14px 32px rgb(39 55 43 / 0.16); }
+  .sp-duo__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s var(--sp-ease); }
+  .sp-duo__card--photo:hover .sp-duo__photo img { transform: scale(1.04); }
+
   .sp-duo__eyebrow { margin: 0 0 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.78; }
   .sp-duo__title { margin: 0 0 12px; font-family: var(--sp-font-head); font-size: clamp(26px, 2.6vw, 36px); font-weight: 500; letter-spacing: -0.015em; line-height: 1.1; }
   .sp-duo__text { margin: 0 0 22px; font-size: 17px; line-height: 1.55; opacity: 0.9; }
@@ -53,6 +74,8 @@
   @media (max-width: 749px) {
     .sp-duo__card { min-height: 0; }
     .sp-duo__art .sp-art { width: 140px; }
+    .sp-duo__card--photo { grid-template-columns: minmax(0, 1fr); }
+    .sp-duo__card--photo .sp-duo__photo { order: -1; aspect-ratio: 4 / 3; min-height: 0; }
   }
 {% endstylesheet %}
 
@@ -66,6 +89,10 @@
     { "type": "textarea", "id": "text", "label": "Text", "default": "Subscribe and save 10% on every delivery. We nudge you a few days before the next one — skip, swap or cancel any time." },
     { "type": "text", "id": "button_text", "label": "Button", "default": "Set up a delivery" },
     { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "header", "content": "Photo" },
+    { "type": "image_picker", "id": "image", "label": "Photo", "info": "Sits beside the text. Leave empty to use the illustration." },
+    { "type": "range", "id": "focal_x", "label": "Focus across", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
+    { "type": "range", "id": "focal_y", "label": "Focus down", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
     { "type": "header", "content": "Illustration" },
     {
       "type": "select", "id": "art", "label": "Illustration", "default": "pouch",

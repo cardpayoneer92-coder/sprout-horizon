@@ -10,6 +10,10 @@
 
 {%- liquid
   assign s = section.settings
+  assign banner = false
+  if s.photo_style == 'banner' and s.image != blank
+    assign banner = true
+  endif
 -%}
 
 <section
@@ -23,9 +27,34 @@
     --sp-h1-size: {{ s.heading_size }}px;
     --sp-hero-pt: {{ s.padding_top }}px;
     --sp-hero-pb: {{ s.padding_bottom }}px;
+    --sp-hero-minh: {{ s.banner_height }}px;
+    --sp-hero-veil: {{ s.veil_opacity | divided_by: 100.0 }};
   "
 >
-  <div class="sp-hero">
+  <div class="sp-hero{% if banner %} sp-hero--banner{% endif %}">
+    {%- if banner -%}
+      <picture class="sp-hero__bg">
+        {%- if s.mobile_image != blank -%}
+          <source
+            media="(max-width: 749px)"
+            srcset="{{ s.mobile_image | image_url: width: 750 }} 750w, {{ s.mobile_image | image_url: width: 1100 }} 1100w"
+            sizes="100vw"
+          >
+        {%- endif -%}
+        <img
+          src="{{ s.image | image_url: width: 1920 }}"
+          srcset="{{ s.image | image_url: width: 900 }} 900w, {{ s.image | image_url: width: 1400 }} 1400w, {{ s.image | image_url: width: 1920 }} 1920w, {{ s.image | image_url: width: 2400 }} 2400w"
+          sizes="100vw"
+          alt="{{ s.image.alt | escape }}"
+          width="{{ s.image.width }}"
+          height="{{ s.image.height }}"
+          loading="eager"
+          fetchpriority="high"
+          style="object-position: {{ s.focal_x }}% {{ s.focal_y }}%;"
+        >
+      </picture>
+      <span class="sp-hero__veil" aria-hidden="true"></span>
+    {%- endif -%}
     <div class="sp-wrap sp-hero__grid">
 
       <div class="sp-hero__copy sp-reveal">
@@ -78,6 +107,7 @@
       </div>
 
       <div class="sp-hero__stage">
+        {%- unless banner -%}
         <span class="sp-hero__blob sp-hero__blob--a sp-blob" aria-hidden="true"></span>
         <span class="sp-hero__blob sp-hero__blob--b sp-blob" aria-hidden="true"></span>
 
@@ -99,6 +129,7 @@
             {% render 'sp-art', name: 'duo', size: 420, label: 'A dog and a cat waiting for dinner' %}
           </span>
         {%- endif -%}
+        {%- endunless -%}
 
         {%- if s.stamp != blank -%}
           <span class="sp-hero__stamp" aria-hidden="true">
@@ -192,6 +223,17 @@
   .sp-hero__paws { position: absolute; inset: 0; z-index: 1; pointer-events: none; color: rgb(253 250 242 / .72); }
   .sp-hero__paws > span { position: absolute; display: inline-flex; }
 
+
+  /* ---- full-bleed photo banner ---- */
+  .sp-hero--banner { background-image: none; min-height: var(--sp-hero-minh, 640px); display: flex; flex-direction: column; justify-content: center; }
+  .sp-hero__bg { position: absolute; inset: 0; z-index: 0; display: block; }
+  .sp-hero__bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sp-hero__veil { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: var(--sp-hero-veil, 0); background: linear-gradient(90deg, var(--sp-hero-bg, #d8edcd) 0%, var(--sp-hero-bg, #d8edcd) 30%, transparent 70%); }
+  .sp-hero--banner .sp-hero__grid { position: relative; z-index: 2; grid-template-columns: minmax(0, 600px) minmax(0, 1fr); }
+  .sp-hero--banner .sp-hero__stage { aspect-ratio: auto; align-self: end; min-height: 120px; }
+  .sp-hero--banner .sp-hero__stage::before { display: none; }
+  .sp-hero--banner .sp-hero__stamp { right: 0; bottom: 0; }
+
   /* ---- strip + wave ---- */
   .sp-hero__strip { position: relative; z-index: 2; padding-bottom: 54px; }
   .sp-trust { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 10px 12px; margin: 0; padding: 0; list-style: none; }
@@ -207,6 +249,13 @@
     .sp-hero__text { margin-inline: auto; }
     .sp-hero__stage { order: -1; aspect-ratio: 4 / 3; }
     .sp-hero__stamp { width: 82px; height: 82px; }
+    .sp-hero--banner .sp-hero__grid { grid-template-columns: minmax(0, 1fr); }
+    .sp-hero--banner .sp-hero__stage { order: 0; min-height: 0; }
+  }
+  @media (max-width: 749px) {
+    .sp-hero--banner { justify-content: flex-start; min-height: min(150vw, 820px); }
+    .sp-hero--banner .sp-hero__veil { background: linear-gradient(180deg, var(--sp-hero-bg, #d8edcd) 0%, var(--sp-hero-bg, #d8edcd) 25%, transparent 60%); }
+    .sp-hero--banner .sp-hero__stage { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .sp-hero__dot, .sp-hero__stamp-ring { animation: none; }
@@ -235,6 +284,16 @@
     { "type": "url", "id": "button2_link", "label": "Second link" },
     { "type": "header", "content": "Stage" },
     { "type": "image_picker", "id": "image", "label": "Photo", "info": "Leave empty to use the illustration." },
+    {
+      "type": "select", "id": "photo_style", "label": "Photo style", "default": "circle",
+      "options": [
+        { "value": "circle", "label": "Round, beside the text" },
+        { "value": "banner", "label": "Full banner behind the text" }
+      ]
+    },
+    { "type": "image_picker", "id": "mobile_image", "label": "Mobile photo", "info": "Full banner only. Keep the top of the photo calm — the text sits there on phones." },
+    { "type": "range", "id": "banner_height", "label": "Banner height", "min": 440, "max": 880, "step": 20, "unit": "px", "default": 660 },
+    { "type": "range", "id": "veil_opacity", "label": "Text-side fade", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 0, "info": "Fades the background colour in behind the text if the photo is busy." },
     { "type": "range", "id": "focal_x", "label": "Focus across", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
     { "type": "range", "id": "focal_y", "label": "Focus down", "min": 0, "max": 100, "step": 5, "unit": "%", "default": 50 },
     { "type": "text", "id": "stamp", "label": "Spinning stamp", "default": "Cooked this week" },
