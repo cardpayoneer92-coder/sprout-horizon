@@ -89,6 +89,37 @@
           <li><a href="{{ link.url }}">{{ link.title }}</a></li>
         {%- endfor -%}
       </ul>
+      {%- liquid
+        assign show_drawer_wish = false
+        if s.show_wishlist and s.drawer_wishlist
+          assign show_drawer_wish = true
+        endif
+        assign show_drawer_account = false
+        if s.show_account and s.drawer_account and shop.customer_accounts_enabled
+          assign show_drawer_account = true
+        endif
+      -%}
+      {%- if show_drawer_wish or show_drawer_account -%}
+        <ul class="sp-head__drawer-extra" role="list">
+          {%- if show_drawer_wish -%}
+            <li>
+              <a href="{{ s.wishlist_link | default: '/pages/wishlist' }}">
+                {% render 'sp-icon', name: 'heart', size: 18 %}
+                <span>{{ s.drawer_wishlist_label | escape }}</span>
+                <span class="sp-head__drawer-count is-empty" data-wish-count>0</span>
+              </a>
+            </li>
+          {%- endif -%}
+          {%- if show_drawer_account -%}
+            <li>
+              <a href="{{ routes.account_url }}">
+                {% render 'sp-icon', name: 'user', size: 18 %}
+                <span>{% if customer %}{{ s.drawer_account_label | escape }}{% else %}{{ s.drawer_login_label | escape }}{% endif %}</span>
+              </a>
+            </li>
+          {%- endif -%}
+        </ul>
+      {%- endif -%}
     </div>
   {%- endif -%}
 </sp-header>
@@ -179,6 +210,11 @@
   .sp-head__drawer ul { margin: 0; padding: 8px 24px 18px; list-style: none; display: grid; gap: 2px; }
   .sp-head__drawer a { display: block; padding: 13px 14px; border-radius: 18px; color: inherit; text-decoration: none; font-weight: 700; font-size: 17px; }
   .sp-head__drawer a:hover { background: var(--sp-mint, #d8edcd); }
+  .sp-head__drawer-extra { border-top: 1px dashed var(--sp-line-mint, #d6e2d0); padding-top: 12px !important; margin-top: -6px !important; }
+  .sp-head__drawer-extra a { display: flex; align-items: center; gap: 12px; font-size: 16px; }
+  .sp-head__drawer-extra svg { color: var(--sp-moss, #3f6b4a); flex-shrink: 0; }
+  .sp-head__drawer-count { margin-left: auto; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 999px; background: var(--sp-coral, #ff8a6b); color: #fff; font-size: 12px; line-height: 24px; text-align: center; }
+  .sp-head__drawer-count.is-empty { display: none; }
 
   @media (max-width: 989px) {
     .sp-head__nav { display: none; }
@@ -187,8 +223,7 @@
     .sp-head .sp-head__cta { display: none; }
   }
   /* Five round icons plus the burger and logo do not fit a 375px phone,
-     so the account icon steps aside first. Add an Account link to the main
-     menu if shoppers need it on small phones. */
+     so the account icon steps aside — the phone menu carries an Account link. */
   @media (max-width: 479px) {
     .sp-head .sp-head__account { display: none; }
     .sp-head__tools { gap: 0; }
@@ -217,6 +252,12 @@
     { "type": "text", "id": "wishlist_added", "label": "Saved message", "default": "Saved to your wishlist" },
     { "type": "text", "id": "wishlist_removed", "label": "Removed message", "default": "Removed from your wishlist" },
     { "type": "text", "id": "wishlist_view", "label": "View link", "default": "View" },
+    { "type": "header", "content": "Phone menu" },
+    { "type": "checkbox", "id": "drawer_wishlist", "label": "Wishlist link in the menu", "default": true },
+    { "type": "text", "id": "drawer_wishlist_label", "label": "Wishlist label", "default": "Wishlist" },
+    { "type": "checkbox", "id": "drawer_account", "label": "Account link in the menu", "default": true, "info": "The account icon hides on small phones, so this is how shoppers reach it there." },
+    { "type": "text", "id": "drawer_login_label", "label": "Signed-out label", "default": "Log in" },
+    { "type": "text", "id": "drawer_account_label", "label": "Signed-in label", "default": "My account" },
     { "type": "text", "id": "button_text", "label": "Button", "default": "Shop by pet" },
     { "type": "url", "id": "button_link", "label": "Button link" },
     { "type": "header", "content": "Style" },
