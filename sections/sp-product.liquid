@@ -170,7 +170,7 @@
             data-quantity-default="1"
           >
           <div class="sp-visually-hidden" aria-live="assertive" role="status" aria-atomic="true"></div>
-          {%- form 'product', p, class: 'sp-pdp__form', id: sp_form_id, 'data-type': 'add-to-cart-form' -%}
+          {%- form 'product', p, class: 'sp-pdp__form', id: sp_form_id, data-type: 'add-to-cart-form' -%}
             {%- if p.has_only_default_variant == false -%}
               <div class="sp-pdp__options">
                 {%- for option in p.options_with_values -%}
@@ -386,7 +386,11 @@
         if (!size) return;
         // Find a [data-opt] radio whose value matches the suggested size (case-insensitive).
         const target = [...scope.querySelectorAll('[data-opt]')].find(
-          (i) => i.value.toLowerCase() === size.toLowerCase()
+          (i) => {
+            const v = i.value.toLowerCase().trim();
+            const want = size.toLowerCase();
+            return v === want || v.startsWith(want + ' ') || v.startsWith(want + '(');
+          }
         );
         if (target && !target.checked) {
           target.checked = true;

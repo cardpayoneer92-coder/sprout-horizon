@@ -1,0 +1,57 @@
+{% comment %}
+  Defines <sp-pet-aware>: filters the product cards inside it to the pet saved
+  in localStorage (sprout:pet) and labels the size that fits. Rendered by every
+  section that wraps a product grid in <sp-pet-aware>.
+{% endcomment %}
+<script type="module">
+  if (!customElements.get('sp-pet-aware')) {
+    customElements.define('sp-pet-aware', class extends HTMLElement {
+      connectedCallback() {
+        // Prefer localStorage profile; fall back to the product's own pet tag
+        // (data-page-pet) so "Complete the set" pre-filters to the right pet
+        // even before the visitor has picked one.
+        let profile = this.read();
+        if (!profile && this.dataset.pagePet) {
+          profile = { pet: this.dataset.pagePet, weight: 0 };
+        }
+        this.apply(profile);
+        this.onChange = (e) => this.apply(e.detail);
+        document.addEventListener('sprout:pet-change', this.onChange);
+      }
+      disconnectedCallback() { document.removeEventListener('sprout:pet-change', this.onChange); }
+      read() {
+        try { return JSON.parse(localStorage.getItem('sprout:pet')) || null; } catch (e) { return null; }
+      }
+      apply(p) {
+        if (!p || !p.pet) return;
+        const pet = p.pet.toLowerCase();
+        const subject = pet === 'small pet' ? 'your small pet' : 'your ' + pet;
+        const h = this.querySelector('[data-heading]');
+        const sub = this.querySelector('[data-sub]');
+        if (h && this.dataset.headingTemplate) h.textContent = this.dataset.headingTemplate.replace('[pet]', subject);
+        if (sub && this.dataset.subTemplate) sub.textContent = this.dataset.subTemplate.replace('[weight]', p.weight + ' kg');
+        if (p.weight) this.querySelectorAll('[data-fit]').forEach((n) => {
+          const size = p.weight < 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large');
+          n.textContent = size + ' fits';
+          n.hidden = false;
+        });
+        // Filter cards to show only those tagged for the selected pet.
+        // A card without data-pet-tags is treated as universal and always shown.
+        // Tags are handles ("small-pet"), the saved pet is a label ("Small pet").
+        // A puppy is still a dog, a kitten still a cat.
+        const key = pet.replace(/\s+/g, '-');
+        const wanted = { puppy: ['puppy', 'dog'], kitten: ['kitten', 'cat'] }[key] || [key];
+        const known = ['dog', 'puppy', 'cat', 'kitten', 'small-pet'];
+        this.querySelectorAll('[data-pet-tags]').forEach((card) => {
+          const tags = (card.dataset.petTags || '').split(',').map((t) => t.trim()).filter(Boolean);
+          const petTags = tags.filter((t) => known.includes(t));
+          // No pet tag at all = universal product, always shown.
+          if (!petTags.length || tags.includes('all-pets')) { card.hidden = false; return; }
+          card.hidden = !petTags.some((t) => wanted.includes(t));
+        });
+        const count = this.closest('section')?.querySelector('[data-visible-count]');
+        if (count) count.textContent = this.querySelectorAll('[data-pet-tags]:not([hidden])').length;
+      }
+    });
+  }
+</script>

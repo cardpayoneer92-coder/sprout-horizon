@@ -71,50 +71,7 @@
   </div>
 </section>
 
-<script type="module">
-  if (!customElements.get('sp-pet-aware')) {
-    customElements.define('sp-pet-aware', class extends HTMLElement {
-      connectedCallback() {
-        // Prefer localStorage profile; fall back to the product's own pet tag
-        // (data-page-pet) so "Complete the set" pre-filters to the right pet
-        // even before the visitor has picked one.
-        let profile = this.read();
-        if (!profile && this.dataset.pagePet) {
-          profile = { pet: this.dataset.pagePet, weight: 0 };
-        }
-        this.apply(profile);
-        this.onChange = (e) => this.apply(e.detail);
-        document.addEventListener('sprout:pet-change', this.onChange);
-      }
-      disconnectedCallback() { document.removeEventListener('sprout:pet-change', this.onChange); }
-      read() {
-        try { return JSON.parse(localStorage.getItem('sprout:pet')) || null; } catch (e) { return null; }
-      }
-      apply(p) {
-        if (!p || !p.pet) return;
-        const pet = p.pet.toLowerCase();
-        const subject = pet === 'small pet' ? 'your small pet' : 'your ' + pet;
-        const h = this.querySelector('[data-heading]');
-        const sub = this.querySelector('[data-sub]');
-        if (h && this.dataset.headingTemplate) h.textContent = this.dataset.headingTemplate.replace('[pet]', subject);
-        if (sub && this.dataset.subTemplate) sub.textContent = this.dataset.subTemplate.replace('[weight]', p.weight + ' kg');
-        this.querySelectorAll('[data-fit]').forEach((n) => {
-          const size = p.weight < 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large');
-          n.textContent = size + ' fits';
-          n.hidden = false;
-        });
-        // Filter cards to show only those tagged for the selected pet.
-        // A card without data-pet-tags is treated as universal and always shown.
-        this.querySelectorAll('[data-pet-tags]').forEach((card) => {
-          const tags = card.dataset.petTags;
-          if (!tags) { card.hidden = false; return; }
-          const match = tags.split(',').some((t) => t.trim() === pet || t.trim() === 'all-pets');
-          card.hidden = !match;
-        });
-      }
-    });
-  }
-</script>
+{% render 'sp-pet-aware' %}
 
 {% stylesheet %}
   .sp-pgrid { display: block; }
