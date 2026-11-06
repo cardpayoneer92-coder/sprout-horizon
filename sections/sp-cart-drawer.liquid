@@ -162,14 +162,24 @@
         const label = btn ? btn.innerHTML : '';
         if (btn) { btn.disabled = true; btn.textContent = this.dataset.adding || 'Adding…'; }
         try {
-          const res = await fetch(window.Shopify?.routes?.root ? Shopify.routes.root + 'cart/add.js' : '/cart/add.js', {
+          const body = new FormData(form);
+          // Ask Shopify to hand back the freshly rendered drawer with the add,
+          // so there is no second request racing the cart update.
+          body.append('sections', 'sp-cart-drawer');
+          body.append('sections_url', location.pathname);
+          const res = await fetch((window.Shopify?.routes?.root || '/') + 'cart/add.js', {
             method: 'POST',
             headers: { Accept: 'application/json' },
-            body: new FormData(form)
+            body
           });
           const data = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(data.description || data.message || 'Could not add that one.');
-          await this.refresh(true);
+          if (data.sections && data.sections['sp-cart-drawer']) {
+            this.paint(data.sections['sp-cart-drawer']);
+            this.open();
+          } else {
+            await this.refresh(true);
+          }
         } catch (err) {
           await this.refresh(true);
           this.showError(err.message);
@@ -184,10 +194,11 @@
           const res = await fetch('/cart/change.js', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify({ line: Number(line), quantity: Math.max(0, quantity) })
+            body: JSON.stringify({ line: Number(line), quantity: Math.max(0, quantity), sections: 'sp-cart-drawer', sections_url: location.pathname })
           });
           const data = await res.json().catch(() => ({}));
-          await this.refresh(false);
+          if (data.sections && data.sections['sp-cart-drawer']) this.paint(data.sections['sp-cart-drawer']);
+          else await this.refresh(false);
           if (!res.ok) this.showError(data.description || data.message);
         } finally {
           this.classList.remove('is-busy');
@@ -196,19 +207,25 @@
 
       async refresh(openAfter) {
         try {
-          const res = await fetch(location.pathname + '?sections=sp-cart-drawer', { headers: { Accept: 'application/json' } });
+          const url = location.pathname + '?sections=sp-cart-drawer&_=' + Date.now();
+          const res = await fetch(url, { headers: { Accept: 'application/json' }, cache: 'no-store' });
           const json = await res.json();
-          const doc = new DOMParser().parseFromString(json['sp-cart-drawer'], 'text/html');
-          const fresh = doc.querySelector('[data-cd-body]');
-          const body = this.querySelector('[data-cd-body]');
-          if (fresh && body) body.replaceWith(fresh);
-          const count = Number((fresh || body).dataset.count || 0);
-          document.querySelectorAll('[data-cart-count]').forEach((n) => {
-            n.textContent = count;
-            n.classList.toggle('is-empty', count === 0);
-          });
+          this.paint(json['sp-cart-drawer']);
         } catch (e) { /* keep the old contents */ }
         if (openAfter) this.open();
+      }
+
+      paint(html) {
+        if (!html) return;
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const fresh = doc.querySelector('[data-cd-body]');
+        const body = this.querySelector('[data-cd-body]');
+        if (fresh && body) body.replaceWith(fresh);
+        const count = Number((fresh || body).dataset.count || 0);
+        document.querySelectorAll('[data-cart-count]').forEach((n) => {
+          n.textContent = count;
+          n.classList.toggle('is-empty', count === 0);
+        });
       }
 
       showError(msg) {
