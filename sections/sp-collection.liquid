@@ -125,10 +125,6 @@
             {%- endif -%}
           </div>
 
-              {%- endfor -%}
-            </div>
-          {%- endif -%}
-
           <sp-pet-aware class="sp-grid sp-coll__grid" data-heading-template="" data-sub-template="">
             {%- for product in collection.products -%}
               {% render 'sp-product-card', product: product, index: forloop.index0, show_quick_add: s.quick_add %}

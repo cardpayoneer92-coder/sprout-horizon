@@ -65,6 +65,37 @@ def check(path, schema, is_section):
             problems.append(f'{path}: {sid} has Liquid in its default — move it to a Liquid fallback')
 
 
+BLOCK_TAGS = {'if', 'unless', 'for', 'case', 'capture', 'form', 'paginate', 'tablerow',
+              'comment', 'raw', 'schema', 'stylesheet', 'javascript', 'doc'}
+TAG_RE = re.compile(r'\{%-?\s*(\w+)')
+
+
+def check_liquid_balance(path, src):
+    """An unclosed or stray if/for/endif makes Shopify reject the file with
+    no error (sp-collection lost a whole release this way)."""
+    stack = []
+    # Skip raw/comment/schema/doc bodies so their contents are not parsed.
+    src = re.sub(r'\{%-?\s*(comment|raw|schema|doc|stylesheet|javascript)\s*-?%\}.*?\{%-?\s*end\1\s*-?%\}', '', src, flags=re.S)
+    # Inside {% liquid %} blocks every line is a tag.
+    def expand(m):
+        return '\n'.join('{% ' + ln.strip() + ' %}' for ln in m.group(1).splitlines() if ln.strip())
+    src = re.sub(r'\{%-?\s*liquid\b(.*?)-?%\}', expand, src, flags=re.S)
+    for m in TAG_RE.finditer(src):
+        tag = m.group(1)
+        line = src.count('\n', 0, m.start()) + 1
+        if tag in BLOCK_TAGS:
+            stack.append((tag, line))
+        elif tag.startswith('end') and tag[3:] in BLOCK_TAGS:
+            want = tag[3:]
+            if not stack or stack[-1][0] != want:
+                opened = f'{stack[-1][0]} from line ~{stack[-1][1]}' if stack else 'nothing'
+                problems.append(f'{path}: "{tag}" near line {line} but the open block is {opened}')
+                return
+            stack.pop()
+    if stack:
+        problems.append(f'{path}: "{stack[-1][0]}" opened near line {stack[-1][1]} is never closed')
+
+
 _schemas = {}
 
 
@@ -130,6 +161,8 @@ def main():
     checked = 0
     for f in files:
         src = open(f, encoding='utf-8').read()
+        if '/sp-' in f or '/_sp-' in f:
+            check_liquid_balance(f, src)
         m = re.search(r'\{%-?\s*schema\s*-?%\}(.*?)\{%-?\s*endschema\s*-?%\}', src, re.S)
         if not m:
             continue
