@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "main": {
+      "type": "sp-wishlist",
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}

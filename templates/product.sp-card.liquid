@@ -1,0 +1,6 @@
+{%- layout none -%}
+{%- comment -%}
+  Bare product card, fetched by the wishlist page as /products/<handle>?view=sp-card.
+  Not meant to be assigned to a product in the admin.
+{%- endcomment -%}
+{%- render 'sp-product-card', product: product, index: 0, show_quick_add: true -%}
