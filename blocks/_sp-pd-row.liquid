@@ -7,9 +7,35 @@
 
 {%- liquid
   assign b = block.settings
+  comment
+    When a metafield namespace.key is set, prefer the product metafield over
+    the hardcoded text setting. The block hides itself when both the metafield
+    and the setting are empty, so a merchant can leave the row in the template
+    without it rendering a blank accordion for every product.
+  endcomment
+  assign row_content = b.text
+  if b.metafield_key != blank
+    assign mf_parts = b.metafield_key | split: '.'
+    if mf_parts.size == 2
+      assign mf_ns = mf_parts[0]
+      assign mf_key = mf_parts[1]
+      assign mf_value = product.metafields[mf_ns][mf_key].value
+      if mf_value != blank
+        assign row_content = mf_value | newline_to_br
+      endif
+    endif
+  endif
 -%}
 
-{%- if b.title != blank -%}
+{%- if b.title != blank and row_content != blank -%}
+  <details class="sp-pdrow"{% if b.open %} open{% endif %} {{ block.shopify_attributes }}>
+    <summary class="sp-pdrow__head">
+      <span>{{ b.title | escape }}</span>
+      <span class="sp-pdrow__mark" aria-hidden="true">{% render 'sp-icon', name: 'chevron', size: 18 %}</span>
+    </summary>
+    <div class="sp-pdrow__body">{{ row_content }}</div>
+  </details>
+{%- elsif b.title != blank and b.metafield_key == blank -%}
   <details class="sp-pdrow"{% if b.open %} open{% endif %} {{ block.shopify_attributes }}>
     <summary class="sp-pdrow__head">
       <span>{{ b.title | escape }}</span>
@@ -37,7 +63,14 @@
   "tag": null,
   "settings": [
     { "type": "text", "id": "title", "label": "Title", "default": "Ingredients" },
-    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Chicken thigh, pumpkin, brown rice, spinach, flaxseed and a vitamin mix — nothing else.</p>" },
+    {
+      "type": "text",
+      "id": "metafield_key",
+      "label": "Metafield (namespace.key)",
+      "info": "When set, the product metafield's value replaces the text below. Format: custom.ingredients — the row hides itself when the metafield is blank.",
+      "placeholder": "custom.ingredients"
+    },
+    { "type": "richtext", "id": "text", "label": "Fallback text", "default": "<p>Chicken thigh, pumpkin, brown rice, spinach, flaxseed and a vitamin mix — nothing else.</p>" },
     { "type": "checkbox", "id": "open", "label": "Open by default", "default": false }
   ],
   "presets": [{ "name": "Detail row", "category": "t:categories.custom" }]

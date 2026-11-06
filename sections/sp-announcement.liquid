@@ -9,6 +9,7 @@
 
 {%- liquid
   assign s = section.settings
+  assign sp_amount = settings.free_shipping_threshold | times: 100 | money
   assign lines = ''
   if s.msg1 != blank
     assign lines = lines | append: s.msg1 | append: '~~'
@@ -39,10 +40,11 @@
       <div class="sp-announce__stage" role="status" aria-live="polite">
         {%- for item in items -%}
           <span class="sp-announce__line{% if forloop.first %} is-on{% endif %}" data-line>
+            {%- assign display_item = item | replace: '[AMOUNT]', sp_amount -%}
             {%- if s.link != blank -%}
-              <a href="{{ s.link }}">{{ item }}</a>
+              <a href="{{ s.link }}">{{ display_item }}</a>
             {%- else -%}
-              {{ item }}
+              {{ display_item }}
             {%- endif -%}
           </span>
         {%- endfor -%}

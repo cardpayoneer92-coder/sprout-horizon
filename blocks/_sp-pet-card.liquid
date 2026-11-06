@@ -11,11 +11,29 @@
   assign b = block.settings
   assign tints = 'var(--sp-mint),var(--sp-sand),var(--sp-sky),var(--sp-peach)' | split: ','
   assign tint = b.tint
+
+  comment
+    Resolve destination: prefer the linked collection (gives us products_count)
+    and fall back to the plain URL setting.
+  endcomment
+  assign pet_coll = collections[b.collection]
+  assign pet_href = b.link
+  assign pet_count = b.count
+  if pet_coll != blank
+    if pet_href == blank
+      assign pet_href = pet_coll.url
+    endif
+    assign raw_count = pet_coll.products_count
+    assign pet_count = raw_count | append: ' things'
+  endif
+  if pet_href == blank
+    assign pet_href = '/collections/all'
+  endif
 -%}
 
 <a
   class="sp-pet-card sp-reveal"
-  href="{{ b.link | default: '/collections/all' }}"
+  href="{{ pet_href }}"
   data-sp-pet="{{ b.pet | escape }}"
   style="--sp-pet-tint: {{ tint }};"
   {{ block.shopify_attributes }}
@@ -29,8 +47,8 @@
   </span>
 
   <span class="sp-pet-card__name">{{ b.title | escape }}</span>
-  {%- if b.count != blank -%}
-    <span class="sp-pet-card__count">{{ b.count | escape }}</span>
+  {%- if pet_count != blank -%}
+    <span class="sp-pet-card__count">{{ pet_count }}</span>
   {%- endif -%}
 </a>
 
@@ -84,8 +102,14 @@
         { "value": "Small pet", "label": "Small pet" }
       ]
     },
-    { "type": "text", "id": "count", "label": "Count", "default": "24 things" },
-    { "type": "url", "id": "link", "label": "Link" },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "When set, the product count is read automatically and the link defaults to this collection."
+    },
+    { "type": "text", "id": "count", "label": "Count (fallback)", "info": "Shown only when no collection is selected above.", "default": "24 things" },
+    { "type": "url", "id": "link", "label": "Link override", "info": "Overrides the collection URL. Leave blank to use the collection's URL." },
     { "type": "text", "id": "sticker", "label": "Sticker", "info": "Leave empty for no sticker." },
     {
       "type": "select", "id": "art", "label": "Illustration", "default": "dog",

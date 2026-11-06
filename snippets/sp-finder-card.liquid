@@ -92,6 +92,8 @@
 
       mark(size) {
         this.sizes.forEach((b) => b.classList.toggle('is-on', b.dataset.size === size));
+        // Tell the product page to pre-select this variant size.
+        document.dispatchEvent(new CustomEvent('sprout:size-suggest', { detail: { size } }));
       }
     });
   }

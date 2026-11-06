@@ -26,7 +26,8 @@
     <span class="sp-card__price">[PRICE]</span>
   </article>
 {%- else -%}
-  <article class="sp-card">
+  {%- assign sp_pet_tags = p.tags | join: ',' | downcase -%}
+  <article class="sp-card" data-pet-tags="{{ sp_pet_tags }}">
     <div class="sp-card__media sp-card__media--{{ tint }}">
       <a class="sp-card__link" href="{{ p.url }}" aria-label="{{ p.title | escape }}">
         {%- if p.featured_media -%}

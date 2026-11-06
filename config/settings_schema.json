@@ -1476,7 +1476,7 @@
             "label": "t:options.drawer"
           }
         ],
-        "default": "page"
+        "default": "drawer"
       },
       {
         "type": "select",
@@ -1528,6 +1528,13 @@
       {
         "type": "header",
         "content": "t:content.cart_features"
+      },
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "Free shipping threshold",
+        "info": "Enter the order amount (in your store currency, no symbol) above which shipping is free. Used in the announcement bar, marquee and product page. Leave 0 to hide.",
+        "default": 40
       },
       {
         "type": "checkbox",

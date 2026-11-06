@@ -107,11 +107,22 @@
             this.save();
           });
         }
+        // Per-pet slider range presets (min / max / default weight in kg).
+        // Keys are lowercase pet names matching data-pet values.
+        this._petRanges = {
+          dog:       { min: 2,  max: 60, def: 14 },
+          puppy:     { min: 1,  max: 15, def: 5  },
+          cat:       { min: 1,  max: 12, def: 5  },
+          'small pet': { min: 1, max: 5, def: 2  }
+        };
         this.petButtons.forEach((b) => b.addEventListener('click', () => {
           this.state.pet = b.dataset.pet;
+          this._applyPetRange(b.dataset.pet);
           this.paint();
           this.save();
         }));
+        // Apply range for the initially selected pet on load.
+        this._applyPetRange(this.state.pet);
         this.paint();
       }
 
@@ -133,6 +144,21 @@
       num(attr, fallback) {
         const v = Number(this.dataset[attr]);
         return Number.isFinite(v) && v > 0 ? v : fallback;
+      }
+
+      _applyPetRange(petName) {
+        if (!this.range) return;
+        const r = this._petRanges[(petName || '').toLowerCase()];
+        if (!r) return;
+        this.range.min = r.min;
+        this.range.max = r.max;
+        // Keep the current weight only when it still fits the new range;
+        // otherwise reset to the per-pet default.
+        const current = Number(this.range.value);
+        const clamped = Math.min(r.max, Math.max(r.min, current));
+        const next = (current === clamped) ? current : r.def;
+        this.range.value = next;
+        this.state.weight = next;
       }
 
       sizeFor(kg) {

@@ -36,9 +36,9 @@
         {% content_for 'blocks' %}
       </div>
 
-      {%- if s.button_text != blank -%}
+      {%- if s.button_text != blank and s.button_link != blank -%}
         <div class="sp-wall__actions">
-          <a class="sp-btn sp-btn--soft" href="{{ s.button_link | default: '#' }}">{{ s.button_text | escape }}</a>
+          <a class="sp-btn sp-btn--soft" href="{{ s.button_link }}">{{ s.button_text | escape }}</a>
         </div>
       {%- endif -%}
     </div>

@@ -37,7 +37,7 @@
         {%- endif -%}
 
         {%- if s.heading != blank -%}
-          <h2 class="sp-h1 sp-hero__title">
+          <h1 class="sp-h1 sp-hero__title">
             {{ s.heading }}{%- if s.heading_tail != blank -%}
               <span class="sp-hero__tail">
                 {{ s.heading_tail | escape }}
@@ -46,7 +46,7 @@
                 </svg>
               </span>
             {%- endif -%}
-          </h2>
+          </h1>
         {%- endif -%}
 
         {%- if s.text != blank -%}<div class="sp-lede sp-hero__text">{{ s.text }}</div>{%- endif -%}

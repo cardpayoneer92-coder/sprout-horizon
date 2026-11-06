@@ -121,7 +121,16 @@
         {%- endif -%}
 
         {%- if p != blank -%}
-          {%- form 'product', p, class: 'sp-pdp__form', id: null -%}
+          {%- assign sp_form_id = 'sp-pdp-form-' | append: section.id -%}
+          <product-form-component
+            data-section-id="{{ section.id }}"
+            data-product-id="{{ p.id }}"
+            data-product-url="{{ p.url }}"
+            on:submit="/handleSubmit"
+            data-quantity-default="1"
+          >
+          <div class="sp-visually-hidden" aria-live="assertive" role="status" aria-atomic="true"></div>
+          {%- form 'product', p, class: 'sp-pdp__form', id: sp_form_id, 'data-type': 'add-to-cart-form' -%}
             {%- if p.has_only_default_variant == false -%}
               <div class="sp-pdp__options">
                 {%- for option in p.options_with_values -%}
@@ -176,6 +185,7 @@
               </button>
             </div>
           {%- endform -%}
+          </product-form-component>
         {%- else -%}
           <div class="sp-pdp__actions">
             <span class="sp-btn sp-btn--primary sp-pdp__add">{{ s.button_text | escape }}</span>
@@ -183,9 +193,11 @@
         {%- endif -%}
 
         {%- if s.reassurance != blank -%}
+          {%- assign sp_amount = settings.free_shipping_threshold | times: 100 | money -%}
+          {%- assign reassurance_text = s.reassurance | replace: '[AMOUNT]', sp_amount -%}
           <p class="sp-pdp__reassure">
             {% render 'sp-icon', name: 'truck', size: 17 %}
-            {{ s.reassurance | escape }}
+            {{ reassurance_text | escape }}
           </p>
         {%- endif -%}
 
@@ -279,6 +291,20 @@
         });
       });
       paint();
+
+      // When the size finder recommends a size, pre-select the matching variant.
+      document.addEventListener('sprout:size-suggest', (e) => {
+        const size = e.detail && e.detail.size;
+        if (!size) return;
+        // Find a [data-opt] radio whose value matches the suggested size (case-insensitive).
+        const target = [...scope.querySelectorAll('[data-opt]')].find(
+          (i) => i.value.toLowerCase() === size.toLowerCase()
+        );
+        if (target && !target.checked) {
+          target.checked = true;
+          target.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
     }
   })();
 </script>

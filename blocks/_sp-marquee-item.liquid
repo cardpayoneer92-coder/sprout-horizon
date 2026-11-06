@@ -6,7 +6,9 @@
 {% enddoc %}
 
 {%- if block.settings.text != blank -%}
-  <span class="sp-marquee__word" {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</span>
+  {%- assign sp_amount = settings.free_shipping_threshold | times: 100 | money -%}
+  {%- assign marquee_text = block.settings.text | replace: '[AMOUNT]', sp_amount -%}
+  <span class="sp-marquee__word" {{ block.shopify_attributes }}>{{ marquee_text | escape }}</span>
 {%- endif -%}
 
 {% stylesheet %}

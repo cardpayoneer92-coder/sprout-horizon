@@ -17,14 +17,26 @@
   comment
     On a product page this grid is "goes well with this", so the product the
     shopper is already looking at is not one of the suggestions.
+    sp_page_pet: derive the current product's pet from its tags so the grid
+    pre-filters to that pet even before the visitor has set a profile.
   endcomment
   assign shown = ''
   assign picked = 0
+  assign sp_page_pet = ''
+  if product != blank
+    for tag in product.tags
+      assign tag_lower = tag | downcase
+      if tag_lower == 'dog' or tag_lower == 'puppy' or tag_lower == 'cat' or tag_lower == 'small pet'
+        assign sp_page_pet = tag_lower
+        break
+      endif
+    endfor
+  endif
 -%}
 
 <section class="sp-sec sp-pgrid-sec" style="--sp-sec-bg: {{ s.background }}; --sp-h2-size: {{ s.heading_size }}px; --sp-pgrid-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
   <div class="sp-wrap">
-    <sp-pet-aware class="sp-pgrid" data-heading-template="{{ s.heading | escape }}" data-sub-template="{{ s.subheading | escape }}">
+    <sp-pet-aware class="sp-pgrid" data-heading-template="{{ s.heading | escape }}" data-sub-template="{{ s.subheading | escape }}" data-page-pet="{{ sp_page_pet | escape }}">
       <div class="sp-pgrid__head sp-reveal">
         <div>
           {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
@@ -63,7 +75,14 @@
   if (!customElements.get('sp-pet-aware')) {
     customElements.define('sp-pet-aware', class extends HTMLElement {
       connectedCallback() {
-        this.apply(this.read());
+        // Prefer localStorage profile; fall back to the product's own pet tag
+        // (data-page-pet) so "Complete the set" pre-filters to the right pet
+        // even before the visitor has picked one.
+        let profile = this.read();
+        if (!profile && this.dataset.pagePet) {
+          profile = { pet: this.dataset.pagePet, weight: 0 };
+        }
+        this.apply(profile);
         this.onChange = (e) => this.apply(e.detail);
         document.addEventListener('sprout:pet-change', this.onChange);
       }
@@ -83,6 +102,14 @@
           const size = p.weight < 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large');
           n.textContent = size + ' fits';
           n.hidden = false;
+        });
+        // Filter cards to show only those tagged for the selected pet.
+        // A card without data-pet-tags is treated as universal and always shown.
+        this.querySelectorAll('[data-pet-tags]').forEach((card) => {
+          const tags = card.dataset.petTags;
+          if (!tags) { card.hidden = false; return; }
+          const match = tags.split(',').some((t) => t.trim() === pet || t.trim() === 'all-pets');
+          card.hidden = !match;
         });
       }
     });
