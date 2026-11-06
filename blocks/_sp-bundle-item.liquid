@@ -20,10 +20,11 @@
 >
   <span class="sp-bundle__tick" aria-hidden="true">{% render 'sp-icon', name: 'check', size: 15 %}</span>
   <span class="sp-bundle__media">
-    {%- if p != blank and p.featured_media -%}
-      <img src="{{ p.featured_media | image_url: width: 400 }}" alt="" width="{{ p.featured_media.width }}" height="{{ p.featured_media.height }}" loading="lazy">
-    {%- elsif b.image != blank -%}
-      <img src="{{ b.image | image_url: width: 400 }}" alt="" width="{{ b.image.width }}" height="{{ b.image.height }}" loading="lazy">
+    {%- comment -%} The merchant's override wins over the product photo. {%- endcomment -%}
+    {%- if b.image != blank -%}
+      {{ b.image | image_url: width: 600 | image_tag: alt: '', widths: '200, 300, 400, 600', sizes: '(min-width: 990px) 25vw, 50vw', loading: 'lazy' }}
+    {%- elsif p != blank and p.featured_media -%}
+      {{ p.featured_media | image_url: width: 600 | image_tag: alt: '', widths: '200, 300, 400, 600', sizes: '(min-width: 990px) 25vw, 50vw', loading: 'lazy' }}
     {%- else -%}
       <span class="sp-bundle__art sp-bob">{% render 'sp-art', name: b.art, size: 110 %}</span>
       {%- if p != blank -%}
@@ -62,7 +63,7 @@
   "settings": [
     { "type": "product", "id": "product", "label": "Product" },
     { "type": "text", "id": "title", "label": "Title override" },
-    { "type": "image_picker", "id": "image", "label": "Image override" },
+    { "type": "image_picker", "id": "image", "label": "Image override", "info": "Shown instead of the product photo." },
     { "type": "checkbox", "id": "selected", "label": "Selected to start", "default": false },
     {
       "type": "select", "id": "art", "label": "Illustration", "default": "bed",
