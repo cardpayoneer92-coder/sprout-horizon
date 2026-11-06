@@ -35,11 +35,13 @@
 
   <p class="sp-finder__out" aria-live="polite" data-out>Pop in a weight and we will size it.</p>
 
+  {%- unless hide_chips -%}
   <div class="sp-finder__sizes" role="group" aria-label="Pack size">
     <button type="button" class="sp-finder__size" data-size="Small">Small</button>
     <button type="button" class="sp-finder__size" data-size="Medium">Medium</button>
     <button type="button" class="sp-finder__size" data-size="Large">Large</button>
   </div>
+  {%- endunless -%}
 </sp-size-finder>
 
 <script type="module">

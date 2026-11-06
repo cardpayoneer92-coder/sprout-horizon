@@ -1,0 +1,58 @@
+{% comment %}
+  Shared pet-bar snippet.
+  Renders the sticky "Shopping for Dog · Medium | Change pet" strip.
+  Extracted from sp-collection.liquid so product and search pages share
+  one implementation without duplicating the custom-element definition.
+
+  @param show_bar    {boolean} - Whether to render the bar at all
+  @param bar_label   {string}  - Text before the pet name, e.g. "Shopping for"
+  @param bar_button  {string}  - Button label, e.g. "Change pet"
+  @param bar_link    {string}  - URL the button links to
+{% endcomment %}
+
+{%- if show_bar -%}
+<sp-pet-bar class="sp-coll__bar">
+  <div class="sp-wrap sp-coll__bar-inner">
+    <span class="sp-coll__for">
+      {% render 'sp-icon', name: 'paw', size: 20 %}
+      <span>{{ bar_label | escape }} <strong data-pet-out>your pet</strong><span data-size-wrap hidden> · <strong data-size-out></strong></span></span>
+    </span>
+    <a class="sp-btn sp-btn--soft sp-btn--sm" href="{{ bar_link | default: '/' }}">{{ bar_button | escape }}</a>
+  </div>
+</sp-pet-bar>
+{%- endif -%}
+
+<script type="module">
+  if (!customElements.get('sp-pet-bar')) {
+    customElements.define('sp-pet-bar', class extends HTMLElement {
+      connectedCallback() {
+        this.apply(this.read());
+        this.onPet = (e) => this.apply(e.detail);
+        document.addEventListener('sprout:pet-change', this.onPet);
+      }
+      disconnectedCallback() { document.removeEventListener('sprout:pet-change', this.onPet); }
+      read() {
+        try { return JSON.parse(localStorage.getItem('sprout:pet')) || null; } catch (e) { return null; }
+      }
+      apply(p) {
+        if (!p || !p.pet) return;
+        const petOut = this.querySelector('[data-pet-out]');
+        const sizeOut = this.querySelector('[data-size-out]');
+        const wrap = this.querySelector('[data-size-wrap]');
+        if (petOut) petOut.textContent = p.pet;
+        if (sizeOut && p.weight) {
+          sizeOut.textContent = p.weight < 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large');
+          if (wrap) wrap.hidden = false;
+        }
+      }
+    });
+  }
+</script>
+
+{% stylesheet %}
+  /* Only emitted on pages that don't already load sp-collection.liquid */
+  sp-pet-bar.sp-coll__bar { position: sticky; top: 0; z-index: 10; display: block; background: var(--sp-mint, #e7f0e2); border-bottom: 1px solid #d3e0cd; }
+  .sp-coll__bar-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; padding-block: 12px; }
+  .sp-coll__for { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
+  .sp-coll__for svg { color: var(--sp-moss, #3f6b4a); }
+{% endstylesheet %}

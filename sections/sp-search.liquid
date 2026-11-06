@@ -10,6 +10,8 @@
   assign s = section.settings
 -%}
 
+{% render 'sp-pet-bar', show_bar: s.show_bar, bar_label: s.bar_label, bar_button: s.bar_button, bar_link: s.bar_link %}
+
 <section class="sp-sec sp-search" style="--sp-sec-bg: {{ s.background }}; --sp-search-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
   <div class="sp-wrap">
     <div class="sp-search__head sp-reveal">
@@ -106,6 +108,12 @@
   "class": "sp-search-section",
   "enabled_on": { "templates": ["search"] },
   "settings": [
+    { "type": "header", "content": "Pet bar" },
+    { "type": "checkbox", "id": "show_bar", "label": "Show the pet bar", "default": true },
+    { "type": "text", "id": "bar_label", "label": "Bar label", "default": "Shopping for" },
+    { "type": "text", "id": "bar_button", "label": "Bar button", "default": "Change pet" },
+    { "type": "url", "id": "bar_link", "label": "Bar link" },
+    { "type": "header", "content": "Search" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Search" },
     { "type": "text", "id": "placeholder", "label": "Placeholder", "default": "Try \"salmon\" or \"slow bowl\"" },
     { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 5, "step": 1, "default": 4 },

@@ -106,6 +106,19 @@
             {%- endif -%}
           </div>
 
+          {%- if s.show_pet_chips -%}
+            <div class="sp-coll__petchips" role="group" aria-label="Filter by pet">
+              <button class="sp-coll__petchip is-on" data-petchip="all">All pets</button>
+              {%- assign raw_pet_chips = s.pet_chips | newline_to_br | split: '<br />' -%}
+              {%- for item in raw_pet_chips -%}
+                {%- assign pc = item | strip -%}
+                {%- if pc != blank -%}
+                  <button class="sp-coll__petchip" data-petchip="{{ pc | downcase | escape }}">{{ pc | escape }}</button>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+
           <sp-pet-aware class="sp-grid sp-coll__grid" data-heading-template="" data-sub-template="">
             {%- for product in collection.products -%}
               {% render 'sp-product-card', product: product, index: forloop.index0, show_quick_add: s.quick_add %}
@@ -220,6 +233,7 @@
     { "type": "text", "id": "bar_label", "label": "Bar label", "default": "Shopping for" },
     { "type": "text", "id": "bar_button", "label": "Bar button", "default": "Change pet" },
     { "type": "url", "id": "bar_link", "label": "Bar link" },
+    { "type": "paragraph", "content": "To add Pet type, Size and Product type filters: open Shopify admin → Apps → Search & Discovery → Filters → Add filter. Use 'Product type' for product type, and 'Tag' (values: dog, cat, puppy, small pet) for pet, and (values: Small, Medium, Large) for size. Changes apply after saving in the app." },
     { "type": "header", "content": "Grid" },
     { "type": "range", "id": "columns", "label": "Columns", "min": 2, "max": 4, "step": 1, "default": 3 },
     { "type": "range", "id": "items_per_page", "label": "Products per page", "min": 8, "max": 48, "step": 4, "default": 24 },

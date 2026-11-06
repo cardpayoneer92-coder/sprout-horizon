@@ -13,9 +13,27 @@
   assign p = product
   assign v = product.selected_or_first_available_variant
   assign badges = s.badges | newline_to_br | split: '<br />'
+  assign sp_delivery_chips = s.delivery_chips | newline_to_br | split: '<br />'
+  comment
+    Detect which pet(s) this product is tagged for so we can show a mismatch
+    notice when the saved profile is for a different pet.
+  endcomment
+  assign sp_product_pets = ''
+  for tag in p.tags
+    assign tl = tag | downcase
+    if tl == 'dog' or tl == 'puppy' or tl == 'cat' or tl == 'small pet'
+      if sp_product_pets == ''
+        assign sp_product_pets = tl
+      else
+        assign sp_product_pets = sp_product_pets | append: ',' | append: tl
+      endif
+    endif
+  endfor
 -%}
 
-<section class="sp-sec sp-pdp" style="--sp-sec-bg: {{ s.background }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+{% render 'sp-pet-bar', show_bar: s.show_bar, bar_label: s.bar_label, bar_button: s.bar_button, bar_link: s.bar_link %}
+
+<section class="sp-sec sp-pdp" style="--sp-sec-bg: {{ s.background }}; --sp-pdp-sticky-top: {{ s.sticky_top }}px; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;" data-product-pets="{{ sp_product_pets | escape }}">
   <div class="sp-wrap">
 
     {%- if s.show_breadcrumb -%}
@@ -81,6 +99,16 @@
       </div>
 
       <div class="sp-pdp__buy">
+        {%- if s.show_mismatch -%}
+          <div class="sp-pdp__mismatch" data-sp-mismatch
+               data-template="{{ s.mismatch_text | escape }}"
+               data-link="{{ s.mismatch_link | escape }}"
+               hidden>
+            {% render 'sp-icon', name: 'paw', size: 16 %}
+            <span data-sp-mismatch-text></span>
+          </div>
+        {%- endif -%}
+
         {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
         <h1 class="sp-pdp__title">{{ p.title | default: 'Product name' }}</h1>
 
@@ -101,6 +129,17 @@
           </ul>
         {%- endif -%}
 
+        {%- if s.delivery_chips != blank -%}
+          <div class="sp-pdp__delivery">
+            {%- for chip in sp_delivery_chips -%}
+              {%- assign dlabel = chip | strip -%}
+              {%- if dlabel != blank -%}
+                <span class="sp-pdp__delivery-chip">{{ dlabel }}</span>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
         <p class="sp-pdp__price">
           {%- if v -%}
             <s data-compare{% unless v.compare_at_price > v.price %} hidden{% endunless %}>{{ v.compare_at_price | money }}</s>
@@ -117,7 +156,8 @@
             text: s.finder_text,
             small_max: s.small_max,
             medium_max: s.medium_max,
-            grams_per_kg: s.grams_per_kg %}
+            grams_per_kg: s.grams_per_kg,
+            hide_chips: true %}
         {%- endif -%}
 
         {%- if p != blank -%}
@@ -181,7 +221,7 @@
                 <button type="button" class="sp-qty__btn" data-qty="1" aria-label="Increase quantity">+</button>
               </div>
               <button type="submit" class="sp-btn sp-btn--primary sp-pdp__add" data-label="{{ s.button_text | escape }}"{% unless p.available %} disabled{% endunless %}>
-                {%- if p.available -%}{{ s.button_text | escape }}{%- else -%}Sold out{%- endif -%}
+                {%- if p.available -%}{{ s.button_text | escape }}{%- else -%}{{ s.sold_out_text | escape }}{%- endif -%}
               </button>
             </div>
           {%- endform -%}
@@ -190,6 +230,16 @@
           <div class="sp-pdp__actions">
             <span class="sp-btn sp-btn--primary sp-pdp__add">{{ s.button_text | escape }}</span>
           </div>
+        {%- endif -%}
+
+        {%- if s.show_subscribe -%}
+          <label class="sp-pdp__subscribe">
+            <input type="checkbox" data-subscribe>
+            <span class="sp-pdp__subscribe-label">{{ s.subscribe_text | escape }}</span>
+            {%- if s.subscribe_note != blank -%}
+              <span class="sp-pdp__subscribe-note">{{ s.subscribe_note | escape }}</span>
+            {%- endif -%}
+          </label>
         {%- endif -%}
 
         {%- if s.reassurance != blank -%}
@@ -292,6 +342,44 @@
       });
       paint();
 
+      // Pet mismatch notice — shown when saved pet ≠ product's tagged pet.
+      (function () {
+        const notice = scope.querySelector('[data-sp-mismatch]');
+        if (!notice) return;
+        const rawPets = (scope.dataset.productPets || '').split(',').map((s) => s.trim()).filter(Boolean);
+        if (!rawPets.length) return; // universal product — no mismatch possible
+
+        function checkMismatch(profile) {
+          if (!profile || !profile.pet) { notice.hidden = true; return; }
+          const saved = profile.pet.toLowerCase();
+          if (rawPets.includes(saved)) { notice.hidden = true; return; }
+
+          // Build notice text — replace [product_pet] and [pet] tokens.
+          const productPet = rawPets[0];
+          const tmpl = notice.dataset.template || 'This one is for [product_pet]s — see [pet] picks →';
+          const text = tmpl.replace('[product_pet]', productPet).replace('[pet]', saved);
+          const textNode = notice.querySelector('[data-sp-mismatch-text]');
+          if (textNode) textNode.textContent = text;
+
+          // Build the link href if a link template was provided.
+          const linkTmpl = notice.dataset.link || '';
+          if (linkTmpl) {
+            const href = linkTmpl.replace('[pet]', saved).replace('[product_pet]', productPet);
+            let anchor = notice.querySelector('a');
+            if (!anchor) {
+              anchor = document.createElement('a');
+              notice.appendChild(anchor);
+            }
+            anchor.href = href;
+            anchor.textContent = '→';
+          }
+          notice.hidden = false;
+        }
+
+        try { checkMismatch(JSON.parse(localStorage.getItem('sprout:pet'))); } catch (e) {}
+        document.addEventListener('sprout:pet-change', (e) => checkMismatch(e.detail));
+      })();
+
       // When the size finder recommends a size, pre-select the matching variant.
       document.addEventListener('sprout:size-suggest', (e) => {
         const size = e.detail && e.detail.size;
@@ -313,6 +401,22 @@
   .sp-pdp__crumb { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 22px; font-size: 14px; color: var(--sp-muted, #566358); }
   .sp-pdp__crumb a { color: inherit; text-decoration: none; }
   .sp-pdp__crumb a:hover { color: var(--sp-moss, #2f7a46); }
+
+  /* Improvements 13/14/18: mismatch notice, sticky gallery, delivery & subscribe */
+  .sp-pdp__mismatch { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding: 12px 16px; border-radius: 999px; background: var(--sp-peach, #f3c3a0); font-size: 14px; font-weight: 700; color: var(--sp-ink, #27372b); }
+  .sp-pdp__mismatch svg { flex-shrink: 0; }
+  .sp-pdp__mismatch a { color: inherit; }
+
+  .sp-pdp__delivery { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .sp-pdp__delivery-chip { display: inline-flex; align-items: center; padding: 7px 14px; border-radius: 999px; background: var(--sp-cream, #fdfaf2); border: 1.5px solid var(--sp-line-mint, #d6e2d0); font-size: 13px; font-weight: 700; color: var(--sp-ink, #27372b); }
+
+  .sp-pdp__subscribe { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 16px; padding: 14px 18px; border-radius: var(--sp-r-tile, 22px); background: var(--sp-mint, #d8edcd); cursor: pointer; }
+  .sp-pdp__subscribe input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--sp-moss, #3f6b4a); flex-shrink: 0; }
+  .sp-pdp__subscribe-label { font-weight: 700; font-size: 15px; }
+  .sp-pdp__subscribe-note { width: 100%; margin-left: 32px; font-size: 13px; color: var(--sp-muted, #566358); }
+
+  /* Improvement 14: gallery column is sticky so it stays in view while the tall buy-box scrolls */
+  .sp-pdp__gallery { position: sticky; top: var(--sp-pdp-sticky-top, 80px); align-self: start; }
 
   .sp-pdp__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 4.5vw, 56px); align-items: start; }
 
@@ -378,13 +482,30 @@
   "enabled_on": { "templates": ["product"] },
   "blocks": [{ "type": "_sp-pd-row" }],
   "settings": [
+    { "type": "header", "content": "Pet bar" },
+    { "type": "checkbox", "id": "show_bar", "label": "Show the pet bar", "default": true },
+    { "type": "text", "id": "bar_label", "label": "Bar label", "default": "Shopping for" },
+    { "type": "text", "id": "bar_button", "label": "Bar button", "default": "Change pet" },
+    { "type": "url", "id": "bar_link", "label": "Bar link" },
+    { "type": "header", "content": "Pet mismatch notice" },
+    { "type": "paragraph", "content": "Shows when the saved pet doesn't match this product's tags (dog, cat, puppy, small pet). Hide the notice or change the wording here." },
+    { "type": "checkbox", "id": "show_mismatch", "label": "Show mismatch notice", "default": true },
+    { "type": "text", "id": "mismatch_text", "label": "Notice text", "default": "This one is for [product_pet]s — see [pet] picks →", "info": "[product_pet] = this product's pet. [pet] = the saved pet." },
+    { "type": "text", "id": "mismatch_link", "label": "Notice link", "default": "/collections/[pet]", "info": "[pet] is replaced with the saved pet name, e.g. /collections/cat" },
     { "type": "header", "content": "Text" },
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Gently cooked · adult dog" },
     { "type": "textarea", "id": "summary", "label": "Summary", "info": "Leave empty to use the start of the product description." },
     { "type": "textarea", "id": "badges", "label": "Safety pills", "default": "Vet approved\nNon-toxic\nNo fillers\nCompostable pack", "info": "One per line." },
     { "type": "text", "id": "price_note", "label": "Price note", "default": "per pack" },
     { "type": "text", "id": "button_text", "label": "Button", "default": "Add to bag" },
+    { "type": "text", "id": "sold_out_text", "label": "Sold out label", "default": "Sold out" },
     { "type": "text", "id": "reassurance", "label": "Reassurance", "default": "Free delivery over [AMOUNT] · skip or cancel any time" },
+    { "type": "textarea", "id": "delivery_chips", "label": "Delivery info chips", "default": "48 hrs\nPosted chilled\nCooked this week", "info": "One chip per line. Leave empty to hide." },
+    { "type": "header", "content": "Subscribe & save" },
+    { "type": "paragraph", "content": "Shows a checkbox toggle in the buy box. Wire up Shopify Selling Plans so the discount actually applies at checkout." },
+    { "type": "checkbox", "id": "show_subscribe", "label": "Show subscribe toggle", "default": false },
+    { "type": "text", "id": "subscribe_text", "label": "Toggle label", "default": "Subscribe and save" },
+    { "type": "text", "id": "subscribe_note", "label": "Note below toggle", "default": "10% off every order · skip or cancel any time" },
     { "type": "header", "content": "Gallery" },
     { "type": "text", "id": "flag", "label": "Corner flag", "default": "New recipe" },
     {
@@ -409,6 +530,7 @@
     { "type": "range", "id": "grams_per_kg", "label": "Grams per kg a day", "min": 10, "max": 40, "step": 1, "default": 22 },
     { "type": "header", "content": "Style" },
     { "type": "color", "id": "background", "label": "Background", "default": "#fdfaf2" },
+    { "type": "range", "id": "sticky_top", "label": "Gallery sticky offset", "min": 0, "max": 160, "step": 4, "unit": "px", "default": 80, "info": "Space from the top of the viewport where the image column sticks. Increase if your header is taller than 80 px." },
     { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 32 },
     { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 48 }
   ]
