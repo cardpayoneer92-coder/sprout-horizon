@@ -326,11 +326,12 @@
           "settings": {
             "title": "Dog",
             "pet": "Dog",
-            "count": "24 things",
+            "count": "",
             "art": "dog",
             "tint": "#d8edcd",
             "sticker": "Most loved",
-            "link": "/collections/all"
+            "link": "",
+            "collection": "dog"
           }
         },
         "puppy": {
@@ -338,11 +339,12 @@
           "settings": {
             "title": "Puppy",
             "pet": "Puppy",
-            "count": "12 things",
+            "count": "",
             "art": "puppy",
             "tint": "#fbe9d2",
             "sticker": "",
-            "link": "/collections/all"
+            "link": "",
+            "collection": "puppy"
           }
         },
         "cat": {
@@ -350,11 +352,12 @@
           "settings": {
             "title": "Cat",
             "pet": "Cat",
-            "count": "18 things",
+            "count": "",
             "art": "cat",
             "tint": "#bfe3ef",
             "sticker": "",
-            "link": "/collections/all"
+            "link": "",
+            "collection": "cat"
           }
         },
         "small": {
@@ -362,11 +365,12 @@
           "settings": {
             "title": "Small pets",
             "pet": "Small pet",
-            "count": "9 things",
+            "count": "",
             "art": "bunny",
             "tint": "#ffb784",
             "sticker": "",
-            "link": "/collections/all"
+            "link": "",
+            "collection": "small-pets"
           }
         }
       },
