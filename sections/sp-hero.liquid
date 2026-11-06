@@ -253,8 +253,19 @@
     .sp-hero--banner .sp-hero__stage { order: 0; min-height: 0; }
   }
   @media (max-width: 749px) {
-    .sp-hero--banner { justify-content: flex-start; min-height: min(150vw, 820px); }
-    .sp-hero--banner .sp-hero__veil { background: linear-gradient(180deg, var(--sp-hero-bg, #d8edcd) 0%, var(--sp-hero-bg, #d8edcd) 25%, transparent 60%); }
+    /* On phones the photo leaves the back of the text and sits under it as a
+       rounded card, so no copy ever lands on a face. */
+    .sp-hero--banner { min-height: 0; justify-content: flex-start; }
+    .sp-hero--banner .sp-hero__grid { order: 1; padding-bottom: 18px; }
+    .sp-hero--banner .sp-hero__bg {
+      position: relative; inset: auto; order: 2; z-index: 1;
+      margin: 0 16px 22px; aspect-ratio: 1 / 1; height: auto;
+      border-radius: var(--sp-r-card, 28px); overflow: hidden;
+      box-shadow: 0 16px 36px rgb(39 55 43 / 0.16);
+    }
+    .sp-hero--banner .sp-hero__bg img { object-position: 50% 100% !important; }
+    .sp-hero--banner .sp-hero__veil { display: none; }
+    .sp-hero--banner .sp-hero__strip { order: 3; }
     .sp-hero--banner .sp-hero__stage { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
