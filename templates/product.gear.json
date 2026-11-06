@@ -16,8 +16,9 @@
           "type": "_sp-pd-row",
           "settings": {
             "title": "Materials",
-            "text": "<p>Recycled fill, cotton cover, and a zip so the whole cover comes off. No glue, no foam offcuts.</p>",
-            "open": true
+            "text": "",
+            "open": true,
+            "metafield_key": "custom.materials"
           }
         },
         "care": {

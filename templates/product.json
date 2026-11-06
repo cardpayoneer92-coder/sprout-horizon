@@ -16,8 +16,9 @@
           "type": "_sp-pd-row",
           "settings": {
             "title": "Ingredients",
-            "text": "<p>Chicken thigh (62%), pumpkin, brown rice, spinach, flaxseed and a vitamin mix. Nothing else — no fillers, no colours, no preservatives.</p>",
-            "open": true
+            "text": "",
+            "open": true,
+            "metafield_key": "custom.ingredients"
           }
         },
         "feeding": {
