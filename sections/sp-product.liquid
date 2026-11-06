@@ -21,7 +21,7 @@
   assign sp_product_pets = ''
   for tag in p.tags
     assign tl = tag | downcase
-    if tl == 'dog' or tl == 'puppy' or tl == 'cat' or tl == 'small pet'
+    if tl == 'dog' or tl == 'puppy' or tl == 'cat' or tl == 'kitten' or tl == 'small-pet' or tl == 'small pet'
       if sp_product_pets == ''
         assign sp_product_pets = tl
       else
@@ -352,26 +352,27 @@
         function checkMismatch(profile) {
           if (!profile || !profile.pet) { notice.hidden = true; return; }
           const saved = profile.pet.toLowerCase();
-          if (rawPets.includes(saved)) { notice.hidden = true; return; }
+          const key = saved.replace(/\s+/g, '-');
+          const fits = { puppy: ['puppy', 'dog'], kitten: ['kitten', 'cat'] }[key] || [key];
+          if (rawPets.some((t) => fits.includes(t))) { notice.hidden = true; return; }
 
           // Build notice text — replace [product_pet] and [pet] tokens.
           const productPet = rawPets[0];
           const tmpl = notice.dataset.template || 'This one is for [product_pet]s — see [pet] picks →';
           const text = tmpl.replace('[product_pet]', productPet).replace('[pet]', saved);
           const textNode = notice.querySelector('[data-sp-mismatch-text]');
-          if (textNode) textNode.textContent = text;
-
-          // Build the link href if a link template was provided.
+          // The whole sentence is the link — no second arrow tacked on.
           const linkTmpl = notice.dataset.link || '';
-          if (linkTmpl) {
-            const href = linkTmpl.replace('[pet]', saved).replace('[product_pet]', productPet);
-            let anchor = notice.querySelector('a');
-            if (!anchor) {
-              anchor = document.createElement('a');
-              notice.appendChild(anchor);
+          if (textNode) {
+            textNode.textContent = '';
+            if (linkTmpl) {
+              const a = document.createElement('a');
+              a.href = linkTmpl.replace('[pet]', key).replace('[product_pet]', productPet);
+              a.textContent = text;
+              textNode.appendChild(a);
+            } else {
+              textNode.textContent = text;
             }
-            anchor.href = href;
-            anchor.textContent = '→';
           }
           notice.hidden = false;
         }
@@ -496,7 +497,7 @@
     { "type": "paragraph", "content": "Shows when the saved pet doesn't match this product's tags (dog, cat, puppy, small pet). Hide the notice or change the wording here." },
     { "type": "checkbox", "id": "show_mismatch", "label": "Show mismatch notice", "default": true },
     { "type": "text", "id": "mismatch_text", "label": "Notice text", "default": "This one is for [product_pet]s — see [pet] picks →", "info": "[product_pet] = this product's pet. [pet] = the saved pet." },
-    { "type": "text", "id": "mismatch_link", "label": "Notice link", "default": "/collections/[pet]", "info": "[pet] is replaced with the saved pet name, e.g. /collections/cat" },
+    { "type": "text", "id": "mismatch_link", "label": "Notice link", "default": "/collections/all", "info": "The saved pet already filters collections, so /collections/all shows their picks. [pet] is replaced with the saved pet, e.g. /collections/[pet] if you have one collection per pet." },
     { "type": "header", "content": "Text" },
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Gently cooked · adult dog" },
     { "type": "textarea", "id": "summary", "label": "Summary", "info": "Leave empty to use the start of the product description." },
