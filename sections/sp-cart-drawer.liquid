@@ -1,0 +1,331 @@
+{% comment %}
+  Section contract.
+  Slide-out bag. Rendered once from layout/theme.liquid as a static section, so
+  the Section Rendering API (/?sections=sp-cart-drawer) can redraw it after
+  every add, quantity change or removal without a page load.
+
+  Opens when:
+  - any product form posting to /cart/add is submitted (quick add, product page,
+    sticky bar) — the add happens over fetch instead of a redirect
+  - the bundle builder fires `sprout:cart-change`
+  - the header bag icon is clicked
+  Only active when Theme settings → Cart → Cart type is "Drawer".
+  @example
+  <!-- Your bag (2) · $21 to go for free delivery · Checkout -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+  assign goal = settings.free_shipping_threshold | times: 100
+  assign left = goal | minus: cart.total_price
+  if goal > 0
+    assign pct = cart.total_price | times: 100 | divided_by: goal
+    if pct > 100
+      assign pct = 100
+    endif
+  else
+    assign pct = 100
+  endif
+  assign left_money = left | money
+-%}
+
+<sp-cart-drawer
+  class="sp-cd"
+  data-enabled="{% if settings.cart_type == 'drawer' %}true{% else %}false{% endif %}"
+  data-adding="{{ s.adding_label | escape }}"
+  style="--sp-cd-bg: {{ s.background }};"
+>
+  <div class="sp-cd__overlay" data-cd-close></div>
+  <aside class="sp-cd__panel" role="dialog" aria-modal="true" aria-labelledby="sp-cd-title-{{ section.id }}" tabindex="-1">
+    <div data-cd-body data-count="{{ cart.item_count }}">
+      <header class="sp-cd__head">
+        <h2 class="sp-cd__title" id="sp-cd-title-{{ section.id }}">
+          {{ s.heading | escape }}{% if cart.item_count > 0 %} <span class="sp-cd__n">({{ cart.item_count }})</span>{% endif %}
+        </h2>
+        <button type="button" class="sp-icon-btn sp-cd__x" data-cd-close aria-label="{{ s.close_label | escape }}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </header>
+
+      {%- if cart.item_count > 0 -%}
+        {%- if s.show_progress and goal > 0 -%}
+          <div class="sp-cd__goal">
+            <p class="sp-cd__goal-text">
+              {% render 'sp-icon', name: 'truck', size: 17 %}
+              {%- if left > 0 -%}
+                {%- assign amount_html = '<strong>' | append: left_money | append: '</strong>' -%}
+                <span>{{ s.goal_text | escape | replace: '[AMOUNT]', amount_html }}</span>
+              {%- else -%}
+                <span>{{ s.goal_done | escape }}</span>
+              {%- endif -%}
+            </p>
+            <span class="sp-cd__bar" aria-hidden="true"><span style="width: {{ pct }}%;"></span></span>
+          </div>
+        {%- endif -%}
+
+        <ul class="sp-cd__items" role="list">
+          {%- for item in cart.items -%}
+            <li class="sp-cd__item" data-line="{{ forloop.index }}">
+              <a class="sp-cd__thumb" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
+                {%- if item.image -%}
+                  <img src="{{ item.image | image_url: width: 180 }}" alt="" width="90" height="{{ 90 | divided_by: item.image.aspect_ratio | round }}" loading="lazy">
+                {%- else -%}
+                  {% render 'sp-art', name: 'pouch', size: 70 %}
+                {%- endif -%}
+              </a>
+              <div class="sp-cd__info">
+                <a class="sp-cd__name" href="{{ item.url }}">{{ item.product.title | escape }}</a>
+                {%- unless item.product.has_only_default_variant -%}
+                  <span class="sp-cd__variant">{{ item.variant.title | escape }}</span>
+                {%- endunless -%}
+                {%- for p in item.properties -%}
+                  {%- unless p.first contains '_' or p.last == blank -%}
+                    <span class="sp-cd__variant">{{ p.first | escape }}: {{ p.last | escape }}</span>
+                  {%- endunless -%}
+                {%- endfor -%}
+                <div class="sp-cd__row">
+                  <div class="sp-cd__qty" role="group" aria-label="{{ s.qty_label | escape }} {{ item.product.title | escape }}">
+                    <button type="button" data-cd-qty="{{ item.quantity | minus: 1 }}" aria-label="−1">−</button>
+                    <span aria-live="polite">{{ item.quantity }}</span>
+                    <button type="button" data-cd-qty="{{ item.quantity | plus: 1 }}" aria-label="+1">+</button>
+                  </div>
+                  <span class="sp-cd__price">{{ item.final_line_price | money }}</span>
+                </div>
+                <button type="button" class="sp-cd__remove" data-cd-qty="0">{{ s.remove_label | escape }}</button>
+              </div>
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        <footer class="sp-cd__foot">
+          <p class="sp-cd__sub"><span>{{ s.subtotal_label | escape }}</span><strong>{{ cart.total_price | money }}</strong></p>
+          {%- if s.note != blank -%}<p class="sp-cd__note">{{ s.note | escape }}</p>{%- endif -%}
+          <form action="{{ routes.cart_url }}" method="post" class="sp-cd__checkout">
+            <button type="submit" name="checkout" class="sp-btn sp-btn--primary">{{ s.checkout_label | escape }}</button>
+          </form>
+          <a class="sp-cd__view" href="{{ routes.cart_url }}">{{ s.view_label | escape }}</a>
+        </footer>
+      {%- else -%}
+        <div class="sp-cd__empty">
+          <span class="sp-cd__empty-art sp-bob">{% render 'sp-art', name: 'bowl', size: 150 %}</span>
+          <p class="sp-cd__empty-title">{{ s.empty_heading | escape }}</p>
+          <p class="sp-cd__empty-text">{{ s.empty_text | escape }}</p>
+          <a class="sp-btn sp-btn--primary" href="{{ s.empty_link | default: routes.all_products_collection_url }}">{{ s.empty_button | escape }}</a>
+        </div>
+      {%- endif -%}
+      <p class="sp-cd__error" data-cd-error hidden></p>
+    </div>
+  </aside>
+</sp-cart-drawer>
+
+<script type="module">
+  if (!customElements.get('sp-cart-drawer')) {
+    customElements.define('sp-cart-drawer', class extends HTMLElement {
+      connectedCallback() {
+        if (this.dataset.enabled !== 'true') return;
+        this.panel = this.querySelector('.sp-cd__panel');
+
+        this.addEventListener('click', (e) => {
+          if (e.target.closest('[data-cd-close]')) { this.close(); return; }
+          const q = e.target.closest('[data-cd-qty]');
+          if (q) this.change(q.closest('[data-line]').dataset.line, Number(q.dataset.cdQty));
+        });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.classList.contains('is-open')) this.close(); });
+
+        // Every product form that posts to /cart/add goes through here instead
+        // of redirecting to the cart page. Capture phase so it runs before
+        // Horizon's own product-form handler.
+        document.addEventListener('submit', (e) => {
+          const form = e.target;
+          if (!(form instanceof HTMLFormElement)) return;
+          const action = form.getAttribute('action') || '';
+          if (!/\/cart\/add/.test(action)) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          this.add(form, e.submitter);
+        }, true);
+
+        // The bundle builder (and anything else) can ask for a refresh.
+        document.addEventListener('sprout:cart-change', () => this.refresh(true));
+
+        // The header bag opens the drawer — except on the cart page itself.
+        document.addEventListener('click', (e) => {
+          const bag = e.target.closest('.sp-head__cart');
+          if (!bag || location.pathname === bag.getAttribute('href')) return;
+          e.preventDefault();
+          this.open();
+        });
+      }
+
+      async add(form, submitter) {
+        const btn = submitter || form.querySelector('[type="submit"]');
+        const label = btn ? btn.innerHTML : '';
+        if (btn) { btn.disabled = true; btn.textContent = this.dataset.adding || 'Adding…'; }
+        try {
+          const res = await fetch(window.Shopify?.routes?.root ? Shopify.routes.root + 'cart/add.js' : '/cart/add.js', {
+            method: 'POST',
+            headers: { Accept: 'application/json' },
+            body: new FormData(form)
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.description || data.message || 'Could not add that one.');
+          await this.refresh(true);
+        } catch (err) {
+          await this.refresh(true);
+          this.showError(err.message);
+        } finally {
+          if (btn) { btn.disabled = false; btn.innerHTML = label; }
+        }
+      }
+
+      async change(line, quantity) {
+        this.classList.add('is-busy');
+        try {
+          const res = await fetch('/cart/change.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ line: Number(line), quantity: Math.max(0, quantity) })
+          });
+          const data = await res.json().catch(() => ({}));
+          await this.refresh(false);
+          if (!res.ok) this.showError(data.description || data.message);
+        } finally {
+          this.classList.remove('is-busy');
+        }
+      }
+
+      async refresh(openAfter) {
+        try {
+          const res = await fetch(location.pathname + '?sections=sp-cart-drawer', { headers: { Accept: 'application/json' } });
+          const json = await res.json();
+          const doc = new DOMParser().parseFromString(json['sp-cart-drawer'], 'text/html');
+          const fresh = doc.querySelector('[data-cd-body]');
+          const body = this.querySelector('[data-cd-body]');
+          if (fresh && body) body.replaceWith(fresh);
+          const count = Number((fresh || body).dataset.count || 0);
+          document.querySelectorAll('[data-cart-count]').forEach((n) => {
+            n.textContent = count;
+            n.classList.toggle('is-empty', count === 0);
+          });
+        } catch (e) { /* keep the old contents */ }
+        if (openAfter) this.open();
+      }
+
+      showError(msg) {
+        const n = this.querySelector('[data-cd-error]');
+        if (!n || !msg) return;
+        n.textContent = msg;
+        n.hidden = false;
+      }
+
+      open() {
+        this.lastFocus = document.activeElement;
+        this.classList.add('is-open');
+        document.documentElement.classList.add('sp-cd-lock');
+        requestAnimationFrame(() => this.panel && this.panel.focus());
+      }
+
+      close() {
+        this.classList.remove('is-open');
+        document.documentElement.classList.remove('sp-cd-lock');
+        if (this.lastFocus && this.lastFocus.focus) this.lastFocus.focus();
+      }
+    });
+  }
+</script>
+
+{% stylesheet %}
+  .sp-cd { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
+  .sp-cd__overlay { position: absolute; inset: 0; background: rgb(39 55 43 / 0.38); opacity: 0; transition: opacity 0.3s ease; }
+  .sp-cd__panel {
+    position: absolute; top: 0; right: 0; bottom: 0; width: min(430px, 94vw);
+    display: flex; flex-direction: column; overflow: hidden; outline: none;
+    background: var(--sp-cd-bg, #fbf7ef); color: var(--sp-ink, #27372b);
+    border-radius: var(--sp-r-card, 28px) 0 0 var(--sp-r-card, 28px);
+    box-shadow: -18px 0 48px rgb(39 55 43 / 0.18);
+    transform: translateX(104%); transition: transform 0.38s var(--sp-ease, cubic-bezier(.2,.8,.2,1));
+  }
+  .sp-cd.is-open { pointer-events: auto; }
+  .sp-cd.is-open .sp-cd__overlay { opacity: 1; }
+  .sp-cd.is-open .sp-cd__panel { transform: none; }
+  .sp-cd.is-busy .sp-cd__items { opacity: 0.55; pointer-events: none; }
+  html.sp-cd-lock { overflow: hidden; }
+
+  .sp-cd [data-cd-body] { display: flex; flex-direction: column; min-height: 100%; height: 100%; }
+  .sp-cd__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 22px 14px; }
+  .sp-cd__title { margin: 0; font-family: var(--sp-font-head); font-weight: 500; font-size: 28px; letter-spacing: -0.01em; }
+  .sp-cd__n { color: var(--sp-muted, #5e6e60); font-size: 20px; }
+
+  .sp-cd__goal { margin: 0 22px 12px; padding: 12px 16px 14px; border-radius: var(--sp-r-tile, 22px); background: var(--sp-mint, #e7f0e2); }
+  .sp-cd__goal-text { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 14px; }
+  .sp-cd__goal-text svg { color: var(--sp-moss, #3f6b4a); flex-shrink: 0; }
+  .sp-cd__bar { display: block; height: 8px; border-radius: 999px; background: rgb(253 250 242 / .9); overflow: hidden; }
+  .sp-cd__bar span { display: block; height: 100%; border-radius: inherit; background: var(--sp-moss, #3f6b4a); transition: width 0.5s var(--sp-ease); }
+
+  .sp-cd__items { flex: 1 1 auto; overflow-y: auto; margin: 0; padding: 4px 22px 12px; list-style: none; display: grid; align-content: start; gap: 12px; transition: opacity 0.2s ease; }
+  .sp-cd__item { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 14px; padding: 12px; border-radius: var(--sp-r-tile, 22px); background: #fffdf8; box-shadow: 0 2px 10px rgb(39 55 43 / 0.06); }
+  .sp-cd__thumb { display: grid; place-items: center; width: 84px; aspect-ratio: 4 / 5; border-radius: 16px; overflow: hidden; background: var(--sp-mint, #e7f0e2); }
+  .sp-cd__thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .sp-cd__thumb .sp-art { width: 70%; height: auto; }
+  .sp-cd__info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .sp-cd__name { font-weight: 700; color: inherit; text-decoration: none; line-height: 1.3; }
+  .sp-cd__variant { font-size: 13px; color: var(--sp-muted, #5e6e60); }
+  .sp-cd__row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
+  .sp-cd__qty { display: inline-flex; align-items: center; border: 2px solid #e2dac9; border-radius: 999px; }
+  .sp-cd__qty button { width: 34px; height: 34px; border: 0; background: none; font-size: 18px; color: inherit; cursor: pointer; border-radius: 999px; }
+  .sp-cd__qty button:hover { background: var(--sp-mint, #e7f0e2); }
+  .sp-cd__qty span { min-width: 22px; text-align: center; font-weight: 700; font-size: 14px; }
+  .sp-cd__price { font-weight: 700; }
+  .sp-cd__remove { align-self: flex-start; margin-top: 4px; padding: 0; border: 0; background: none; font-size: 13px; color: var(--sp-muted, #5e6e60); text-decoration: underline; cursor: pointer; }
+
+  .sp-cd__foot { margin-top: auto; padding: 16px 22px 22px; border-top: 1px solid #e6dfd0; background: var(--sp-cd-bg, #fbf7ef); }
+  .sp-cd__sub { display: flex; justify-content: space-between; margin: 0 0 6px; font-size: 17px; }
+  .sp-cd__note { margin: 0 0 14px; font-size: 13px; color: var(--sp-muted, #5e6e60); }
+  .sp-cd__checkout { margin: 0; }
+  .sp-cd__checkout .sp-btn { width: 100%; justify-content: center; }
+  .sp-cd__view { display: block; margin-top: 12px; text-align: center; font-weight: 700; font-size: 14px; color: inherit; }
+
+  .sp-cd__empty { flex: 1; display: grid; justify-items: center; align-content: center; gap: 10px; padding: 24px 28px 48px; text-align: center; }
+  .sp-cd__empty-art .sp-art { width: 150px; height: auto; }
+  .sp-cd__empty-title { margin: 6px 0 0; font-family: var(--sp-font-head); font-size: 24px; }
+  .sp-cd__empty-text { margin: 0 0 10px; color: var(--sp-muted, #5e6e60); max-width: 30ch; }
+
+  .sp-cd__error { margin: 0 22px 16px; padding: 10px 14px; border-radius: 14px; background: #fde4dc; color: #8a3a22; font-size: 14px; font-weight: 700; }
+
+  @media (max-width: 749px) {
+    .sp-cd__panel { width: 100vw; border-radius: 0; }
+    .sp-cd__title { font-size: 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sp-cd__panel, .sp-cd__overlay, .sp-cd__bar span { transition: none; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "tag": "div",
+  "class": "sp-cart-drawer-section",
+  "settings": [
+    { "type": "paragraph", "content": "Turn the drawer on or off in Theme settings → Cart → Cart type." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Your bag" },
+    { "type": "checkbox", "id": "show_progress", "label": "Show free delivery bar", "default": true, "info": "Uses the free shipping amount from Theme settings." },
+    { "type": "text", "id": "goal_text", "label": "Progress text", "default": "[AMOUNT] to go for free delivery", "info": "[AMOUNT] is what is left to spend." },
+    { "type": "text", "id": "goal_done", "label": "Unlocked text", "default": "Free delivery unlocked — nice one." },
+    { "type": "text", "id": "subtotal_label", "label": "Subtotal label", "default": "Subtotal" },
+    { "type": "text", "id": "note", "label": "Note under subtotal", "default": "Taxes and delivery worked out at checkout." },
+    { "type": "text", "id": "checkout_label", "label": "Checkout button", "default": "Checkout" },
+    { "type": "text", "id": "view_label", "label": "View bag link", "default": "View bag" },
+    { "type": "text", "id": "adding_label", "label": "Adding… label", "default": "Adding…" },
+    { "type": "text", "id": "remove_label", "label": "Remove label", "default": "Remove" },
+    { "type": "text", "id": "qty_label", "label": "Quantity label", "default": "Quantity for" },
+    { "type": "text", "id": "close_label", "label": "Close label", "default": "Close bag" },
+    { "type": "header", "content": "Empty bag" },
+    { "type": "text", "id": "empty_heading", "label": "Heading", "default": "Your bag is empty" },
+    { "type": "text", "id": "empty_text", "label": "Text", "default": "Tell us who you are shopping for and we will point you at the right things." },
+    { "type": "text", "id": "empty_button", "label": "Button", "default": "Shop by pet" },
+    { "type": "url", "id": "empty_link", "label": "Button link" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fbf7ef" }
+  ]
+}
+{% endschema %}
