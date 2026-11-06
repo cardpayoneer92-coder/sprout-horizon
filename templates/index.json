@@ -17,21 +17,24 @@
           "settings": {
             "text": "Vet approved",
             "icon": "shield"
-          }
+          },
+          "blocks": {}
         },
         "t2": {
           "type": "_sp-trust-item",
           "settings": {
             "text": "Non-toxic materials",
             "icon": "leaf"
-          }
+          },
+          "blocks": {}
         },
         "t3": {
           "type": "_sp-trust-item",
           "settings": {
             "text": "Compostable packs",
             "icon": "check"
-          }
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -42,30 +45,30 @@
       "settings": {
         "eyebrow": "Fresh batch, every week",
         "heading": "Good food,",
+        "heading_tail": "happy tails",
         "text": "<p>Gently cooked meals portioned for your pet — tell us about them once and the whole shop fits.</p>",
+        "proof": "Loved by 4,000+ bowls a week",
         "heading_size": 72,
-        "focal_x": 70,
-        "focal_y": 50,
-        "show_paws": false,
         "button_text": "Shop by pet",
         "button_link": "/collections/all",
         "button2_text": "Find the right size",
         "button2_link": "/collections/all",
+        "image": "shopify://shop_images/sprout-hero-A-puppy-cat.png",
+        "photo_style": "banner",
+        "mobile_image": "shopify://shop_images/sprout-hero-mobile.png",
+        "banner_height": 660,
+        "veil_opacity": 20,
+        "focal_x": 70,
+        "focal_y": 50,
+        "stamp": "Cooked this week",
+        "show_paws": false,
         "background": "#d8edcd",
-        "text_color": "#27372b",
-        "padding_top": 56,
-        "padding_bottom": 20,
+        "stage_color": "#fdfaf2",
         "blob_one": "#ffd54a",
         "blob_two": "#ff8a6b",
-        "heading_tail": "happy tails",
-        "proof": "Loved by 4,000+ bowls a week",
-        "stamp": "Cooked this week",
-        "stage_color": "#fdfaf2",
-        "image": "shopify://shop_images/sprout-hero-A-puppy-cat.png",
-        "mobile_image": "shopify://shop_images/sprout-hero-mobile.png",
-        "photo_style": "banner",
-        "veil_opacity": 20,
-        "banner_height": 660
+        "text_color": "#27372b",
+        "padding_top": 56,
+        "padding_bottom": 20
       }
     },
     "marquee": {
@@ -75,31 +78,36 @@
           "type": "_sp-marquee-item",
           "settings": {
             "text": "Free shipping over [AMOUNT]"
-          }
+          },
+          "blocks": {}
         },
         "m2": {
           "type": "_sp-marquee-item",
           "settings": {
             "text": "Vet approved recipes"
-          }
+          },
+          "blocks": {}
         },
         "m3": {
           "type": "_sp-marquee-item",
           "settings": {
             "text": "Happy pets, happy humans"
-          }
+          },
+          "blocks": {}
         },
         "m4": {
           "type": "_sp-marquee-item",
           "settings": {
             "text": "Compostable packaging"
-          }
+          },
+          "blocks": {}
         },
         "m5": {
           "type": "_sp-marquee-item",
           "settings": {
             "text": "Skip or cancel any time"
-          }
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -112,8 +120,88 @@
       "settings": {
         "speed": 26,
         "text_size": 19,
+        "padding_top": 0,
+        "padding_bottom": 0,
         "background": "#2f7a46",
         "text_color": "#fdfaf2"
+      }
+    },
+    "pets": {
+      "type": "sp-shop-by-pet",
+      "blocks": {
+        "dog": {
+          "type": "_sp-pet-card",
+          "settings": {
+            "title": "Dog",
+            "pet": "Dog",
+            "collection": "dog",
+            "count": "",
+            "link": "",
+            "sticker": "Most loved",
+            "art": "dog",
+            "tint": "#d8edcd"
+          },
+          "blocks": {}
+        },
+        "puppy": {
+          "type": "_sp-pet-card",
+          "settings": {
+            "title": "Puppy",
+            "pet": "Puppy",
+            "collection": "puppy",
+            "count": "",
+            "link": "",
+            "sticker": "",
+            "art": "puppy",
+            "tint": "#fbe9d2"
+          },
+          "blocks": {}
+        },
+        "cat": {
+          "type": "_sp-pet-card",
+          "settings": {
+            "title": "Cat",
+            "pet": "Cat",
+            "collection": "cat",
+            "count": "",
+            "link": "",
+            "sticker": "",
+            "art": "cat",
+            "tint": "#bfe3ef"
+          },
+          "blocks": {}
+        },
+        "small": {
+          "type": "_sp-pet-card",
+          "settings": {
+            "title": "Small pets",
+            "pet": "Small pet",
+            "collection": "small-pets",
+            "count": "",
+            "link": "",
+            "sticker": "",
+            "art": "bunny",
+            "tint": "#ffb784"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "dog",
+        "puppy",
+        "cat",
+        "small"
+      ],
+      "settings": {
+        "eyebrow": "Who are we feeding?",
+        "heading": "Shop by pet",
+        "text": "Tell us once and the whole shop stays filtered to them.",
+        "note": "Your choice is remembered on this device, so collections stay filtered next time.",
+        "columns": 4,
+        "background": "#fdfaf2",
+        "heading_size": 46,
+        "padding_top": 56,
+        "padding_bottom": 32
       }
     },
     "profile": {
@@ -154,6 +242,7 @@
     "grid": {
       "type": "sp-product-grid",
       "settings": {
+        "collection": "",
         "count": 4,
         "columns": 4,
         "quick_add": true,
@@ -168,40 +257,110 @@
         "padding_bottom": 40
       }
     },
+    "feature": {
+      "type": "sp-feature",
+      "blocks": {
+        "p1": {
+          "type": "_sp-feature-point",
+          "settings": {
+            "title": "Six ingredients",
+            "text": "Everything fits on the front of the pack.",
+            "icon": "check"
+          },
+          "blocks": {}
+        },
+        "p2": {
+          "type": "_sp-feature-point",
+          "settings": {
+            "title": "Vet-formulated",
+            "text": "Written with a veterinary nutritionist.",
+            "icon": "shield"
+          },
+          "blocks": {}
+        },
+        "p3": {
+          "type": "_sp-feature-point",
+          "settings": {
+            "title": "Posted chilled",
+            "text": "In a pack that goes in the food caddy.",
+            "icon": "leaf"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "settings": {
+        "eyebrow": "In our kitchen",
+        "heading": "Cooked like you would at home",
+        "text": "<p>Whole ingredients, gently cooked and portioned the same week they are posted. No kibble dust, no mystery meal — just food you would recognise in a pan.</p>",
+        "button_text": "See how we cook",
+        "button_link": "/collections/all",
+        "image": "shopify://shop_images/sprout-banner-kitchen-feature.png",
+        "focal_x": 50,
+        "focal_y": 50,
+        "art": "bowl",
+        "media_side": "left",
+        "tilt": -2,
+        "sticker": "Made this week",
+        "stat_value": "48 hrs",
+        "stat_label": "from pot to post",
+        "frame_color": "#d8edcd",
+        "background": "#fdfaf2",
+        "heading_size": 46,
+        "padding_top": 64,
+        "padding_bottom": 64
+      }
+    },
     "bundle": {
       "type": "sp-bundle",
       "blocks": {
         "b1": {
           "type": "_sp-bundle-item",
           "settings": {
+            "product": "cloud-bed",
+            "title": "",
+            "image": "shopify://shop_images/sprout-hover-cloud-bed.png",
             "selected": true,
-            "art": "bed",
-            "product": "cloud-bed"
-          }
+            "art": "bed"
+          },
+          "blocks": {}
         },
         "b2": {
           "type": "_sp-bundle-item",
           "settings": {
+            "product": "waffle-blanket",
+            "title": "",
+            "image": "shopify://shop_images/sprout-hover-waffle-blanket.png",
             "selected": false,
-            "art": "blanket",
-            "product": "waffle-blanket"
-          }
+            "art": "blanket"
+          },
+          "blocks": {}
         },
         "b3": {
           "type": "_sp-bundle-item",
           "settings": {
+            "product": "rope-bone",
+            "title": "",
+            "image": "shopify://shop_images/sprout-hover-rope-bone.png",
             "selected": true,
-            "art": "bone",
-            "product": "rope-bone"
-          }
+            "art": "bone"
+          },
+          "blocks": {}
         },
         "b4": {
           "type": "_sp-bundle-item",
           "settings": {
+            "product": "slow-bowl",
+            "title": "",
+            "image": "shopify://shop_images/sprout-hover-slow-bowl.png",
             "selected": false,
-            "art": "bowl",
-            "product": "slow-bowl"
-          }
+            "art": "bowl"
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -235,7 +394,8 @@
             "title": "Vet-formulated",
             "text": "Written with a vet nutritionist",
             "icon": "shield"
-          }
+          },
+          "blocks": {}
         },
         "r2": {
           "type": "_sp-trust-line",
@@ -243,7 +403,8 @@
             "title": "Six ingredients",
             "text": "All of them on the front of the pack",
             "icon": "leaf"
-          }
+          },
+          "blocks": {}
         },
         "r3": {
           "type": "_sp-trust-line",
@@ -251,7 +412,8 @@
             "title": "Compostable packs",
             "text": "Plant film and paper, no plastic",
             "icon": "bowl"
-          }
+          },
+          "blocks": {}
         },
         "r4": {
           "type": "_sp-trust-line",
@@ -259,7 +421,8 @@
             "title": "Fussy-eater promise",
             "text": "They turn their nose up, we refund",
             "icon": "refresh"
-          }
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -269,127 +432,12 @@
         "r4"
       ],
       "settings": {
+        "heading": "",
         "columns": 4,
         "style": "band",
         "background": "#fdfaf2",
         "padding_top": 24,
         "padding_bottom": 24
-      }
-    },
-    "quote": {
-      "type": "sp-quote",
-      "blocks": {
-        "u1": {
-          "type": "_sp-ugc-tile",
-          "settings": {
-            "handle": "@sproutpets",
-            "art": "dog",
-            "image": "shopify://shop_images/sprout-ugc-4-dog-cat.png"
-          }
-        },
-        "u2": {
-          "type": "_sp-ugc-tile",
-          "settings": {
-            "handle": "@sproutpets",
-            "art": "cat",
-            "image": "shopify://shop_images/sprout-ugc-5-frenchie.png"
-          }
-        },
-        "u3": {
-          "type": "_sp-ugc-tile",
-          "settings": {
-            "handle": "@sproutpets",
-            "art": "bunny",
-            "image": "shopify://shop_images/sprout-ugc-1-beagle.png"
-          }
-        }
-      },
-      "block_order": [
-        "u1",
-        "u2",
-        "u3"
-      ],
-      "settings": {
-        "quote": "<p>“He went off his old food for a fortnight. First bowl of this, gone in a minute — and he has not missed one since.”</p>",
-        "attribution": "Hannah R. · Milo, beagle",
-        "quote_size": 30,
-        "background": "#fdfaf2",
-        "padding_top": 36,
-        "padding_bottom": 48
-      }
-    },
-    "pets": {
-      "type": "sp-shop-by-pet",
-      "blocks": {
-        "dog": {
-          "type": "_sp-pet-card",
-          "settings": {
-            "title": "Dog",
-            "pet": "Dog",
-            "count": "",
-            "art": "dog",
-            "tint": "#d8edcd",
-            "sticker": "Most loved",
-            "link": "",
-            "collection": "dog"
-          }
-        },
-        "puppy": {
-          "type": "_sp-pet-card",
-          "settings": {
-            "title": "Puppy",
-            "pet": "Puppy",
-            "count": "",
-            "art": "puppy",
-            "tint": "#fbe9d2",
-            "sticker": "",
-            "link": "",
-            "collection": "puppy"
-          }
-        },
-        "cat": {
-          "type": "_sp-pet-card",
-          "settings": {
-            "title": "Cat",
-            "pet": "Cat",
-            "count": "",
-            "art": "cat",
-            "tint": "#bfe3ef",
-            "sticker": "",
-            "link": "",
-            "collection": "cat"
-          }
-        },
-        "small": {
-          "type": "_sp-pet-card",
-          "settings": {
-            "title": "Small pets",
-            "pet": "Small pet",
-            "count": "",
-            "art": "bunny",
-            "tint": "#ffb784",
-            "sticker": "",
-            "link": "",
-            "collection": "small-pets"
-          }
-        }
-      },
-      "block_order": [
-        "dog",
-        "puppy",
-        "cat",
-        "small"
-      ],
-      "settings": {
-        "eyebrow": "Who are we feeding?",
-        "heading": "Shop by pet",
-        "text": "Tell us once and the whole shop stays filtered to them.",
-        "note": "Your choice is remembered on this device, so collections stay filtered next time.",
-        "columns": 4,
-        "background": "#fdfaf2",
-        "heading_size": 46,
-        "padding_top": 56,
-        "padding_bottom": 32
       }
     },
     "wall": {
@@ -398,57 +446,62 @@
         "p1": {
           "type": "_sp-polaroid",
           "settings": {
+            "image": "shopify://shop_images/sprout-ugc-1-beagle.png",
             "handle": "@milo.the.beagle",
             "art": "dog",
             "rotate": -4,
             "tint": "#d8edcd",
-            "tape": "#fbe9d2",
-            "image": "shopify://shop_images/sprout-ugc-1-beagle.png"
-          }
+            "tape": "#fbe9d2"
+          },
+          "blocks": {}
         },
         "p2": {
           "type": "_sp-polaroid",
           "settings": {
+            "image": "shopify://shop_images/sprout-ugc-2-cat.png",
             "handle": "@noodle.cat",
             "art": "cat",
             "rotate": 3,
             "tint": "#fbe9d2",
-            "tape": "#d8edcd",
-            "image": "shopify://shop_images/sprout-ugc-2-cat.png"
-          }
+            "tape": "#d8edcd"
+          },
+          "blocks": {}
         },
         "p3": {
           "type": "_sp-polaroid",
           "settings": {
+            "image": "shopify://shop_images/sprout-ugc-3-rabbit.png",
             "handle": "@bun.and.co",
             "art": "bunny",
             "rotate": -2,
             "tint": "#ffd54a",
-            "tape": "#d8edcd",
-            "image": "shopify://shop_images/sprout-ugc-3-rabbit.png"
-          }
+            "tape": "#d8edcd"
+          },
+          "blocks": {}
         },
         "p4": {
           "type": "_sp-polaroid",
           "settings": {
+            "image": "shopify://shop_images/sprout-ugc-4-dog-cat.png",
             "handle": "@twoofthem",
             "art": "puppy",
             "rotate": 5,
             "tint": "#bfe3ef",
-            "tape": "#fbe9d2",
-            "image": "shopify://shop_images/sprout-ugc-4-dog-cat.png"
-          }
+            "tape": "#fbe9d2"
+          },
+          "blocks": {}
         },
         "p5": {
           "type": "_sp-polaroid",
           "settings": {
+            "image": "shopify://shop_images/sprout-ugc-5-frenchie.png",
             "handle": "@napsalot",
             "art": "duo",
             "rotate": -3,
             "tint": "#ffb784",
-            "tape": "#d8edcd",
-            "image": "shopify://shop_images/sprout-ugc-5-frenchie.png"
-          }
+            "tape": "#d8edcd"
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -464,11 +517,59 @@
         "text": "<p>Tag <strong>#sproutpets</strong> — one gets picked as pet of the week.</p>",
         "sticker": "Pet of the week: Milo",
         "button_text": "See the whole wall",
+        "button_link": "",
         "columns": 5,
         "background": "#d8edcd",
         "heading_size": 46,
         "padding_top": 56,
         "padding_bottom": 56
+      }
+    },
+    "quote": {
+      "type": "sp-quote",
+      "blocks": {
+        "u1": {
+          "type": "_sp-ugc-tile",
+          "settings": {
+            "image": "shopify://shop_images/sprout-ugc-4-dog-cat.png",
+            "handle": "@sproutpets",
+            "art": "dog"
+          },
+          "blocks": {}
+        },
+        "u2": {
+          "type": "_sp-ugc-tile",
+          "settings": {
+            "image": "shopify://shop_images/sprout-ugc-5-frenchie.png",
+            "handle": "@sproutpets",
+            "art": "cat"
+          },
+          "blocks": {}
+        },
+        "u3": {
+          "type": "_sp-ugc-tile",
+          "settings": {
+            "image": "shopify://shop_images/sprout-ugc-1-beagle.png",
+            "handle": "@sproutpets",
+            "art": "bunny"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "u1",
+        "u2",
+        "u3"
+      ],
+      "settings": {
+        "quote": "<p>“He went off his old food for a fortnight. First bowl of this, gone in a minute — and he has not missed one since.”</p>",
+        "attribution": "Hannah R. · Milo, beagle",
+        "link_text": "",
+        "link_url": "",
+        "quote_size": 30,
+        "background": "#fdfaf2",
+        "padding_top": 36,
+        "padding_bottom": 48
       }
     },
     "duo": {
@@ -482,14 +583,17 @@
             "text": "Subscribe and save 10% on every delivery. We nudge you a few days before the next one — skip, swap or cancel any time.",
             "button_text": "Set up a delivery",
             "button_link": "/collections/all",
+            "image": "shopify://shop_images/sprout-banner-subscribe.png",
+            "focal_x": 50,
+            "focal_y": 50,
             "art": "pouch",
             "art_position": "bottom-right",
             "background": "#2f7a46",
             "text_color": "#fdfaf2",
             "button_background": "#ffd54a",
-            "button_text_color": "#27372b",
-            "image": "shopify://shop_images/sprout-banner-subscribe.png"
-          }
+            "button_text_color": "#27372b"
+          },
+          "blocks": {}
         },
         "gift": {
           "type": "_sp-duo-card",
@@ -499,14 +603,17 @@
             "text": "Ready-made boxes with a hand-written note. Add the message at checkout and we keep the price off the slip.",
             "button_text": "Shop gifts",
             "button_link": "/collections/all",
+            "image": "shopify://shop_images/sprout-banner-gifting.png",
+            "focal_x": 50,
+            "focal_y": 50,
             "art": "blanket",
             "art_position": "top-right",
             "background": "#ffb784",
             "text_color": "#27372b",
             "button_background": "#27372b",
-            "button_text_color": "#fdfaf2",
-            "image": "shopify://shop_images/sprout-banner-gifting.png"
-          }
+            "button_text_color": "#fdfaf2"
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -518,61 +625,6 @@
         "background": "#fdfaf2",
         "padding_top": 48,
         "padding_bottom": 56
-      }
-    },
-    "feature": {
-      "type": "sp-feature",
-      "blocks": {
-        "p1": {
-          "type": "_sp-feature-point",
-          "settings": {
-            "title": "Six ingredients",
-            "text": "Everything fits on the front of the pack.",
-            "icon": "check"
-          }
-        },
-        "p2": {
-          "type": "_sp-feature-point",
-          "settings": {
-            "title": "Vet-formulated",
-            "text": "Written with a veterinary nutritionist.",
-            "icon": "shield"
-          }
-        },
-        "p3": {
-          "type": "_sp-feature-point",
-          "settings": {
-            "title": "Posted chilled",
-            "text": "In a pack that goes in the food caddy.",
-            "icon": "leaf"
-          }
-        }
-      },
-      "block_order": [
-        "p1",
-        "p2",
-        "p3"
-      ],
-      "settings": {
-        "eyebrow": "In our kitchen",
-        "heading": "Cooked like you would at home",
-        "text": "<p>Whole ingredients, gently cooked and portioned the same week they are posted. No kibble dust, no mystery meal — just food you would recognise in a pan.</p>",
-        "button_text": "See how we cook",
-        "button_link": "/collections/all",
-        "art": "bowl",
-        "media_side": "left",
-        "tilt": -2,
-        "focal_x": 50,
-        "focal_y": 50,
-        "sticker": "Made this week",
-        "stat_value": "48 hrs",
-        "stat_label": "from pot to post",
-        "frame_color": "#d8edcd",
-        "background": "#fdfaf2",
-        "heading_size": 46,
-        "padding_top": 64,
-        "padding_bottom": 64,
-        "image": "shopify://shop_images/sprout-banner-kitchen-feature.png"
       }
     }
   },
