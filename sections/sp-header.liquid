@@ -64,6 +64,14 @@
           {% render 'sp-icon', name: 'user', size: 20 %}
         </a>
       {%- endif -%}
+      {%- if s.show_wishlist -%}
+        {%- assign wish_url = s.wishlist_link | default: '/pages/wishlist' -%}
+        <a class="sp-icon-btn sp-head__wish" href="{{ wish_url }}" aria-label="Wishlist">
+          {% render 'sp-icon', name: 'heart', size: 20 %}
+          <span class="sp-head__count is-empty" data-wish-count>0</span>
+        </a>
+        <script>window.SproutWishlistText = { url: {{ wish_url | json }}, added: {{ s.wishlist_added | json }}, removed: {{ s.wishlist_removed | json }}, view: {{ s.wishlist_view | json }} };</script>
+      {%- endif -%}
       <a class="sp-icon-btn sp-head__cart" href="{{ routes.cart_url }}" aria-label="Cart">
         {% render 'sp-icon', name: 'bag', size: 20 %}
         <span class="sp-head__count{% if cart.item_count == 0 %} is-empty{% endif %}" data-cart-count>{{ cart.item_count }}</span>
@@ -156,7 +164,7 @@
 
   .sp-head__tools { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; margin-left: auto; }
   .sp-head__cta { margin-left: 8px; }
-  .sp-head__cart { position: relative; }
+  .sp-head__cart, .sp-head__wish { position: relative; }
   .sp-head__count { position: absolute; top: 2px; right: 0; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--sp-coral, #ff8a6b); color: #fff; font-size: 11px; font-weight: 700; line-height: 19px; text-align: center; }
   .sp-head__count.is-empty { display: none; }
 
@@ -197,6 +205,11 @@
     { "type": "header", "content": "Tools" },
     { "type": "checkbox", "id": "show_search", "label": "Search", "default": true },
     { "type": "checkbox", "id": "show_account", "label": "Account", "default": true },
+    { "type": "checkbox", "id": "show_wishlist", "label": "Wishlist", "default": true, "info": "Hearts on product cards save to a list kept on the shopper's device." },
+    { "type": "url", "id": "wishlist_link", "label": "Wishlist page", "info": "A page using the 'wishlist' template. Defaults to /pages/wishlist." },
+    { "type": "text", "id": "wishlist_added", "label": "Saved message", "default": "Saved to your wishlist" },
+    { "type": "text", "id": "wishlist_removed", "label": "Removed message", "default": "Removed from your wishlist" },
+    { "type": "text", "id": "wishlist_view", "label": "View link", "default": "View" },
     { "type": "text", "id": "button_text", "label": "Button", "default": "Shop by pet" },
     { "type": "url", "id": "button_link", "label": "Button link" },
     { "type": "header", "content": "Style" },

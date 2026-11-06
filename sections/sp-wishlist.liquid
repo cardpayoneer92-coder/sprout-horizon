@@ -1,0 +1,156 @@
+{% comment %}
+  Section contract.
+  Wishlist page. The saved handles live on the shopper's device, so the grid
+  is filled in the browser: each product is fetched through the
+  `product.sp-card` alternate template, which returns the same card the rest
+  of the shop uses (photo, hover photo, quick add into the bag drawer).
+  Un-hearting a card on this page takes it off the grid straight away.
+  @example
+  <!-- Your wishlist · 3 saved · Clear all -->
+{% endcomment %}
+
+{%- liquid
+  assign s = section.settings
+-%}
+
+<section class="sp-sec sp-wish" style="--sp-sec-bg: {{ s.background }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
+  <div class="sp-wrap">
+    <sp-wishlist class="sp-wish__inner" data-cols="{{ s.columns }}">
+      <div class="sp-wish__head">
+        <div>
+          {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+          <h1 class="sp-h1 sp-wish__title">{{ s.heading | escape }}</h1>
+          <p class="sp-wish__count" data-wish-summary hidden>
+            <strong data-wish-count>0</strong> {{ s.saved_label | escape }}
+          </p>
+        </div>
+        <button type="button" class="sp-btn sp-btn--soft sp-wish__clear" data-wish-clear hidden>{{ s.clear_label | escape }}</button>
+      </div>
+
+      <div class="sp-grid sp-wish__grid" data-wish-grid aria-live="polite"></div>
+
+      <div class="sp-wish__loading" data-wish-loading hidden>
+        {%- for i in (1..4) -%}<span class="sp-wish__ghost"></span>{%- endfor -%}
+      </div>
+
+      <div class="sp-wish__empty" data-wish-empty hidden>
+        <span class="sp-wish__empty-art sp-bob">{% render 'sp-art', name: 'duo', size: 200, label: '' %}</span>
+        <h2 class="sp-wish__empty-title">{{ s.empty_heading | escape }}</h2>
+        <p class="sp-wish__empty-text">{{ s.empty_text | escape }}</p>
+        <a class="sp-btn sp-btn--primary" href="{{ s.empty_link | default: routes.all_products_collection_url }}">{{ s.empty_button | escape }}</a>
+      </div>
+    </sp-wishlist>
+  </div>
+</section>
+
+<script type="module">
+  if (!customElements.get('sp-wishlist')) {
+    customElements.define('sp-wishlist', class extends HTMLElement {
+      connectedCallback() {
+        this.grid = this.querySelector('[data-wish-grid]');
+        this.querySelector('[data-wish-clear]').addEventListener('click', () => {
+          window.SproutWishlist && window.SproutWishlist.write([]);
+        });
+        document.addEventListener('sprout:wishlist-change', (e) => this.sync(e.detail.handles));
+        this.load();
+      }
+
+      handles() { return window.SproutWishlist ? window.SproutWishlist.read() : []; }
+
+      async load() {
+        const list = this.handles();
+        this.state(list.length);
+        if (!list.length) return;
+        this.querySelector('[data-wish-loading]').hidden = false;
+        const root = (window.Shopify && Shopify.routes && Shopify.routes.root) || '/';
+        const cards = await Promise.all(list.map(async (h) => {
+          try {
+            const res = await fetch(root + 'products/' + encodeURIComponent(h) + '?view=sp-card');
+            if (!res.ok) return null; // product deleted or unpublished
+            const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+            const card = doc.querySelector('.sp-card');
+            if (card) card.dataset.wishCard = h;
+            return card;
+          } catch (e) { return null; }
+        }));
+        this.querySelector('[data-wish-loading]').hidden = true;
+        // Drop handles that no longer resolve so the count stays honest.
+        const alive = list.filter((h, i) => cards[i]);
+        if (alive.length !== list.length && window.SproutWishlist) window.SproutWishlist.write(alive);
+        cards.filter(Boolean).forEach((c) => this.grid.appendChild(c));
+        window.SproutWishlist && window.SproutWishlist.paint(this);
+        this.state(alive.length);
+      }
+
+      sync(list) {
+        this.grid.querySelectorAll('[data-wish-card]').forEach((c) => {
+          if (!list.includes(c.dataset.wishCard)) c.remove();
+        });
+        this.state(list.length);
+      }
+
+      state(n) {
+        this.querySelector('[data-wish-empty]').hidden = n > 0;
+        this.querySelector('[data-wish-summary]').hidden = n === 0;
+        this.querySelector('[data-wish-clear]').hidden = n === 0;
+        this.grid.hidden = n === 0;
+      }
+    });
+  }
+</script>
+
+{% stylesheet %}
+  .sp-wish { background: var(--sp-sec-bg, #fbf7ef); }
+  .sp-wish__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 24px; margin-bottom: 28px; }
+  .sp-wish__title { margin: 0; }
+  .sp-wish__count { margin: 8px 0 0; color: var(--sp-muted, #5e6e60); font-size: 16px; }
+  .sp-wish__grid, .sp-wish__loading { grid-template-columns: repeat(var(--sp-wish-cols, 4), minmax(0, 1fr)); }
+  .sp-wish__inner[data-cols="3"] { --sp-wish-cols: 3; }
+  .sp-wish__inner[data-cols="5"] { --sp-wish-cols: 5; }
+  .sp-wish__loading { display: grid; gap: 22px; }
+  .sp-wish__loading[hidden] { display: none; }
+  .sp-wish__ghost { aspect-ratio: 4 / 5; border-radius: var(--sp-r-card, 28px); background: linear-gradient(100deg, var(--sp-mint, #e7f0e2) 30%, #f3f7ef 50%, var(--sp-mint, #e7f0e2) 70%); background-size: 300% 100%; animation: sp-wish-shine 1.4s linear infinite; }
+  @keyframes sp-wish-shine { to { background-position: -150% 0; } }
+  .sp-wish__empty { display: grid; justify-items: center; gap: 10px; padding: 56px 20px 64px; border-radius: var(--sp-r-band, 36px); background: var(--sp-mint, #e7f0e2); text-align: center; }
+  .sp-wish__empty[hidden] { display: none; }
+  .sp-wish__empty-art .sp-art { width: 200px; height: auto; }
+  .sp-wish__empty-title { margin: 8px 0 0; font-family: var(--sp-font-head); font-weight: 500; font-size: clamp(26px, 3vw, 34px); }
+  .sp-wish__empty-text { margin: 0 0 12px; max-width: 40ch; color: var(--sp-muted, #566358); }
+  @media (max-width: 989px) { .sp-wish__grid, .sp-wish__loading { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 749px) { .sp-wish__grid, .sp-wish__loading { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } }
+  @media (prefers-reduced-motion: reduce) { .sp-wish__ghost { animation: none; } }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Wishlist",
+  "tag": "div",
+  "class": "sp-wishlist-section",
+  "enabled_on": { "templates": ["page"] },
+  "settings": [
+    { "type": "paragraph", "content": "Saved products are kept on the shopper's device — no app or account needed." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Saved for later" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Your wishlist" },
+    { "type": "text", "id": "saved_label", "label": "Count label", "default": "saved — they stay on this device" },
+    { "type": "text", "id": "clear_label", "label": "Clear button", "default": "Clear all" },
+    {
+      "type": "select", "id": "columns", "label": "Columns", "default": "4",
+      "options": [
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" },
+        { "value": "5", "label": "5" }
+      ]
+    },
+    { "type": "header", "content": "Empty wishlist" },
+    { "type": "text", "id": "empty_heading", "label": "Heading", "default": "Nothing saved yet" },
+    { "type": "text", "id": "empty_text", "label": "Text", "default": "Tap the heart on anything you like the look of and it will wait for you here." },
+    { "type": "text", "id": "empty_button", "label": "Button", "default": "Start browsing" },
+    { "type": "url", "id": "empty_link", "label": "Button link" },
+    { "type": "header", "content": "Style" },
+    { "type": "color", "id": "background", "label": "Background", "default": "#fbf7ef" },
+    { "type": "range", "id": "padding_top", "label": "Top padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "Bottom padding", "min": 0, "max": 140, "step": 4, "unit": "px", "default": 72 }
+  ],
+  "presets": [{ "name": "Wishlist", "category": "t:categories.custom" }]
+}
+{% endschema %}

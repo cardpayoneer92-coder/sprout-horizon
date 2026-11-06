@@ -1,0 +1,101 @@
+{% comment %}
+  Wishlist, kept on the shopper's device (localStorage key `sprout:wishlist`,
+  an array of product handles). No app and no account needed.
+
+  - Any button with class `sp-heart` and `data-wish-handle` toggles that product.
+  - Elements with `data-wish-count` show how many are saved.
+  - Fires `sprout:wishlist-change` on document with { handles } as detail.
+  Rendered once from snippets/sp-base.liquid.
+{% endcomment %}
+
+<style>
+  .sp-heart { transition: color 0.2s ease, background-color 0.2s ease; }
+  .sp-heart svg path { transition: fill 0.2s ease; }
+  .sp-heart.is-saved { color: var(--sp-coral, #ff8a6b); }
+  .sp-heart.is-saved svg path { fill: currentColor; }
+  .sp-heart.is-pop svg { animation: sp-pop 0.45s ease; }
+  .sp-wish-toast {
+    position: fixed; left: 50%; bottom: 24px; z-index: 1100; translate: -50% 16px;
+    display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px;
+    border-radius: 999px; background: var(--sp-ink, #27372b); color: var(--sp-cream, #fbf7ef);
+    font-size: 14px; font-weight: 700; box-shadow: 0 12px 30px rgb(39 55 43 / 0.25);
+    opacity: 0; pointer-events: none; transition: opacity 0.25s ease, translate 0.25s ease;
+  }
+  .sp-wish-toast.is-on { opacity: 1; translate: -50% 0; pointer-events: auto; }
+  .sp-wish-toast a { color: var(--sp-sun, #ffd54a); }
+</style>
+
+<script>
+  (() => {
+    if (window.SproutWishlist) return;
+    const KEY = 'sprout:wishlist';
+    const read = () => {
+      try { const v = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+    };
+    const write = (list) => {
+      try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) { /* private mode */ }
+      document.dispatchEvent(new CustomEvent('sprout:wishlist-change', { detail: { handles: list } }));
+    };
+    const paint = (root) => {
+      const list = read();
+      (root || document).querySelectorAll('.sp-heart[data-wish-handle]').forEach((b) => {
+        const on = list.includes(b.dataset.wishHandle);
+        b.classList.toggle('is-saved', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      document.querySelectorAll('[data-wish-count]').forEach((n) => {
+        n.textContent = list.length;
+        n.classList.toggle('is-empty', list.length === 0);
+      });
+    };
+
+    let toast, timer;
+    const say = (text, href, linkText) => {
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.className = 'sp-wish-toast';
+        toast.setAttribute('role', 'status');
+        document.body.appendChild(toast);
+      }
+      toast.textContent = text;
+      if (href) {
+        const a = document.createElement('a');
+        a.href = href; a.textContent = linkText;
+        toast.appendChild(a);
+      }
+      toast.classList.add('is-on');
+      clearTimeout(timer);
+      timer = setTimeout(() => toast.classList.remove('is-on'), 2600);
+    };
+
+    const toggle = (handle, btn) => {
+      const list = read();
+      const i = list.indexOf(handle);
+      const cfg = window.SproutWishlistText || {};
+      if (i === -1) {
+        list.unshift(handle);
+        write(list);
+        say(cfg.added || 'Saved to your wishlist', cfg.url || '/pages/wishlist', cfg.view || 'View');
+      } else {
+        list.splice(i, 1);
+        write(list);
+        say(cfg.removed || 'Removed from your wishlist');
+      }
+      if (btn) { btn.classList.remove('is-pop'); void btn.offsetWidth; btn.classList.add('is-pop'); }
+    };
+
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.sp-heart[data-wish-handle]');
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      toggle(btn.dataset.wishHandle, btn);
+    });
+    document.addEventListener('sprout:wishlist-change', () => paint());
+    window.addEventListener('storage', (e) => { if (e.key === KEY) paint(); });
+
+    window.SproutWishlist = { read, write, paint, toggle };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => paint());
+    else paint();
+  })();
+</script>

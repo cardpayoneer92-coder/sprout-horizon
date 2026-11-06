@@ -53,7 +53,7 @@
       <div class="sp-pdp__gallery sp-reveal">
         <div class="sp-pdp__stage">
           {%- if s.flag != blank -%}<span class="sp-pdp__flag">{{ s.flag | escape }}</span>{%- endif -%}
-          <button type="button" class="sp-pdp__heart sp-heart" aria-label="Save this product">
+          <button type="button" class="sp-pdp__heart sp-heart" data-wish-handle="{{ p.handle }}" aria-pressed="false" aria-label="Save {{ p.title | escape }} to wishlist">
             {% render 'sp-icon', name: 'heart', size: 20 %}
           </button>
 

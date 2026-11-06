@@ -69,7 +69,7 @@
         <span class="sp-card__flag sp-card__flag--fit" data-fit hidden></span>
       {%- endif -%}
 
-      <button type="button" class="sp-card__heart sp-heart" aria-label="Save {{ p.title | escape }}">
+      <button type="button" class="sp-card__heart sp-heart" data-wish-handle="{{ p.handle }}" aria-pressed="false" aria-label="Save {{ p.title | escape }} to wishlist">
         {% render 'sp-icon', name: 'heart', size: 18 %}
       </button>
 
