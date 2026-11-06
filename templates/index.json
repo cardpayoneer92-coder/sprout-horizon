@@ -44,9 +44,9 @@
         "heading": "Good food,",
         "text": "<p>Gently cooked meals portioned for your pet — tell us about them once and the whole shop fits.</p>",
         "heading_size": 72,
-        "focal_x": 50,
+        "focal_x": 70,
         "focal_y": 50,
-        "show_paws": true,
+        "show_paws": false,
         "button_text": "Shop by pet",
         "button_link": "/collections/all",
         "button2_text": "Find the right size",
@@ -60,7 +60,12 @@
         "heading_tail": "happy tails",
         "proof": "Loved by 4,000+ bowls a week",
         "stamp": "Cooked this week",
-        "stage_color": "#fdfaf2"
+        "stage_color": "#fdfaf2",
+        "image": "shopify://shop_images/sprout-hero-A-puppy-cat.png",
+        "mobile_image": "shopify://shop_images/sprout-hero-mobile.png",
+        "photo_style": "banner",
+        "veil_opacity": 20,
+        "banner_height": 660
       }
     },
     "marquee": {
@@ -278,21 +283,24 @@
           "type": "_sp-ugc-tile",
           "settings": {
             "handle": "@sproutpets",
-            "art": "dog"
+            "art": "dog",
+            "image": "shopify://shop_images/sprout-ugc-4-dog-cat.png"
           }
         },
         "u2": {
           "type": "_sp-ugc-tile",
           "settings": {
             "handle": "@sproutpets",
-            "art": "cat"
+            "art": "cat",
+            "image": "shopify://shop_images/sprout-ugc-5-frenchie.png"
           }
         },
         "u3": {
           "type": "_sp-ugc-tile",
           "settings": {
             "handle": "@sproutpets",
-            "art": "bunny"
+            "art": "bunny",
+            "image": "shopify://shop_images/sprout-ugc-1-beagle.png"
           }
         }
       },
@@ -390,7 +398,8 @@
             "art": "dog",
             "rotate": -4,
             "tint": "#d8edcd",
-            "tape": "#fbe9d2"
+            "tape": "#fbe9d2",
+            "image": "shopify://shop_images/sprout-ugc-1-beagle.png"
           }
         },
         "p2": {
@@ -400,7 +409,8 @@
             "art": "cat",
             "rotate": 3,
             "tint": "#fbe9d2",
-            "tape": "#d8edcd"
+            "tape": "#d8edcd",
+            "image": "shopify://shop_images/sprout-ugc-2-cat.png"
           }
         },
         "p3": {
@@ -410,7 +420,8 @@
             "art": "bunny",
             "rotate": -2,
             "tint": "#ffd54a",
-            "tape": "#d8edcd"
+            "tape": "#d8edcd",
+            "image": "shopify://shop_images/sprout-ugc-3-rabbit.png"
           }
         },
         "p4": {
@@ -420,7 +431,8 @@
             "art": "puppy",
             "rotate": 5,
             "tint": "#bfe3ef",
-            "tape": "#fbe9d2"
+            "tape": "#fbe9d2",
+            "image": "shopify://shop_images/sprout-ugc-4-dog-cat.png"
           }
         },
         "p5": {
@@ -430,7 +442,8 @@
             "art": "duo",
             "rotate": -3,
             "tint": "#ffb784",
-            "tape": "#d8edcd"
+            "tape": "#d8edcd",
+            "image": "shopify://shop_images/sprout-ugc-5-frenchie.png"
           }
         }
       },
@@ -470,7 +483,8 @@
             "background": "#2f7a46",
             "text_color": "#fdfaf2",
             "button_background": "#ffd54a",
-            "button_text_color": "#27372b"
+            "button_text_color": "#27372b",
+            "image": "shopify://shop_images/sprout-banner-subscribe.png"
           }
         },
         "gift": {
@@ -486,7 +500,8 @@
             "background": "#ffb784",
             "text_color": "#27372b",
             "button_background": "#27372b",
-            "button_text_color": "#fdfaf2"
+            "button_text_color": "#fdfaf2",
+            "image": "shopify://shop_images/sprout-banner-gifting.png"
           }
         }
       },
@@ -552,7 +567,8 @@
         "background": "#fdfaf2",
         "heading_size": 46,
         "padding_top": 64,
-        "padding_bottom": 64
+        "padding_bottom": 64,
+        "image": "shopify://shop_images/sprout-banner-kitchen-feature.png"
       }
     }
   },
