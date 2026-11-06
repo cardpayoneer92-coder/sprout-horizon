@@ -93,7 +93,7 @@
 
         <div class="sp-coll__main">
           <div class="sp-coll__toolbar">
-            <p class="sp-coll__count-line">{{ collection.products_count }} {% if collection.products_count == 1 %}product{% else %}products{% endif %}</p>
+            <p class="sp-coll__count-line"><span data-visible-count>{{ collection.products_count }}</span> {% if collection.products_count == 1 %}product{% else %}products{% endif %}</p>
             {%- if collection.sort_options.size > 0 -%}
               <label class="sp-coll__sort">
                 <span>Sort</span>
