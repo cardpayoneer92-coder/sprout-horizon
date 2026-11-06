@@ -60,7 +60,7 @@
         </a>
       {%- endif -%}
       {%- if s.show_account and shop.customer_accounts_enabled -%}
-        <a class="sp-icon-btn" href="{{ routes.account_url }}" aria-label="Account">
+        <a class="sp-icon-btn sp-head__account" href="{{ routes.account_url }}" aria-label="Account">
           {% render 'sp-icon', name: 'user', size: 20 %}
         </a>
       {%- endif -%}
@@ -185,6 +185,13 @@
     .sp-head .sp-head__burger { display: grid; }
     .sp-head__logo { margin-right: auto; }
     .sp-head .sp-head__cta { display: none; }
+  }
+  /* Five round icons plus the burger and logo do not fit a 375px phone;
+     the account icon steps aside first (it is still in the menu drawer's reach
+     via the account page link). */
+  @media (max-width: 479px) {
+    .sp-head .sp-head__account { display: none; }
+    .sp-head__tools { gap: 0; }
   }
   @media (prefers-reduced-motion: reduce) { .sp-head__link::after { transition: none; } }
 {% endstylesheet %}
