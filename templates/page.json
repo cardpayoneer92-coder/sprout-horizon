@@ -12,7 +12,7 @@
     "main": {
       "type": "sp-page",
       "settings": {
-        "eyebrow": "Sprout",
+        "eyebrow": "",
         "fallback_title": "A page",
         "art": "duo",
         "banner": "#d8edcd",

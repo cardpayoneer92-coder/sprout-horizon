@@ -16,7 +16,6 @@
         "checkout_text": "Checkout",
         "fine_print": "Taxes and delivery worked out at checkout.",
         "show_meter": true,
-        "free_shipping_goal": 40,
         "show_note": true,
         "note_label": "Anything we should know?",
         "note_placeholder": "Leave it with next door, please",

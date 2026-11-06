@@ -24,7 +24,7 @@
         "care": {
           "type": "_sp-pd-row",
           "settings": {
-            "title": "Washing &amp; care",
+            "title": "Washing & care",
             "text": "<p>Cover goes in at 30°C and comes out the same shape. Air dry rather than tumble, and it will keep its bounce.</p>",
             "open": false
           }
@@ -32,7 +32,7 @@
         "delivery": {
           "type": "_sp-pd-row",
           "settings": {
-            "title": "Delivery &amp; returns",
+            "title": "Delivery & returns",
             "text": "<p>Posted flat-packed in recycled card. Thirty days to change your mind, even if they have slept on it.</p>",
             "open": false
           }

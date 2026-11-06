@@ -23,7 +23,7 @@
         "finder_title": "Not sure on size?",
         "finder_text": "Pop in a weight and we will point at the right one.",
         "finder_button": "Size finder",
-        "finder_link": "/",
+        "finder_link": "/pages/size-finder",
         "background": "#fbf7ef",
         "heading_size": 52,
         "padding_bottom": 56
