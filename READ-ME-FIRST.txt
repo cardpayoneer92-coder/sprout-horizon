@@ -1,0 +1,22 @@
+SPROUT — ETSY PACK
+==================
+
+1-Theme/
+   sprout-theme.zip ............ the Shopify theme (upload: Online Store > Themes > Import > Upload zip file)
+
+2-Listing-Images/
+   sprout-etsy-01.jpg .......... cover / thumbnail (theme only, no text)
+   sprout-etsy-02.jpg .......... full home page, top to bottom
+   sprout-etsy-03 → 11.jpg ..... features: what's inside, shop by pet, size finder,
+                                 product page, bundle builder, collection & cart,
+                                 mobile, sections, what you get
+   All 2700 × 2025 px (4:3), around 0.2–0.5 MB each.
+
+3-Videos/
+   sprout-etsy-preview.mp4 ..... Etsy listing video (11.7 s, silent, 1440 × 1080)
+   sprout-setup-guide.mp4 ...... customer setup guide (1 min 40 s, subtitles, 1920 × 1080)
+
+4-Listing-Copy/
+   etsy-listing.txt ............ title, 13 tags, description, listing settings, pre-publish checklist
+
+Read the "BEFORE YOU PUBLISH" part of etsy-listing.txt first.

@@ -1,0 +1,80 @@
+SPROUT — ETSY LISTING COPY
+==========================
+
+TITLE (133 / 140 characters)
+----------------------------
+Pet Store Shopify Theme, Sprout Dog & Cat Food Shop Template, Cute Minimal Shopify Website Design, Pet Treats Store, Online Store 2.0
+
+
+13 TAGS (each under 20 characters)
+----------------------------------
+shopify theme
+pet store theme
+shopify template
+pet shop website
+dog treat shop
+pet food store
+shopify store design
+cute shopify theme
+minimal shopify
+ecommerce template
+small business site
+cat supplies shop
+online store 2.0
+
+Comma-separated (paste in one go):
+shopify theme, pet store theme, shopify template, pet shop website, dog treat shop, pet food store, shopify store design, cute shopify theme, minimal shopify, ecommerce template, small business site, cat supplies shop, online store 2.0
+
+
+DESCRIPTION
+-----------
+Sprout is a cute, minimal Shopify theme made for pet shops — dog food, cat food, treats, beds, toys and accessories. Shoppers pick their pet once, find the right size in seconds, and build bundles in one click.
+
+★ WHAT'S INCLUDED
+• Shop by Pet — dog, puppy, cat or small pet; the store stays filtered to them
+• Size & portion finder — weight slider (kg or lb) suggests the right pack
+• Bundle builder — shoppers tick items and add the whole set at once
+• Happy-pets photo wall with "pet of the week"
+• Slide-out cart with a free-delivery progress bar
+• Wishlist hearts + sticky add-to-bag bar
+• Trust badges, subscribe & gifting blocks, newsletter footer
+• 29 custom sections — home, product, collection, cart, blog, contact, gifting, 404
+• Mobile-first, Online Store 2.0 — edit everything in the theme editor, no code
+
+★ HOW IT WORKS
+1. Download the ZIP after purchase
+2. Shopify Admin → Online Store → Themes → Import → Upload zip file
+3. Add your logo, products and photos, then customise
+A step-by-step setup video is included with your download.
+
+★ PLEASE NOTE
+• This is a DIGITAL download — no physical item will be shipped
+• Demo photos and sample products are not included
+• One purchase = one license for one Shopify store
+• Works with any Shopify plan
+• Due to the nature of digital files, refunds are not offered — message me before buying if you have questions
+
+Need help with setup? Send me a message on Etsy.
+
+
+LISTING SETTINGS
+----------------
+Type:              Digital
+Who made it:       I did
+What is it:        A finished product
+When was it made:  2020–2026
+Category:          search "Templates" in the category picker and pick the digital template option
+Photos:            upload 2-Listing-Images in order 01 → 11 (01 = thumbnail)
+Listing video:     3-Videos/sprout-etsy-preview.mp4 (11.7 s, silent)
+Digital file:      1-Theme/sprout-theme.zip + send the setup guide video
+                   (3-Videos/sprout-setup-guide.mp4) as a second file or an unlisted YouTube link
+
+
+BEFORE YOU PUBLISH
+------------------
+1. LICENSE: Sprout is built on Shopify's Horizon theme. Horizon's license (included as
+   LICENSE.md inside the theme zip) does not allow selling Horizon-based themes on
+   marketplaces such as Etsy. Move Sprout to a base you are allowed to sell
+   (e.g. Shopify's Skeleton theme) before listing.
+2. Fix the "Sized for — · portions worked out" subtitle in the Product grid section
+   (shows when no pet is selected yet) — it is visible in image 02.
