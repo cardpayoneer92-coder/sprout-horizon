@@ -36,15 +36,26 @@
 
 <section class="sp-sec sp-pgrid-sec" style="--sp-sec-bg: {{ s.background }}; --sp-h2-size: {{ s.heading_size }}px; --sp-pgrid-cols: {{ s.columns }}; padding-block: {{ s.padding_top }}px {{ s.padding_bottom }}px;">
   <div class="sp-wrap">
-    <sp-pet-aware class="sp-pgrid" data-heading-template="{{ s.heading | escape }}" data-sub-template="{{ s.subheading | escape }}" data-page-pet="{{ sp_page_pet | escape }}">
+    <sp-pet-aware class="sp-pgrid" data-heading-template="{{ s.heading | escape }}" data-sub-template="{{ s.subheading | escape }}" data-sub-fallback="{{ s.subheading_fallback | escape }}" data-page-pet="{{ sp_page_pet | escape }}">
       <div class="sp-pgrid__head sp-reveal">
         <div>
           {%- if s.eyebrow != blank -%}<p class="sp-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
           {%- if s.heading != blank -%}
             <h2 class="sp-h2" data-heading>{{ s.heading | replace: '[pet]', 'your pet' }}</h2>
           {%- endif -%}
+          {%- comment -%}
+            [weight] is only known once a visitor has saved a weight, so the
+            page renders the "no weight yet" line; sp-pet-aware swaps in the
+            weighted line when a profile with a weight exists.
+          {%- endcomment -%}
+          {%- liquid
+            assign sub_text = s.subheading
+            if s.subheading contains '[weight]'
+              assign sub_text = s.subheading_fallback
+            endif
+          -%}
           {%- if s.subheading != blank -%}
-            <p class="sp-pgrid__sub" data-sub>{{ s.subheading | replace: '[weight]', '—' }}</p>
+            <p class="sp-pgrid__sub" data-sub{% if sub_text == blank %} hidden{% endif %}>{{ sub_text | escape }}</p>
           {%- endif -%}
         </div>
         {%- if s.link_text != blank -%}
@@ -126,6 +137,7 @@
     { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Bowl-licked clean" },
     { "type": "textarea", "id": "heading", "label": "Heading", "default": "Picked for [pet]", "info": "[pet] is replaced with the saved pet profile." },
     { "type": "text", "id": "subheading", "label": "Subheading", "default": "Sized for [weight] · portions worked out", "info": "[weight] is replaced with the saved weight." },
+    { "type": "text", "id": "subheading_fallback", "label": "Subheading before a weight is saved", "default": "Portions worked out for every size", "info": "Shown instead of the subheading until the visitor saves their pet's weight. Leave empty to hide it." },
     { "type": "text", "id": "link_text", "label": "Link text", "default": "See everything" },
     { "type": "url", "id": "link_url", "label": "Link" },
     { "type": "header", "content": "Style" },

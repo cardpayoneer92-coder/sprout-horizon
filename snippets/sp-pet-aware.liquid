@@ -29,9 +29,18 @@
         const h = this.querySelector('[data-heading]');
         const sub = this.querySelector('[data-sub]');
         if (h && this.dataset.headingTemplate) h.textContent = this.dataset.headingTemplate.replace('[pet]', subject);
-        // No weight yet (a pet picked from a tile): drop the [weight] token
-        // rather than print "0 kg".
-        if (sub && this.dataset.subTemplate) sub.textContent = this.dataset.subTemplate.replace('[weight]', p.weight > 0 ? p.weight + ' kg' : '').replace(/\s+([.,·])/g, '$1').trim();
+        // No weight yet (a pet picked from a tile): a subheading that needs
+        // [weight] falls back to the "before a weight is saved" line instead
+        // of printing "0 kg" or a dangling "Sized for ·".
+        if (sub && this.dataset.subTemplate) {
+          const tpl = this.dataset.subTemplate;
+          const hasWeight = p.weight > 0;
+          const text = tpl.includes('[weight]') && !hasWeight
+            ? (this.dataset.subFallback || '')
+            : tpl.replace('[weight]', hasWeight ? p.weight + ' kg' : '').replace(/\s+([.,·])/g, '$1').trim();
+          sub.textContent = text;
+          sub.hidden = !text;
+        }
         const size = p.size || (p.weight > 0 ? (p.weight <= 10 ? 'Small' : (p.weight <= 25 ? 'Medium' : 'Large')) : '');
         if (size) this.querySelectorAll('[data-fit]').forEach((n) => {
           n.textContent = size + ' fits';
